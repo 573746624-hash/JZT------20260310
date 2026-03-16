@@ -33,13 +33,15 @@ export const RecentActivitiesSection: React.FC<
       loading={loading}
       className="hover-card"
       title={
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", fontSize: "16px", fontWeight: 600 }}>
           <NotificationOutlined
             style={{ color: "#1890ff", marginRight: "8px" }}
           />
-          最近活动
+          最近活动与动态
         </div>
       }
+      headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 20px' }}
+      bodyStyle={{ padding: '0 20px' }}
       extra={
         <Button
           type="link"
@@ -54,7 +56,7 @@ export const RecentActivitiesSection: React.FC<
         dataSource={recentActivities}
         renderItem={(item) => (
           <List.Item
-            style={{ padding: "12px 0", cursor: "pointer" }}
+            style={{ padding: "16px 0", cursor: "pointer", borderBottom: '1px solid #f0f0f0' }}
             onClick={() => {
               if (item.type === "result" || item.type === "todo") {
                 onNavigate("/policy-center/my-applications");

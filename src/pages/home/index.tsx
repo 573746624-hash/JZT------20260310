@@ -136,32 +136,32 @@ const Home: React.FC = () => {
           </Space>
         </div>
 
-        {/* 政策申报动态轮播图 */}
-        <SimpleErrorBoundary>
-          <BannerSection loading={loading} />
-        </SimpleErrorBoundary>
-
-        {/* 个性化推荐区域 */}
-        <SimpleErrorBoundary>
-          <PersonalizedRecommendationSection />
-        </SimpleErrorBoundary>
-
-        <Divider style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
-
-        {/* 快捷工具区域 */}
-        {settings.showQuickTools && (
-          <>
-            <SimpleErrorBoundary>
-              <QuickToolsSection />
-            </SimpleErrorBoundary>
-            <Divider style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
-          </>
-        )}
-
-        {/* 底部信息区域 */}
         <Row gutter={gutter}>
-          {/* 最近活动通知栏 */}
-          <Col xs={24} lg={12}>
+          {/* 左侧：核心任务驱动区 */}
+          <Col xs={24} lg={16}>
+            {/* 1. 待办/重要提醒提至最高优位置 (P0) */}
+            <SimpleErrorBoundary>
+              <ImportantRemindersSection
+                importantReminders={homeData.importantReminders}
+                onNavigate={handleNavigate}
+                onMessage={handleMessage}
+                loading={loading}
+              />
+            </SimpleErrorBoundary>
+
+            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+
+            {/* 2. 快捷工具紧随其后 */}
+            {settings.showQuickTools && (
+              <>
+                <SimpleErrorBoundary>
+                  <QuickToolsSection />
+                </SimpleErrorBoundary>
+                <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+              </>
+            )}
+
+            {/* 3. 最近活动放在左侧底部 */}
             <SimpleErrorBoundary>
               <RecentActivitiesSection
                 recentActivities={homeData.recentActivities}
@@ -171,15 +171,18 @@ const Home: React.FC = () => {
             </SimpleErrorBoundary>
           </Col>
 
-          {/* 重要提醒模块 */}
-          <Col xs={24} lg={12}>
+          {/* 右侧：辅助信息与推荐区 */}
+          <Col xs={24} lg={8}>
+            {/* 1. 政策申报动态轮播图降级为辅助位 */}
             <SimpleErrorBoundary>
-              <ImportantRemindersSection
-                importantReminders={homeData.importantReminders}
-                onNavigate={handleNavigate}
-                onMessage={handleMessage}
-                loading={loading}
-              />
+              <BannerSection loading={loading} />
+            </SimpleErrorBoundary>
+
+            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+
+            {/* 2. 个性化推荐 */}
+            <SimpleErrorBoundary>
+              <PersonalizedRecommendationSection />
             </SimpleErrorBoundary>
           </Col>
         </Row>

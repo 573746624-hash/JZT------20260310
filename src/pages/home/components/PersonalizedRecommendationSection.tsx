@@ -118,7 +118,7 @@ export const PersonalizedRecommendationSection: React.FC = () => {
   return (
     <Row gutter={[16, 16]}>
       {/* 企业画像卡片 */}
-      <Col xs={24} lg={8}>
+      <Col span={24}>
         <Card
           className="hover-card"
           title={
@@ -127,7 +127,7 @@ export const PersonalizedRecommendationSection: React.FC = () => {
               企业画像
             </div>
           }
-          style={{ height: '400px' }}
+          style={{ minHeight: '200px' }}
         >
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <Avatar size={64} icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />
@@ -150,13 +150,11 @@ export const PersonalizedRecommendationSection: React.FC = () => {
               </Col>
             </Row>
           </div>
-
-          <Divider />
         </Card>
       </Col>
 
       {/* 智能推荐列表 */}
-      <Col xs={24} lg={16}>
+      <Col span={24}>
         <Card
           className="hover-card"
           title={
@@ -165,7 +163,7 @@ export const PersonalizedRecommendationSection: React.FC = () => {
               智能推荐 ({recommendations.length})
             </div>
           }
-          style={{ height: '400px' }}
+          style={{ minHeight: '400px' }}
         >
           <div style={{ height: '320px', overflowY: 'auto' }}>
             <List
