@@ -16,8 +16,7 @@ export class StorageUtils {
       const serializedValue = typeof value === 'string' ? value : JSON.stringify(value);
       localStorage.setItem(key, serializedValue);
       return true;
-    } catch (error) {
-      console.error(`Failed to set localStorage item "${key}":`, error);
+    } catch {
       return false;
     }
   }
@@ -39,8 +38,7 @@ export class StorageUtils {
       }
       
       return safeJsonParse(item, defaultValue);
-    } catch (error) {
-      console.error(`Failed to get localStorage item "${key}":`, error);
+    } catch {
       return defaultValue;
     }
   }
@@ -54,8 +52,7 @@ export class StorageUtils {
     try {
       localStorage.removeItem(key);
       return true;
-    } catch (error) {
-      console.error(`Failed to remove localStorage item "${key}":`, error);
+    } catch {
       return false;
     }
   }
@@ -68,8 +65,7 @@ export class StorageUtils {
     try {
       localStorage.clear();
       return true;
-    } catch (error) {
-      console.error('Failed to clear localStorage:', error);
+    } catch {
       return false;
     }
   }
@@ -186,8 +182,8 @@ export function useLocalStorage<T>(
         const valueToStore = value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
         StorageUtils.setItem(key, valueToStore);
-      } catch (error) {
-        console.warn(`Error setting localStorage key "${key}":`, error);
+      } catch {
+        // 忽略设置错误
       }
     },
     [key, storedValue]
@@ -205,8 +201,8 @@ export function useLocalStorage<T>(
       if (e.key === key && e.newValue !== null) {
         try {
           setStoredValue(JSON.parse(e.newValue));
-        } catch (error) {
-          console.warn(`Error parsing storage event for key "${key}":`, error);
+        } catch {
+          setStoredValue(initialValue);
         }
       } else if (e.key === key && e.newValue === null) {
         // 如果值被删除

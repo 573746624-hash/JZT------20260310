@@ -157,7 +157,7 @@ const ApplyWizardWithLayout: React.FC = () => {
       if (Object.keys(values).length > 0) {
         const updatedData = { ...formData, ...values };
         saveApplicationData(id, updatedData);
-        console.log('自动保存草稿成功', new Date().toLocaleTimeString());
+        // console.log('自动保存草稿成功', new Date().toLocaleTimeString());
       }
     }, 30000);
 

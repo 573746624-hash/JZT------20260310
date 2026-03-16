@@ -85,8 +85,8 @@ class CacheManager {
 
       // 加载后立即清理过期项
       this.cleanup();
-    } catch (error) {
-      console.warn("Failed to load cache from storage:", error);
+    } catch {
+      // 忽略加载缓存错误
     }
   }
 
@@ -102,8 +102,8 @@ class CacheManager {
         data[key] = value;
       });
       localStorage.setItem(this.persistKey, JSON.stringify(data));
-    } catch (error) {
-      console.warn("Failed to save cache to storage:", error);
+    } catch {
+      // 忽略保存缓存错误
     }
   }
 
@@ -324,8 +324,8 @@ class CacheManager {
         try {
           const data = await fetchFn(key);
           this.set(key, data, options);
-        } catch (error) {
-          console.warn(`Failed to warmup cache for key: ${key}`, error);
+        } catch {
+          // 忽略预热失败
         }
       }
     });
@@ -389,10 +389,6 @@ export function withCache<T extends (...args: any[]) => Promise<any>>(
       if (!forceRefresh) {
         const cachedData = cache.get(cacheKey);
         if (cachedData !== null) {
-          console.warn(
-            `Error fetching fresh data, using cached data for ${cacheKey}`,
-            error,
-          );
           return cachedData;
         }
       }

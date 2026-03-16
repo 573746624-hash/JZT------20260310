@@ -180,7 +180,7 @@ const EnhancedPolicySearch: React.FC = () => {
         sortBy: sortBy
       });
 
-      console.log('搜索结果:', results); // 调试日志
+      // console.log('搜索结果:', results); // 调试日志
       
       setSearchResults(results);
       setTotalResults(results.length);

@@ -87,8 +87,8 @@ export function removeElement(
           // 注意：这只适用于 React 18 createRoot 之前的挂载方式，或者如果是通过 ReactDOM.render 挂载的
           // 对于 React 18+ 的 createRoot，通常需要引用 root 实例来 unmount，这里只能做尽力而为的清理
           ReactDOM.unmountComponentAtNode(element);
-        } catch (e) {
-          console.warn('尝试卸载 React 组件失败:', e);
+        } catch {
+          // 忽略卸载错误
         }
       }
 
@@ -130,9 +130,7 @@ export function removeElement(
     // 我们无法等待它，所以建议异步操作使用 sync: false
     
     // 简单的同步执行包装（注意：这不支持异步的 beforeDelete）
-    if (beforeDelete && beforeDelete.constructor.name === 'AsyncFunction') {
-      console.warn('警告: 在同步模式下使用了异步 beforeDelete 回调，这可能导致不可预期的行为。建议设置 sync: false。');
-    }
+    // 注意：如果 beforeDelete 是异步函数，在同步模式下无法等待其结果
 
     if (!element) {
       return { success: false, message: '元素不存在' };
@@ -155,8 +153,8 @@ export function removeElement(
       if (unmountReactRoot) {
         try {
           ReactDOM.unmountComponentAtNode(element);
-        } catch (e) {
-          console.warn('尝试卸载 React 组件失败:', e);
+        } catch {
+          // 忽略卸载错误
         }
       }
 

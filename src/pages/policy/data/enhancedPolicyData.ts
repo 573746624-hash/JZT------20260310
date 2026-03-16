@@ -592,8 +592,8 @@ export const searchEnhancedPolicies = async (params: {
 
   let results = [...enhancedPolicyDatabase];
 
-  console.log('搜索参数:', { keyword, filters, page, pageSize, sortBy });
-  console.log('数据库总数:', enhancedPolicyDatabase.length);
+  // console.log('搜索参数:', { keyword, filters, page, pageSize, sortBy });
+  // console.log('数据库总数:', enhancedPolicyDatabase.length);
 
   // 关键词匹配 - 如果没有关键词，返回所有数据
   if (keyword && keyword.trim()) {
@@ -689,14 +689,14 @@ export const searchEnhancedPolicies = async (params: {
     });
   }
 
-  console.log('筛选后结果数:', results.length);
+  // console.log('筛选后结果数:', results.length);
 
   // 分页处理
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedResults = results.slice(startIndex, endIndex);
 
-  console.log('分页结果:', paginatedResults.length);
+  // console.log('分页结果:', paginatedResults.length);
 
   return paginatedResults;
 };

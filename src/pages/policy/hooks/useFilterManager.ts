@@ -54,8 +54,8 @@ export const useFilterManager = (
 
   const filterService = useRef(FilterService.getInstance());
   const errorHandler = useRef(SearchErrorHandler.getInstance());
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [state, setState] = useState<FilterManagerState>({
     filterState: filterService.current.getFilterState(),
@@ -506,16 +506,18 @@ export const useFilterManager = (
       }));
     };
 
+    const service = filterService.current;
+    
     // 注册事件监听器 - 移除会导致循环的SEARCH_EXECUTED监听
-    filterService.current.addEventListener(FilterEventType.CONDITION_ADDED, handleConditionChanged);
-    filterService.current.addEventListener(FilterEventType.CONDITION_REMOVED, handleConditionChanged);
-    filterService.current.addEventListener(FilterEventType.CONDITION_UPDATED, handleConditionChanged);
+    service.addEventListener(FilterEventType.CONDITION_ADDED, handleConditionChanged);
+    service.addEventListener(FilterEventType.CONDITION_REMOVED, handleConditionChanged);
+    service.addEventListener(FilterEventType.CONDITION_UPDATED, handleConditionChanged);
 
     return () => {
       // 清理事件监听器
-      filterService.current.removeEventListener(FilterEventType.CONDITION_ADDED, handleConditionChanged);
-      filterService.current.removeEventListener(FilterEventType.CONDITION_REMOVED, handleConditionChanged);
-      filterService.current.removeEventListener(FilterEventType.CONDITION_UPDATED, handleConditionChanged);
+      service.removeEventListener(FilterEventType.CONDITION_ADDED, handleConditionChanged);
+      service.removeEventListener(FilterEventType.CONDITION_REMOVED, handleConditionChanged);
+      service.removeEventListener(FilterEventType.CONDITION_UPDATED, handleConditionChanged);
     };
   }, []); // 移除executeSearch依赖
 
@@ -542,12 +544,15 @@ export const useFilterManager = (
 
   // 清理资源
   useEffect(() => {
+    const searchTimeout = searchTimeoutRef.current;
+    const saveTimeout = saveTimeoutRef.current;
+    
     return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
       }
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
       }
     };
   }, []);

@@ -42,8 +42,7 @@ const encodeData = (data: any): string => {
   try {
     const jsonStr = JSON.stringify(data);
     return btoa(encodeURIComponent(jsonStr));
-  } catch (error) {
-    console.error('数据编码失败:', error);
+  } catch {
     throw new Error('数据编码失败');
   }
 };
@@ -55,8 +54,7 @@ const decodeData = (encodedData: string): any => {
   try {
     const jsonStr = decodeURIComponent(atob(encodedData));
     return JSON.parse(jsonStr);
-  } catch (error) {
-    console.error('数据解码失败:', error);
+  } catch {
     throw new Error('数据解码失败');
   }
 };
@@ -86,8 +84,7 @@ export const saveApplicationData = (projectId: string, data: any): boolean => {
     StorageUtils.setItem(storageKey, encodedData);
     
     return true;
-  } catch (error) {
-    console.error('申报数据暂存失败:', error);
+  } catch {
     return false;
   }
 };
@@ -113,8 +110,7 @@ export const getApplicationData = (projectId: string): any | null => {
     }
     
     return storageData.data;
-  } catch (error) {
-    console.error('获取申报数据失败:', error);
+  } catch {
     return null;
   }
 };
@@ -126,8 +122,8 @@ export const removeApplicationData = (projectId: string): void => {
   try {
     const storageKey = getStorageKey(projectId);
     StorageUtils.removeItem(storageKey);
-  } catch (error) {
-    console.error('删除申报数据失败:', error);
+  } catch {
+    // 忽略删除错误
   }
 };
 
@@ -148,13 +144,13 @@ export const cleanExpiredData = (): void => {
             StorageUtils.removeItem(key);
           }
         }
-      } catch (error) {
+      } catch {
         // 解码失败的数据也删除
         StorageUtils.removeItem(key);
       }
     });
-  } catch (error) {
-    console.error('清理过期数据失败:', error);
+  } catch {
+    // 忽略清理错误
   }
 };
 

@@ -133,9 +133,6 @@ class ApiClient {
     if (useCache && method === "GET") {
       const cached = cache.get<T>(cacheKey);
       if (cached !== null) {
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[API Cache Hit] ${method} ${url}`);
-        }
         return cached;
       }
     }
@@ -162,13 +159,6 @@ class ApiClient {
       };
 
       try {
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[API Request] ${method} ${url}`, {
-            headers: fetchOptions.headers,
-            body: fetchOptions.body,
-          });
-        }
-
         const response = await this.withTimeout(
           fetch(url, fetchOptions),
           timeout,
@@ -176,17 +166,10 @@ class ApiClient {
 
         // 处理HTTP错误
         if (!response.ok) {
-          if (process.env.NODE_ENV === "development") {
-            console.error(`[API Error] ${response.status} ${method} ${url}`);
-          }
           throw await this.handleHTTPError(response);
         }
 
         const result = await response.json();
-
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[API Response] ${method} ${url}`, result);
-        }
 
         // 处理业务错误 - 兼容两种响应格式:
         // 格式1: { success: true/false, message, data, code }
@@ -210,9 +193,6 @@ class ApiClient {
 
         return result.data;
       } catch (error: any) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(`[API Request Failed] ${method} ${url}`, error);
-        }
         throw handleNetworkError(error);
       }
     };
@@ -312,13 +292,8 @@ class ApiClient {
   clearCache(endpoint?: string) {
     if (endpoint) {
       const url = this.buildURL(endpoint);
-      console.log(`[ApiClient] Clearing cache for pattern: ${url}`);
-      const deletedCount = cache.deletePattern(url);
-      if (deletedCount === 0) {
-        console.warn(`[ApiClient] No cache items found for pattern: ${url}`);
-      }
+      cache.deletePattern(url);
     } else {
-      console.log("[ApiClient] Clearing all cache");
       cache.clear();
     }
   }

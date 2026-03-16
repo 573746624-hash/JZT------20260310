@@ -21,7 +21,7 @@ class FilterService {
   private performanceMetrics: FilterPerformanceMetrics;
   private eventListeners: Map<FilterEventType, Function[]> = new Map();
   private cache: Map<string, FilterResult> = new Map();
-  private debounceTimer: NodeJS.Timeout | null = null;
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.filterState = {

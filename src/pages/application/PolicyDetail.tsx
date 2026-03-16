@@ -291,7 +291,7 @@ const PolicyDetail: React.FC = () => {
     if (policyData?.title) {
       const originalTitle = document.title;
       document.title = policyData.title;
-      console.log(`[${new Date().toISOString()}] Page Title Updated: "${originalTitle}" -> "${policyData.title}"`);
+      // console.log(`[${new Date().toISOString()}] Page Title Updated: "${originalTitle}" -> "${policyData.title}"`);
     }
   }, [policyData?.title]);
 

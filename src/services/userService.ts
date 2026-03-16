@@ -296,10 +296,10 @@ export const getUserInfo = async (): Promise<UserInfo> => {
 
           if (!isRoleTypeValid && authUser.roleType !== undefined) {
             roleType = authUser.roleType;
-            console.log(
-              "[UserInfo] Recovered roleType from localStorage:",
-              roleType,
-            );
+            // console.log(
+            //   "[UserInfo] Recovered roleType from localStorage:",
+            //   roleType,
+            // );
           }
 
           if (!isEnterpriseIdValid) {
