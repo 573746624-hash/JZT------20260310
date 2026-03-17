@@ -537,182 +537,7 @@ const OptimizedApplicationManagement: React.FC = () => {
 
   // 渲染筛选区域
   const renderFilterSection = () => {
-    const filterLabels = {
-      policyLevel: "政策层级",
-      status: "申报状态",
-      department: "主管部门",
-      industry: "行业/主题",
-      targetAudience: "审核对象",
-      year: "年度",
-      projectType: "项目类型",
-    };
-
-    const allFilters = [
-      "policyLevel",
-      "status",
-      "department",
-      "industry",
-      "targetAudience",
-      "year",
-      "projectType",
-    ];
-
-    return (
-      <Card
-        variant="borderless"
-        style={{
-          marginBottom: 24,
-          background: "#fff",
-          border: "1px solid #e8e8e8",
-          borderRadius: "8px",
-          boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)",
-        }}
-        styles={{ body: { padding: "20px 24px" } }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          {/* 筛选条件区域 */}
-          <div style={{ flex: 1, paddingRight: 24 }}>
-            <Row gutter={[24, 16]}>
-              <Col span={8}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ color: "#595959", width: 70 }}>政策层级：</span>
-                  <Cascader
-                    placeholder="不限"
-                    options={filterOptions.policyLevel}
-                    multiple
-                    maxTagCount={1}
-                    style={{ flex: 1 }}
-                    value={filters.policyLevel as any}
-                    onChange={(value) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        policyLevel: value as (string | number)[][],
-                      }))
-                    }
-                  />
-                </div>
-              </Col>
-              <Col span={8}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ color: "#595959", width: 70 }}>申报状态：</span>
-                  <Select
-                    placeholder="不限"
-                    mode="multiple"
-                    allowClear
-                    style={{ flex: 1 }}
-                    value={filters.status}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}
-                    maxTagCount={1}
-                  >
-                    {filterOptions.status.map((option: any) => (
-                      <Option key={option.value} value={option.value}>{option.label}</Option>
-                    ))}
-                  </Select>
-                </div>
-              </Col>
-              <Col span={8}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ color: "#595959", width: 70 }}>主管部门：</span>
-                  <Select
-                    placeholder="不限"
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    style={{ flex: 1 }}
-                    value={filters.department}
-                    onChange={(value) => setFilters((prev) => ({ ...prev, department: value }))}
-                    maxTagCount={1}
-                  >
-                    {filterOptions.department.map((option: any) => (
-                      <Option key={option.value} value={option.value}>{option.label}</Option>
-                    ))}
-                  </Select>
-                </div>
-              </Col>
-              
-              {filterExpanded && (
-                <>
-                  <Col span={8}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <span style={{ color: "#595959", width: 70 }}>项目类型：</span>
-                      <Select
-                        placeholder="不限"
-                        mode="multiple"
-                        allowClear
-                        style={{ flex: 1 }}
-                        value={filters.projectType}
-                        onChange={(value) => setFilters((prev) => ({ ...prev, projectType: value }))}
-                        maxTagCount={1}
-                      >
-                        {filterOptions.projectType.map((option: any) => (
-                          <Option key={option.value} value={option.value}>{option.label}</Option>
-                        ))}
-                      </Select>
-                    </div>
-                  </Col>
-                  <Col span={8}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <span style={{ color: "#595959", width: 70 }}>所属行业：</span>
-                      <Select
-                        placeholder="不限"
-                        mode="multiple"
-                        allowClear
-                        showSearch
-                        style={{ flex: 1 }}
-                        value={filters.industry}
-                        onChange={(value) => setFilters((prev) => ({ ...prev, industry: value }))}
-                        maxTagCount={1}
-                      >
-                        {filterOptions.industry.map((option: any) => (
-                          <Option key={option.value} value={option.value}>{option.label}</Option>
-                        ))}
-                      </Select>
-                    </div>
-                  </Col>
-                  <Col span={8}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <span style={{ color: "#595959", width: 70 }}>年度：</span>
-                      <Select
-                        placeholder="不限"
-                        mode="multiple"
-                        allowClear
-                        style={{ flex: 1 }}
-                        value={filters.year}
-                        onChange={(value) => setFilters((prev) => ({ ...prev, year: value }))}
-                        maxTagCount={2}
-                      >
-                        {filterOptions.year.map((option: any) => (
-                          <Option key={option.value} value={option.value}>{option.label}</Option>
-                        ))}
-                      </Select>
-                    </div>
-                  </Col>
-                </>
-              )}
-            </Row>
-          </div>
-
-          {/* 操作按钮区 */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "180px", borderLeft: "1px solid #f0f0f0", paddingLeft: 24 }}>
-            <Input.Search
-              placeholder="搜索项目名称"
-              onSearch={(val) => {
-                setSearchText(val);
-                setPagination((prev) => ({ ...prev, current: 1 }));
-              }}
-              style={{ width: "100%" }}
-            />
-            <Space>
-              <Button type="primary" onClick={loadData}>查询</Button>
-              <Button onClick={resetFilters}>重置</Button>
-              <Button type="link" style={{ padding: 0 }} onClick={() => setFilterExpanded(!filterExpanded)}>
-                {filterExpanded ? "收起" : "展开"} {filterExpanded ? <UpOutlined /> : <DownOutlined />}
-              </Button>
-            </Space>
-          </div>
-        </div>
-      </Card>
-    );
+    return null; // 完全移除筛选区域
   };
 
   // 渲染项目卡片
@@ -843,12 +668,6 @@ const OptimizedApplicationManagement: React.FC = () => {
       return (
         <div>
           {renderFilterSection()}
-          <Divider
-            style={{
-              margin: `${DESIGN_TOKENS.spacing.sm}px 0`,
-              borderColor: DESIGN_TOKENS.colors.border,
-            }}
-          />
           <Row gutter={[16, 16]}>
             {Array.from({ length: 8 }).map((_, index) => (
               <Col xs={24} key={index}>
@@ -873,12 +692,6 @@ const OptimizedApplicationManagement: React.FC = () => {
       return (
         <div>
           {renderFilterSection()}
-          <Divider
-            style={{
-              margin: `${DESIGN_TOKENS.spacing.sm}px 0`,
-              borderColor: DESIGN_TOKENS.colors.border,
-            }}
-          />
           <Empty
             image={
               <FileTextOutlined
@@ -931,12 +744,6 @@ const OptimizedApplicationManagement: React.FC = () => {
     return (
       <div>
         {renderFilterSection()}
-        <Divider
-          style={{
-            margin: `${DESIGN_TOKENS.spacing.sm}px 0`,
-            borderColor: DESIGN_TOKENS.colors.border,
-          }}
-        />
 
         {/* 项目统计 */}
         <div
@@ -991,14 +798,6 @@ const OptimizedApplicationManagement: React.FC = () => {
               pageSizeOptions={["8", "16", "24"]}
               onChange={(page, pageSize) => {
                 setPagination((prev) => ({ ...prev, current: page, pageSize }));
-              }}
-              style={{
-                "& .ant-pagination-item": {
-                  borderRadius: "6px",
-                },
-                "& .ant-pagination-item-active": {
-                  borderColor: "#1890ff",
-                },
               }}
             />
           </Space>

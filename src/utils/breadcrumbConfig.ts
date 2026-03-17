@@ -39,21 +39,21 @@ export const breadcrumbConfig: BreadcrumbConfig = {
   // 申报管理模块（已迁移至政策中心下）- 2026-03-04
   "/application": [
     { title: "政策中心", path: "/policy-center" },
-    { title: "申报管理" },
+    { title: "我的申报" },
   ],
   "/application/detail": [
     { title: "政策中心", path: "/policy-center" },
-    { title: "申报管理", path: "/application" },
+    { title: "我的申报", path: "/application" },
     { title: "申报详情" },
   ],
   "/application/apply": [
     { title: "政策中心", path: "/policy-center" },
-    { title: "申报管理", path: "/application" },
+    { title: "我的申报", path: "/application" },
     { title: "申报向导" },
   ],
   "/application/success": [
     { title: "政策中心", path: "/policy-center" },
-    { title: "申报管理", path: "/application" },
+    { title: "我的申报", path: "/application" },
     { title: "提交成功" },
   ],
 

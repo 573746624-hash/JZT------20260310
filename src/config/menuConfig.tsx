@@ -360,6 +360,7 @@ export function getSelectedKeys(pathname: string): string[] {
       case "statistics":
         return ["/application?view=statistics"];
       default:
+        // 如果没有 view 参数，默认选中申报管理
         return ["/application?view=list"];
     }
   }
