@@ -80,18 +80,19 @@ export function useUserForm(
       const values = await form.validateFields();
 
       // 状态映射：前端表单的 "ENABLE"/"DISABLE" 映射到后端需要的 "0"/"1" (0启用 1禁用)
-      // 角色映射：将角色字符串映射为 roleIds，0 为管理员，1 为普通成员
+      // 角色映射：将角色字符串映射为 roleIds
+      // 假设：超级管理员=0, 企业管理员=1, 普通成员=2
+      let roleId = 2; // 默认普通成员
+      if (values.roles === "super_admin") roleId = 0;
+      else if (values.roles === "enterprise_admin") roleId = 1;
+
       const mappedValues: Partial<User> = {
         username: values.username,
         nickname: values.username, // 默认昵称等于用户名
         email: values.email,
         phone: values.username, // 暂时用用户名填充手机号，或者也可以单独添加手机号字段
         status: values.status, // 现在表单直接使用 "0" 或 "1"
-        roleIds: [
-          values.roles === "enterprise_admin" || values.roles === "admin"
-            ? 0
-            : 1,
-        ],
+        roleIds: [roleId],
       };
 
       if (editingUser) {

@@ -9,7 +9,6 @@ export { BannerSection } from "./BannerSection.tsx";
 export { DataOverviewSection } from "./DataOverviewSection.tsx";
 export { QuickActionsSection } from "./QuickActionsSection.tsx";
 export { TrendChartSection } from "./TrendChartSection.tsx";
-export { RecentActivitiesSection } from "./RecentActivitiesSection.tsx";
 export { ImportantRemindersSection } from "./ImportantRemindersSection.tsx";
 export { WeatherCalendarSection } from "./WeatherCalendarSection.tsx";
 export { SmartDashboardSection } from "./SmartDashboardSection.tsx";

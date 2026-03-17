@@ -15,7 +15,6 @@ import {
   DataOverviewSection,
   QuickActionsSection,
   TrendChartSection,
-  RecentActivitiesSection,
   ImportantRemindersSection,
   SmartDashboardSection,
   PersonalizedRecommendationSection,
@@ -166,19 +165,8 @@ const Home: React.FC = () => {
 
         {/* 底部信息区域 */}
         <Row gutter={gutter}>
-          {/* 最近活动通知栏 */}
-          <Col xs={24} lg={12}>
-            <SimpleErrorBoundary>
-              <RecentActivitiesSection
-                recentActivities={homeData.recentActivities}
-                onNavigate={handleNavigate}
-                loading={loading}
-              />
-            </SimpleErrorBoundary>
-          </Col>
-
           {/* 重要提醒模块 */}
-          <Col xs={24} lg={12}>
+          <Col xs={24} lg={24}>
             <SimpleErrorBoundary>
               <ImportantRemindersSection
                 importantReminders={homeData.importantReminders}

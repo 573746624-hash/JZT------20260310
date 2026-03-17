@@ -125,10 +125,16 @@ export const userService = {
           nickname: item.nickName || item.nickname || "企业成员",
           // 接口可能不返回 username，用 nickName 或 phone 填充
           username: item.username || item.nickName || item.phone,
-          // 角色映射：接口返回 roleName，前端需 roles 数组
+          // 角色映射：接口返回 roleName，前端需 roles 数组。如果接口没返回但是 roleType 为 "0"，认为是超级管理员
           roles:
             item.roles ||
-            (item.roleName ? [{ roleId: 0, roleName: item.roleName }] : []),
+            (item.roleName 
+              ? [{ roleId: Number(item.roleType || 1), roleName: item.roleName }] 
+              : item.roleType === "0" 
+                ? [{ roleId: 0, roleName: "超级管理员" }] 
+                : item.roleType === "1"
+                  ? [{ roleId: 1, roleName: "企业管理员" }]
+                  : [{ roleId: 2, roleName: "普通成员" }]),
           // 状态映射
           status: item.status || "0",
           // 邮箱映射 (全选保护：如果后端返回的是 Email 或 mail 等)
