@@ -1,6 +1,5 @@
 import { Navigate } from "react-router-dom";
 import { message } from "antd";
-import { StorageUtils } from "../../utils/storage";
 import FrozenAccountPage from "./FrozenAccountPage";
 import PermissionDeniedPage from "./PermissionDeniedPage";
 
@@ -8,8 +7,8 @@ const TOKEN_EXPIRY = 24 * 60 * 60 * 1000;
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const userInfo = StorageUtils.getItem("userInfo", null);
-  const lastLoginTime = StorageUtils.getItem("lastLoginTime", 0);
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
+  const lastLoginTime = Number(localStorage.getItem("lastLoginTime") || "0");
   const currentTime = Date.now();
 
   if (isLoggedIn && currentTime - lastLoginTime > TOKEN_EXPIRY) {

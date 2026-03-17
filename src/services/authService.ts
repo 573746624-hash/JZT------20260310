@@ -4,7 +4,6 @@
  */
 
 import { apiClient } from "./apiClient";
-import { StorageUtils } from "../utils/storage";
 
 // ==================== 类型定义 ====================
 
@@ -225,7 +224,17 @@ export const saveAuthState = (data: LoginResponse) => {
     },
   };
 
-  StorageUtils.setItems(authData);
+  Object.entries(authData).forEach(([key, value]) => {
+    if (value === undefined || value === null) {
+      localStorage.removeItem(key);
+      return;
+    }
+    if (typeof value === "string") {
+      localStorage.setItem(key, value);
+      return;
+    }
+    localStorage.setItem(key, JSON.stringify(value));
+  });
 
   // 设置 apiClient 的认证 token
   apiClient.setAuthToken(data.token);
@@ -245,7 +254,7 @@ export const clearAuthState = () => {
     "username",
     "auth_user",
   ];
-  StorageUtils.removeItems(authKeys);
+  authKeys.forEach(key => localStorage.removeItem(key));
 
   // 清除 apiClient 的认证 token
   apiClient.setAuthToken("");
@@ -256,8 +265,8 @@ export const clearAuthState = () => {
  * @returns 是否已登录
  */
 export const isAuthenticated = (): boolean => {
-  const token = StorageUtils.getItem("portalToken", null);
-  const isLoggedIn = StorageUtils.getItem("isLoggedIn", null);
+  const token = localStorage.getItem("portalToken");
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
   return !!token && isLoggedIn === "true";
 };
 
@@ -266,7 +275,7 @@ export const isAuthenticated = (): boolean => {
  * @returns token 或 null
  */
 export const getToken = (): string | null => {
-  return StorageUtils.getItem("portalToken", null);
+  return localStorage.getItem("portalToken");
 };
 
 /**
@@ -275,7 +284,7 @@ export const getToken = (): string | null => {
  * @returns 是否过期
  */
 export const isTokenExpired = (expiryHours: number = 24): boolean => {
-  const lastLoginTime = StorageUtils.getItem("lastLoginTime", null);
+  const lastLoginTime = localStorage.getItem("lastLoginTime");
   if (!lastLoginTime) return true;
 
   const expiryMs = expiryHours * 60 * 60 * 1000;

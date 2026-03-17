@@ -14,7 +14,9 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
 
     debouncedUpdate();
 
-    return () => {};
+    return () => {
+      debouncedUpdate.cancel();
+    };
   }, [value, delay]);
 
   return debouncedValue;

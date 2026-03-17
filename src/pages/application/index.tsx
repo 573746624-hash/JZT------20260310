@@ -242,7 +242,7 @@ const OptimizedApplicationManagement: React.FC = () => {
       // 如果是直接访问我的申报路由，强制切换到 status 视图
       setCurrentView("status");
     }
-  }, [searchParams, location.pathname]);
+  }, [searchParams, location.pathname, currentView]);
 
   const [filterExpanded, setFilterExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -413,7 +413,7 @@ const OptimizedApplicationManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters, pagination.current, pagination.pageSize]);
+  }, [filters, pagination]);
 
   // 重置筛选条件
   const resetFilters = () => {

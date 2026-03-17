@@ -132,7 +132,7 @@ const MainLayout: React.FC = () => {
    */
   const selectedKeys = useMemo(
     () => getSelectedKeys(location.pathname),
-    [location.pathname, location.search],
+    [location.pathname],
   );
 
   /**

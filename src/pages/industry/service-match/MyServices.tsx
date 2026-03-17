@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Tabs,
   Table,
@@ -35,7 +35,7 @@ const MyServices: React.FC = () => {
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getMyPublications(
@@ -57,11 +57,11 @@ const MyServices: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+  }, [fetchData]);
 
   const handleDelete = (id: string) => {
     Modal.confirm({

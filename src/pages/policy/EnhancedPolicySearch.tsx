@@ -94,16 +94,19 @@ const EnhancedPolicySearch: React.FC = () => {
   >([]);
 
   // 热门搜索关键词
-  const hotSearchKeywords = [
-    "高新技术企业",
-    "科技创新",
-    "研发补贴",
-    "人才引进",
-    "金融科技",
-    "数字经济",
-    "绿色发展",
-    "专精特新",
-  ];
+  const hotSearchKeywords = useMemo(
+    () => [
+      "高新技术企业",
+      "科技创新",
+      "研发补贴",
+      "人才引进",
+      "金融科技",
+      "数字经济",
+      "绿色发展",
+      "专精特新",
+    ],
+    [],
+  );
 
   // 筛选选项配置
   const filterOptions = {
@@ -166,6 +169,7 @@ const EnhancedPolicySearch: React.FC = () => {
         industries: industry ? [industry] : prev.industries,
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 监听搜索建议事件
@@ -186,6 +190,7 @@ const EnhancedPolicySearch: React.FC = () => {
         handleSearchSuggestion as EventListener,
       );
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 执行搜索
@@ -254,7 +259,15 @@ const EnhancedPolicySearch: React.FC = () => {
         setSearchLoading(false);
       }
     },
-    [searchKeyword, filters, currentPage, pageSize, sortBy],
+    [
+      searchKeyword,
+      filters,
+      currentPage,
+      pageSize,
+      sortBy,
+      hotSearchKeywords,
+      setSearchParams,
+    ],
   );
 
   // 处理筛选变更
@@ -304,18 +317,21 @@ const EnhancedPolicySearch: React.FC = () => {
   }, [searchKeyword, handleSearch]);
 
   // 处理自动完成
-  const handleAutoCompleteSearch = useCallback((value: string) => {
-    if (value) {
-      const options = hotSearchKeywords
-        .filter((keyword) =>
-          keyword.toLowerCase().includes(value.toLowerCase()),
-        )
-        .map((keyword) => ({ value: keyword }));
-      setAutoCompleteOptions(options);
-    } else {
-      setAutoCompleteOptions([]);
-    }
-  }, []);
+  const handleAutoCompleteSearch = useCallback(
+    (value: string) => {
+      if (value) {
+        const options = hotSearchKeywords
+          .filter((keyword) =>
+            keyword.toLowerCase().includes(value.toLowerCase()),
+          )
+          .map((keyword) => ({ value: keyword }));
+        setAutoCompleteOptions(options);
+      } else {
+        setAutoCompleteOptions([]);
+      }
+    },
+    [hotSearchKeywords],
+  );
 
   // 处理分页变更
   const handlePageChange = useCallback((page: number, size: number) => {

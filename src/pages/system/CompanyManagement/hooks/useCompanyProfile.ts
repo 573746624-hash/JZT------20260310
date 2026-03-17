@@ -3,7 +3,7 @@
  * 创建时间: 2026-01-13
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { message } from "antd";
 import {
   useCompanyProfileContext,
@@ -41,15 +41,18 @@ export const useCompanyProfile = () => {
   const [editForm, setEditForm] = useState<Partial<UICompanyProfile>>({});
 
   // 将 Context 数据映射到本地 UI 数据
-  const companyProfile: UICompanyProfile = {
-    ...profile,
-    syncStatus: "success",
-    dataSource: {
-      business: "success",
-      tax: "success",
-      rd: "success",
-    },
-  };
+  const companyProfile: UICompanyProfile = useMemo(
+    () => ({
+      ...profile,
+      syncStatus: "success",
+      dataSource: {
+        business: "success",
+        tax: "success",
+        rd: "success",
+      },
+    }),
+    [profile],
+  );
 
   // 打开编辑弹窗
   const handleEditProfile = useCallback(() => {

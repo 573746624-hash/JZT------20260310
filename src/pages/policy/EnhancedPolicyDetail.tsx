@@ -253,6 +253,7 @@ const EnhancedPolicyDetail: React.FC = () => {
     };
 
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, location.state]);
 
   // 计算剩余天数

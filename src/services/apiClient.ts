@@ -3,9 +3,7 @@
  * 提供请求拦截、错误处理、缓存等功能
  */
 
-import { cache } from "../utils/cache";
 import { handleNetworkError, AppError, ErrorType } from "../utils/errorHandler";
-import { requestDeduplicator } from "../utils/performance";
 import { rateLimiter } from "../utils/rateLimiter";
 
 interface RequestConfig {
@@ -65,14 +63,7 @@ class ApiClient {
     }`;
   }
 
-  /**
-   * 生成缓存键
-   */
-  private getCacheKey(url: string, config: RequestConfig): string {
-    return `api_${config.method || "GET"}_${url}_${JSON.stringify(
-      config.body || {},
-    )}`;
-  }
+
 
   /**
    * 请求超时处理
@@ -119,23 +110,12 @@ class ApiClient {
       method = "GET",
       headers = {},
       body,
-      cache: useCache = method === "GET",
-      cacheTTL = 5 * 60 * 1000,
       timeout = this.defaultTimeout,
       retry = 0,
       retryDelay = 1000,
     } = config;
 
     const url = this.buildURL(endpoint);
-    const cacheKey = this.getCacheKey(url, config);
-
-    // 检查缓存
-    if (useCache && method === "GET") {
-      const cached = cache.get<T>(cacheKey);
-      if (cached !== null) {
-        return cached;
-      }
-    }
 
     // 检查请求频率限制
     const rateLimitCheck = rateLimiter.check(`${method}:${endpoint}`);
@@ -186,11 +166,6 @@ class ApiClient {
           );
         }
 
-        // 缓存成功响应
-        if (useCache && method === "GET") {
-          cache.set(cacheKey, result.data, cacheTTL);
-        }
-
         return result.data;
       } catch (error: any) {
         throw handleNetworkError(error);
@@ -198,13 +173,11 @@ class ApiClient {
     };
 
     // 应用重试逻辑
-    const executeRequest =
+    return (
       retry > 0
         ? () => this.withRetry(requestFn, retry, retryDelay)
-        : requestFn;
-
-    // 应用请求去重
-    return requestDeduplicator.deduplicate(cacheKey, executeRequest);
+        : requestFn
+    )();
   }
 
   /**
@@ -287,15 +260,10 @@ class ApiClient {
   }
 
   /**
-   * 清除缓存
+   * 清除缓存 (已废弃/降级处理，兼容旧代码)
    */
   clearCache(endpoint?: string) {
-    if (endpoint) {
-      const url = this.buildURL(endpoint);
-      cache.deletePattern(url);
-    } else {
-      cache.clear();
-    }
+    // 缓存功能已移除，此方法为空实现以保持接口兼容
   }
 }
 

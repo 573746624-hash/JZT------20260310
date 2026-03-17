@@ -6,7 +6,7 @@
  * 特性: 自动轮播、手动切换、hover暂停、响应式设计、登录检查
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Modal } from "antd";
 import { RightOutlined, LeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -108,7 +108,7 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
   };
 
   // 清除所有定时器
-  const clearTimers = () => {
+  const clearTimers = useCallback(() => {
     if (autoPlayTimerRef.current) {
       clearInterval(autoPlayTimerRef.current);
       autoPlayTimerRef.current = null;
@@ -117,15 +117,15 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
       clearTimeout(initialDelayTimerRef.current);
       initialDelayTimerRef.current = null;
     }
-  };
+  }, []);
 
   // 启动自动轮播
-  const startAutoPlay = () => {
+  const startAutoPlay = useCallback(() => {
     clearTimers();
     autoPlayTimerRef.current = setInterval(() => {
-      goToNext();
+      setCurrentIndex((prev) => (prev + 1) % bannerData.length);
     }, 5000); // 5秒切换间隔
-  };
+  }, [clearTimers]);
 
   // 初始化自动轮播（3秒延迟启动）
   useEffect(() => {
@@ -136,7 +136,7 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
     return () => {
       clearTimers();
     };
-  }, []);
+  }, [startAutoPlay, clearTimers]);
 
   // hover时暂停，离开时恢复
   useEffect(() => {
@@ -145,14 +145,14 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
     } else {
       startAutoPlay();
     }
-  }, [isHovered]);
+  }, [isHovered, startAutoPlay, clearTimers]);
 
   // 手动切换后重置定时器
   useEffect(() => {
     if (!isHovered) {
       startAutoPlay();
     }
-  }, [currentIndex]);
+  }, [currentIndex, isHovered, startAutoPlay]);
 
   if (loading) {
     return (

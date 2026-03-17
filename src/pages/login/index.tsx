@@ -5,10 +5,15 @@
  */
 
 import React, { useEffect } from "react";
-import { Form, Button, Tabs } from "antd";
+import { Form, Button, Tabs, Input } from "antd";
+import {
+  MobileOutlined,
+  LockOutlined,
+  SafetyOutlined,
+} from "@ant-design/icons";
 import { useLogin } from "./hooks/useLogin.ts";
-import { LoginTabs } from "./components/LoginTabs.tsx";
 import { LoginLeft } from "./components/LoginLeft.tsx";
+import { phoneRules, passwordRules, codeRules } from "./config/formConfig.ts";
 import "./styles/login.css";
 
 /**
@@ -34,8 +39,6 @@ const Login: React.FC = () => {
     }
   }, []);
 
-  const tabItems = LoginTabs({ countdown, onSendCode: handleSendCode });
-
   return (
     <div className="login-container">
       <div className="login-box">
@@ -45,13 +48,73 @@ const Login: React.FC = () => {
             <h2>欢迎登录</h2>
             <p>登录您的门户账号，开启企业服务之旅</p>
           </div>
-          <Form form={form} onFinish={handleLogin} size="large">
+          <Form 
+            form={form} 
+            onFinish={handleLogin} 
+            size="large"
+          >
             <Tabs
               activeKey={loginType}
-              onChange={(key) => setLoginType(key as "password" | "sms")}
-              items={tabItems}
+              onChange={(key) => {
+                setLoginType(key as "password" | "sms");
+                form.resetFields(["password", "code"]);
+              }}
+              items={[
+                { key: "password", label: "密码登录" },
+                { key: "sms", label: "验证码登录" },
+              ]}
               centered
             />
+            <Form.Item name="phone" rules={phoneRules}>
+              <Input
+                prefix={<MobileOutlined />}
+                placeholder="请输入手机号"
+                maxLength={11}
+                size="large"
+                autoComplete="tel"
+              />
+            </Form.Item>
+
+            {loginType === "password" ? (
+              <>
+                <Form.Item name="password" rules={passwordRules}>
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="请输入密码"
+                    size="large"
+                    autoComplete="current-password"
+                  />
+                </Form.Item>
+                <div className="forgot-pwd">
+                  <a href="/reset-password">忘记密码?</a>
+                </div>
+              </>
+            ) : (
+              <>
+                <Form.Item name="code" rules={codeRules}>
+                  <Input
+                    prefix={<SafetyOutlined />}
+                    placeholder="请输入验证码"
+                    maxLength={6}
+                    size="large"
+                    suffix={
+                      <Button
+                        type="link"
+                        disabled={countdown > 0}
+                        onClick={handleSendCode}
+                        style={{ padding: 0 }}
+                      >
+                        {countdown > 0 ? `${countdown}s后重发` : "获取验证码"}
+                      </Button>
+                    }
+                  />
+                </Form.Item>
+                <div className="forgot-pwd" style={{ visibility: "hidden" }}>
+                  <span>占位</span>
+                </div>
+              </>
+            )}
+
             <Form.Item>
               <Button
                 type="primary"

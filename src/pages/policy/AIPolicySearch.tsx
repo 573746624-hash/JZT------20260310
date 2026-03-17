@@ -196,6 +196,7 @@ const AIPolicySearch: React.FC = () => {
   // Unified effect for data fetching
   useEffect(() => {
     performSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, filters, searchTrigger]);
 
   // Trigger search on filter change (and reset page)
@@ -215,12 +216,12 @@ const AIPolicySearch: React.FC = () => {
         {activeTab === "match" && (
           <div style={{ textAlign: "center", marginBottom: 24 }}>
             <Typography.Title level={2} style={{ margin: "0 0 8px 0" }}>
-              项目列表
+              政策匹配
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 16 }}>
-              展示可申报的政策项目列表，支持筛选和快速启动申报
+              基于企业画像和大数据分析，为您智能匹配最适合的政策项目
               <br />
-              精准匹配，辅助补贴申报
+              一键测算匹配度，提升申报成功率
             </Typography.Text>
           </div>
         )}
