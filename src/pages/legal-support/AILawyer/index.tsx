@@ -18,7 +18,15 @@ import {
   Modal,
   Breadcrumb,
   Tooltip,
+  Layout,
+  List,
+  Divider,
+  Typography,
+  Collapse,
 } from "antd";
+const { Sider, Content } = Layout;
+const { Text, Title } = Typography;
+const { Panel } = Collapse;
 import {
   SendOutlined,
   RobotOutlined,
@@ -28,6 +36,14 @@ import {
   HomeOutlined,
   DeleteOutlined,
   PlusOutlined,
+  SearchOutlined,
+  StarOutlined,
+  FolderOutlined,
+  BookOutlined,
+  QuestionCircleOutlined,
+  InfoCircleOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import PageWrapper from "../../../components/PageWrapper";
@@ -38,10 +54,28 @@ const { TextArea } = Input;
 // 对话消息类型
 interface Message {
   id: string;
-  type: "user" | "ai";
+  type: "user" | "ai" | "system";
   content: string;
   timestamp: Date;
   mode?: "normal" | "deep";
+  status?: "sending" | "sent" | "failed";
+  references?: Reference[];
+}
+
+// 引用来源类型
+interface Reference {
+  id: string;
+  type: "regulation" | "case" | "article";
+  title: string;
+  content: string;
+  url?: string;
+}
+
+// 对话分类类型
+interface ConversationCategory {
+  id: string;
+  name: string;
+  count: number;
 }
 
 // 历史对话记录类型
@@ -51,7 +85,39 @@ interface HistoryItem {
   mode: "normal" | "deep";
   timestamp: Date;
   messages: Message[];
+  category?: string;
+  isFavorite?: boolean;
+  tags?: string[];
 }
+
+// 快捷问题分类
+const quickQuestionCategories = {
+  "企业设立类": [
+    "注册公司需要什么材料？",
+    "注册资本需要实缴吗？",
+    "如何选择公司类型？",
+  ],
+  "劳动用工类": [
+    "劳动合同必须包含哪些条款？",
+    "试用期最长可以约定多久？",
+    "解除劳动合同需要支付经济补偿吗？",
+  ],
+  "知识产权类": [
+    "如何申请专利？",
+    "商标注册流程是什么？",
+    "软件著作权怎么保护？",
+  ],
+  "税务合规类": [
+    "小微企业有哪些税收优惠？",
+    "研发费用加计扣除怎么算？",
+    "增值税发票怎么开具？",
+  ],
+  "合同管理类": [
+    "合同必须书面形式吗？",
+    "违约金怎么约定才有效？",
+    "合同纠纷怎么解决？",
+  ],
+};
 
 // 热门咨询标签
 const hotTags = [
@@ -61,6 +127,44 @@ const hotTags = [
   "劳动合同解除补偿",
   "房产继承纠纷处理",
   "公司股权转让流程",
+];
+
+// 常见问题
+const frequentQuestions = [
+  {
+    question: "如何使用AI问答功能？",
+    answer: "直接在输入框中描述您的法律问题，选择普通或深度分析模式，点击发送即可获得AI回答。",
+  },
+  {
+    question: "AI回答的准确性如何？",
+    answer: "AI基于大量法律数据训练，但回答仅供参考，重要法律事务建议咨询专业律师。",
+  },
+  {
+    question: "如何保存重要的问答记录？",
+    answer: "点击回答下方的收藏按钮，或在历史记录中标记为收藏。",
+  },
+];
+
+// 相关法规推荐
+const relatedRegulations = [
+  {
+    id: "1",
+    title: "公司法",
+    description: "规范公司设立、运营的基本法律",
+    relevance: 95,
+  },
+  {
+    id: "2",
+    title: "劳动合同法",
+    description: "规范劳动关系的专门法律",
+    relevance: 88,
+  },
+  {
+    id: "3",
+    title: "民法典",
+    description: "民事法律关系的基本准则",
+    relevance: 82,
+  },
 ];
 
 /**
@@ -73,6 +177,9 @@ const AILawyer: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [consultMode, setConsultMode] = useState<"normal" | "deep">("normal");
   const [currentChatId, setCurrentChatId] = useState<string>("");
+  const [rightSiderCollapsed, setRightSiderCollapsed] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [historyList, setHistoryList] = useState<HistoryItem[]>([
     {
       id: "1",
@@ -295,29 +402,33 @@ const AILawyer: React.FC = () => {
 
   return (
     <PageWrapper module="legal">
-      {/* 页面容器 */}
-      <div
+      {/* 三栏布局容器 */}
+      <Layout
         style={{
           margin: "0 24px 24px 24px",
-          display: "flex",
-          gap: "24px",
           height: "calc(100vh - 140px)",
+          background: "transparent",
         }}
       >
         {/* 左侧边栏 - 导航菜单 */}
-        <div
+        <Sider
+          width={240}
           style={{
-            width: "240px",
-            flexShrink: 0,
             background: "#fff",
             borderRadius: "8px",
             border: "1px solid #f0f0f0",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            display: "flex",
-            flexDirection: "column",
-            padding: "16px 0",
+            marginRight: "16px",
           }}
         >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              padding: "16px 0",
+            }}
+          >
           {/* Logo 区域 */}
           <div
             style={{
@@ -403,10 +514,9 @@ const AILawyer: React.FC = () => {
           </div>
         </div>
 
-        {/* 右侧内容区域 */}
-        <div
+        {/* 中间主内容区域 */}
+        <Content
           style={{
-            flex: 1,
             display: "flex",
             flexDirection: "column",
             background: "#fff",
@@ -414,6 +524,7 @@ const AILawyer: React.FC = () => {
             border: "1px solid #f0f0f0",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
             overflow: "hidden",
+            marginRight: rightSiderCollapsed ? "0" : "16px",
           }}
         >
           {/* 头部区域 */}

@@ -208,9 +208,9 @@ export const routeMenuMap: Record<string, string> = {
   "/policy-center/my-applications": "/application?view=status", // 我的申请
 
   // 申报管理模块路由映射（已迁移至政策中心下）- 2026-03-03
-  "/application": "/application?view=list", // 项目列表页面
+  "/application": "/application?view=status", // 我的申报页面 - 默认显示状态视图
   "/application/detail": "/application?view=status", // 申报详情页面
-  "/application/apply": "/application?view=list", // 申报申请页面
+  "/application/apply": "/application?view=status", // 申报申请页面
   "/application/success": "/application?view=status", // 申报成功页面
 
   // 法律护航模块路由映射
@@ -360,14 +360,13 @@ export function getSelectedKeys(pathname: string): string[] {
       case "statistics":
         return ["/application?view=statistics"];
       default:
-        // 如果没有 view 参数，默认选中申报管理
         return ["/application?view=list"];
     }
   }
 
   // 模块级别的回退匹配
   const moduleMatches = [
-    { prefix: "/application", defaultKey: "/application?view=list" }, // 申报管理已迁移至政策中心，但路由保持不变
+    { prefix: "/application", defaultKey: "/application?view=status" }, // 申报管理已迁移至政策中心，默认选中"我的申报"
     { prefix: "/policy-center", defaultKey: "/policy-center/main" },
     { prefix: "/legal-support", defaultKey: "/legal-support/ai-lawyer" },
     {
