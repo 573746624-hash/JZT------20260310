@@ -14,6 +14,7 @@ import {
   Input,
   message,
   Space,
+  Modal,
 } from "antd";
 import {
   RobotOutlined,
@@ -22,8 +23,13 @@ import {
   RightOutlined,
   ThunderboltOutlined,
   SearchOutlined,
+  LockOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  WechatOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import EmptyStateOptimized from "../../../components/policy/EmptyStateOptimized";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -101,6 +107,7 @@ const SmartPolicyMatch: React.FC = () => {
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<{ value: string }[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [isUnrecordedModalVisible, setIsUnrecordedModalVisible] = useState(false);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -119,31 +126,50 @@ const SmartPolicyMatch: React.FC = () => {
     const companyInfo = MOCK_COMPANY_INFO_MAP[value];
     if (companyInfo) {
       setSelectedCompany(companyInfo);
-      // message.success(`已选择企业：${value}`);
-      // 重置匹配状态
       setMatched(false);
     } else {
-      // 默认信息
+      // 标记为未收录企业
       setSelectedCompany({
         name: value,
+        isUnrecorded: true, // 新增标识
         industry: "未知行业",
         region: "未知区域",
         size: "未知规模",
         qualification: [],
-        completeness: 20,
+        completeness: 0, // 未收录企业完整度为0
       });
+      setMatched(false);
     }
   };
 
   const startMatching = () => {
     if (!selectedCompany) {
-      message.warning("请先输入并选择要匹配的企业");
+      // 允许输入任意企业名称进行匹配
+      if (searchValue.trim()) {
+        handleSelect(searchValue.trim());
+        setMatching(true);
+        setTimeout(() => {
+          setMatching(false);
+          setMatched(true);
+          // 如果是未收录企业，直接弹出遮罩和提示
+          if (!MOCK_COMPANY_INFO_MAP[searchValue.trim()]) {
+            setIsUnrecordedModalVisible(true);
+          }
+        }, 2000);
+      } else {
+        message.warning("请先输入要匹配的企业名称");
+      }
       return;
     }
+    
     setMatching(true);
     setTimeout(() => {
       setMatching(false);
       setMatched(true);
+      // 如果是未收录企业，直接弹出遮罩和提示
+      if (selectedCompany.isUnrecorded) {
+        setIsUnrecordedModalVisible(true);
+      }
     }, 2000);
   };
 
@@ -193,7 +219,7 @@ const SmartPolicyMatch: React.FC = () => {
       </div>
 
       {/* Company Profile Bar */}
-      {selectedCompany && (
+      {selectedCompany && !selectedCompany.isUnrecorded && (
         <div
           style={{
             marginBottom: 40,
@@ -222,7 +248,7 @@ const SmartPolicyMatch: React.FC = () => {
               </span>
               （近三年营收数据）
             </span>
-            <Button size="small">完善信息</Button>
+            <Button size="small" onClick={() => navigate("/system/company-management")}>完善信息</Button>
           </Space>
         </div>
       )}
@@ -237,24 +263,32 @@ const SmartPolicyMatch: React.FC = () => {
         </div>
       ) : matched ? (
         <>
+          {/* 为了配合弹窗遮罩，我们在背景依然渲染假数据或者不渲染 */}
           <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 16,
-            }}
-          >
-            <Title level={4} style={{ margin: 0 }}>
-              <RobotOutlined style={{ marginRight: 8, color: "#1890ff" }} />
-              为您匹配到 {MOCK_MATCH_RESULTS.length} 条高匹配度政策
-            </Title>
-            <Button>导出匹配报告</Button>
-          </div>
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 16,
+                filter: selectedCompany?.isUnrecorded ? "blur(4px)" : "none",
+                pointerEvents: selectedCompany?.isUnrecorded ? "none" : "auto",
+                opacity: selectedCompany?.isUnrecorded ? 0.6 : 1,
+              }}
+            >
+              <Title level={4} style={{ margin: 0 }}>
+                <RobotOutlined style={{ marginRight: 8, color: "#1890ff" }} />
+                为您匹配到 {MOCK_MATCH_RESULTS.length} 条高匹配度政策
+              </Title>
+            </div>
 
           <List
             grid={{ gutter: 16, column: 1 }}
             dataSource={MOCK_MATCH_RESULTS}
+            style={{
+              filter: selectedCompany?.isUnrecorded ? "blur(4px)" : "none",
+              pointerEvents: selectedCompany?.isUnrecorded ? "none" : "auto",
+              opacity: selectedCompany?.isUnrecorded ? 0.6 : 1,
+            }}
             renderItem={(item) => (
               <List.Item>
                 <Card
@@ -339,12 +373,11 @@ const SmartPolicyMatch: React.FC = () => {
                       <Button
                         type="primary"
                         onClick={() =>
-                          navigate(`/policy-center/detail/${item.id}`)
+                          navigate(`/policy-center/detail/${item.id}`, { state: { policyData: item } })
                         }
                       >
                         查看详情
                       </Button>
-                      <Button>添加对比</Button>
                     </div>
                   </div>
                 </Card>
@@ -365,6 +398,110 @@ const SmartPolicyMatch: React.FC = () => {
           <div style={{ color: "#888" }}>请输入关键词进行搜索</div>
         </div>
       )}
+
+      {/* 未收录企业弹窗遮罩 */}
+      <Modal
+        open={isUnrecordedModalVisible}
+        footer={null}
+        closable={false}
+        maskClosable={false}
+        centered
+        width={480}
+        bodyStyle={{ textAlign: "center", padding: "32px 24px" }}
+      >
+        <LockOutlined style={{ fontSize: 48, color: "#faad14", marginBottom: 16 }} />
+        <Title level={4} style={{ marginBottom: 16 }}>
+          企业未收录
+        </Title>
+        <Paragraph style={{ color: "#666", marginBottom: 24 }}>
+          您查询的企业 <Text strong>【{selectedCompany?.name || searchValue}】</Text> 暂未收录在系统中。
+          <br />
+          为了给您提供精准的政策匹配服务，请联系平台管理员进行企业信息入库。
+        </Paragraph>
+        
+        {/* 多种联系方式区域 */}
+        <div style={{ 
+          background: "#f9f9f9", 
+          padding: "20px", 
+          borderRadius: "8px",
+          marginBottom: "24px",
+          textAlign: "left"
+        }}>
+          <Title level={5} style={{ marginBottom: 16, fontSize: 14 }}>您可以选择以下方式联系我们：</Title>
+          
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            {/* 方式一：微信 */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+              <div style={{ 
+                width: 32, height: 32, borderRadius: "50%", background: "#e6f7ff", 
+                display: "flex", alignItems: "center", justifyContent: "center", color: "#1890ff" 
+              }}>
+                <WechatOutlined style={{ fontSize: 18 }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Text strong>添加专属客服微信</Text>
+                <div style={{ color: "#888", fontSize: 13, marginTop: 4 }}>微信号：JZT_Service_01</div>
+                <Button type="link" size="small" style={{ padding: 0, marginTop: 4 }} onClick={() => message.success("微信号已复制")}>复制微信号</Button>
+              </div>
+              <img 
+                src="/qrcode-zhangbo.png" 
+                alt="管理员微信" 
+                style={{ width: 64, height: 64, objectFit: "contain", borderRadius: "4px", border: "1px solid #eee" }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://via.placeholder.com/64x64.png?text=%E5%BE%AE%E4%BF%A1";
+                }}
+              />
+            </div>
+            
+            <div style={{ height: 1, background: "#eee", width: "100%" }}></div>
+
+            {/* 方式二：电话 */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ 
+                width: 32, height: 32, borderRadius: "50%", background: "#f6ffed", 
+                display: "flex", alignItems: "center", justifyContent: "center", color: "#52c41a" 
+              }}>
+                <PhoneOutlined style={{ fontSize: 18 }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Text strong>拨打服务热线</Text>
+                <div style={{ color: "#888", fontSize: 13, marginTop: 4 }}>400-888-8888 (工作日 9:00-18:00)</div>
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: "#eee", width: "100%" }}></div>
+
+            {/* 方式三：邮件 */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ 
+                width: 32, height: 32, borderRadius: "50%", background: "#fff0f6", 
+                display: "flex", alignItems: "center", justifyContent: "center", color: "#eb2f96" 
+              }}>
+                <MailOutlined style={{ fontSize: 18 }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Text strong>发送邮件申请入库</Text>
+                <div style={{ color: "#888", fontSize: 13, marginTop: 4 }}>support@jzt.com</div>
+              </div>
+              <Button type="link" size="small" onClick={() => message.success("邮箱地址已复制")}>复制</Button>
+            </div>
+          </Space>
+        </div>
+        
+        <div>
+          <Button 
+            type="primary" 
+            size="large"
+            style={{ width: "100%", maxWidth: 200 }}
+            onClick={() => {
+              setIsUnrecordedModalVisible(false);
+              setMatched(false); // 重置匹配状态
+            }}
+          >
+            我知道了，稍后联系
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

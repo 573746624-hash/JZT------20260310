@@ -93,6 +93,19 @@ const EnhancedPolicySearch: React.FC = () => {
     { value: string }[]
   >([]);
 
+  // 判断是否为企业搜索（简单规则：包含特定后缀或长度大于等于4的纯中文）
+  const isEnterpriseSearch = useMemo(() => {
+    if (!searchKeyword) return false;
+    const keyword = searchKeyword.trim();
+    return (
+      keyword.endsWith("公司") ||
+      keyword.endsWith("厂") ||
+      keyword.endsWith("企业") ||
+      keyword.endsWith("集团") ||
+      (keyword.length >= 4 && /^[\u4e00-\u9fa5]+$/.test(keyword))
+    );
+  }, [searchKeyword]);
+
   // 热门搜索关键词
   const hotSearchKeywords = useMemo(
     () => [
@@ -636,7 +649,7 @@ const EnhancedPolicySearch: React.FC = () => {
           />
         ) : (
           <EmptyStateOptimized
-            type="no-results"
+            type={isEnterpriseSearch ? "unrecorded-enterprise" : "no-results"}
             searchKeyword={searchKeyword}
             hasFilters={Object.values(filters).some((arr) => arr.length > 0)}
             onClearFilters={handleClearAllFilters}

@@ -52,6 +52,10 @@ import {
   EyeOutlined,
   QrcodeOutlined,
   LinkOutlined,
+  MessageOutlined,
+  VerticalAlignTopOutlined,
+  WechatOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import ReactECharts from "echarts-for-react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
@@ -122,7 +126,7 @@ const EnhancedPolicyDetail: React.FC = () => {
   const [chartLoading, setChartLoading] = useState(false);
 
   // Mock data
-  const mockPolicyData: PolicyDetailData = {
+  const mockPolicyData = useMemo<PolicyDetailData>(() => ({
     id: id || "1",
     title: "2024-2025年北京市节能技术改造项目奖励",
     status: "in_progress",
@@ -217,7 +221,7 @@ const EnhancedPolicyDetail: React.FC = () => {
       expertise: ["节能技术改造", "政策申报辅导", "项目可行性分析"],
       responseTime: "平均5分钟响应",
     },
-  };
+  }), [id]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -294,6 +298,68 @@ const EnhancedPolicyDetail: React.FC = () => {
   };
 
   // 处理立即申报
+  const [activeAnchor, setActiveAnchor] = useState("section-content"); // 默认选中申报方向
+
+  // 监听滚动事件，实现锚点联动
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = [
+        "section-content",     // 申报方向/正文
+        "section-status",      // 申报状态
+        "section-basic",       // 基本信息
+        "section-materials",   // 申报材料
+        "section-process",     // 办理流程
+        "section-contact",     // 咨询电话
+      ];
+
+      // 找到当前在视口中最靠近顶部的部分
+      let currentSection = sections[0];
+      let minDistance = Infinity;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          // 获取元素相对于视口的位置
+          const rect = element.getBoundingClientRect();
+          // 如果元素的顶部在视口上半部分（增加一些偏移量以便提早触发）
+          const distance = Math.abs(rect.top - 100); 
+          if (distance < minDistance && rect.top < window.innerHeight / 2) {
+            minDistance = distance;
+            currentSection = section;
+          }
+        }
+      }
+
+      if (currentSection !== activeAnchor) {
+        setActiveAnchor(currentSection);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // 初始执行一次
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [activeAnchor]);
+
+  const scrollToAnchor = (anchorId: string) => {
+    const element = document.getElementById(anchorId);
+    if (element) {
+      // 减去头部导航的高度作为偏移量
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+      setActiveAnchor(anchorId);
+    }
+  };
+
   const handleApply = () => {
     if (!policyData) return;
 
@@ -615,32 +681,224 @@ const EnhancedPolicyDetail: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#f5f7fa" }}>
-      {/* 顶部面包屑 */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e8e8e8" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 24px" }}>
-          <Breadcrumb
-            items={[
-              { title: <Link to="/policy-center">政策中心</Link> },
-              { title: <Link to="/application">项目列表</Link> },
-              { title: "政策详情" },
-            ]}
-          />
-        </div>
-      </div>
-
       <Content
         style={{
-          maxWidth: 1200,
+          maxWidth: 1600, // 放大布局宽度以适配左右结构
           margin: "24px auto",
           padding: "0 24px",
           width: "100%",
         }}
       >
         <Row gutter={[24, 24]}>
-          {/* 左侧主内容区 */}
-          <Col xs={24} lg={16}>
+          {/* 左侧：锚点导航 (新版设计) */}
+          <Col xs={0} lg={4}>
+            <div style={{ position: "sticky", top: 24 }}>
+              <div style={{ borderRight: "2px solid #e1251b", paddingRight: 16, textAlign: "right" }}>
+                <Title level={5} style={{ color: "#e1251b", marginBottom: 16 }}>事项名称</Title>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", color: "#666" }}>
+                  <div 
+                    style={{ cursor: "pointer", color: activeAnchor === "section-content" ? "#333" : "inherit", fontWeight: activeAnchor === "section-content" ? "bold" : "normal" }}
+                    onClick={() => scrollToAnchor("section-content")}
+                  >申报方向</div>
+                  <div 
+                    style={{ cursor: "pointer", color: activeAnchor === "section-status" ? "#333" : "inherit", fontWeight: activeAnchor === "section-status" ? "bold" : "normal" }}
+                    onClick={() => scrollToAnchor("section-status")}
+                  >申报状态</div>
+                  <div 
+                    style={{ cursor: "pointer", color: activeAnchor === "section-basic" ? "#333" : "inherit", fontWeight: activeAnchor === "section-basic" ? "bold" : "normal" }}
+                    onClick={() => scrollToAnchor("section-basic")}
+                  >基本信息</div>
+                  <div 
+                    style={{ cursor: "pointer", color: activeAnchor === "section-materials" ? "#333" : "inherit", fontWeight: activeAnchor === "section-materials" ? "bold" : "normal" }}
+                    onClick={() => scrollToAnchor("section-materials")}
+                  >申报材料</div>
+                  <div 
+                    style={{ cursor: "pointer", color: activeAnchor === "section-process" ? "#333" : "inherit", fontWeight: activeAnchor === "section-process" ? "bold" : "normal" }}
+                    onClick={() => scrollToAnchor("section-process")}
+                  >办理程序</div>
+                  <div 
+                    style={{ cursor: "pointer", color: activeAnchor === "section-contact" ? "#333" : "inherit", fontWeight: activeAnchor === "section-contact" ? "bold" : "normal" }}
+                    onClick={() => scrollToAnchor("section-contact")}
+                  >咨询电话</div>
+                </div>
+              </div>
+            </div>
+          </Col>
+
+          {/* 中间主内容区 */}
+          <Col xs={24} lg={14}>
+            {/* 核心指标卡片 (仿图例设计) */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 16
+            }}>
+              <Title level={3} style={{ margin: 0 }}>{policyData.title}</Title>
+            </div>
+            
+            <Card
+              style={{
+                marginBottom: 24,
+                borderRadius: 4,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                border: "1px solid #f0f0f0",
+                borderTop: "3px solid #e1251b"
+              }}
+              styles={{ body: { padding: "16px 24px" } }}
+            >
+              <Row align="middle" justify="space-between">
+                <Col span={5}>
+                  <div style={{ color: "#666", fontSize: "14px", marginBottom: "8px" }}>实施主体</div>
+                  <div style={{ color: "#333", fontSize: "14px", fontWeight: "bold" }}>{policyData.department}</div>
+                </Col>
+                <Col span={5}>
+                  <div style={{ color: "#666", fontSize: "14px", marginBottom: "8px" }}>服务对象</div>
+                  <div style={{ color: "#333", fontSize: "14px", fontWeight: "bold" }}>法人 / 企业</div>
+                </Col>
+                <Col span={5}>
+                  <div style={{ color: "#666", fontSize: "14px", marginBottom: "8px" }}>兑现方式</div>
+                  <div style={{ color: "#333", fontSize: "14px", fontWeight: "bold" }}>标准事项</div>
+                </Col>
+                <Col span={5}>
+                  <div style={{ color: "#666", fontSize: "14px", marginBottom: "8px" }}>扶持金额</div>
+                  <div style={{ color: "#e1251b", fontSize: "18px", fontWeight: "bold", fontFamily: "DIN, Roboto Mono, monospace" }}>
+                    {policyData.funding}
+                  </div>
+                </Col>
+                <Col span={4} style={{ textAlign: "right", borderLeft: "1px solid #f0f0f0", paddingLeft: 16 }}>
+                  <Button 
+                    type="primary" 
+                    size="large" 
+                    style={{ background: "#e1251b", borderColor: "#e1251b", width: "100%" }}
+                    onClick={handleApply}
+                  >
+                    立即申报
+                  </Button>
+                  <Button size="small" style={{ marginTop: 8, width: "100%" }}>申报材料</Button>
+                  <Button size="small" style={{ marginTop: 8, width: "100%" }} icon={<HeartOutlined />}>关注</Button>
+                </Col>
+              </Row>
+            </Card>
+
+            {/* 政策正文 (红头文件样式) */}
+            <Card
+              id="section-content"
+              variant="borderless"
+              style={{
+                marginBottom: 24,
+                borderRadius: 4,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                borderTop: "6px solid #e1251b",
+                padding: "20px 40px",
+                position: "relative",
+                overflow: "hidden",
+                background: "#fff url('https://www.transparenttextures.com/patterns/rice-paper.png')", // 添加细微的纸张纹理
+              }}
+              styles={{ body: { padding: 0 } }}
+            >
+              {/* 印章水印效果 (如果是已结束状态，显示已截止水印) */}
+              {isExpired && (
+                <div style={{
+                  position: "absolute",
+                  top: "20%",
+                  right: "10%",
+                  width: "150px",
+                  height: "150px",
+                  border: "4px solid rgba(225, 37, 27, 0.4)",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transform: "rotate(-30deg)",
+                  pointerEvents: "none",
+                  zIndex: 0
+                }}>
+                  <span style={{ 
+                    color: "rgba(225, 37, 27, 0.4)", 
+                    fontSize: "32px", 
+                    fontWeight: "bold",
+                    letterSpacing: "4px"
+                  }}>申报截止</span>
+                </div>
+              )}
+
+              <div style={{ textAlign: "center", marginBottom: 30, borderBottom: "2px solid #e1251b", paddingBottom: 20 }}>
+                <Title level={2} style={{ color: "#e1251b", marginBottom: 16, fontFamily: "SimSun, '宋体', serif", letterSpacing: "2px" }}>
+                  {policyData.department}
+                </Title>
+                <div style={{ fontSize: "16px", fontFamily: "FangSong, '仿宋', serif", marginBottom: 16 }}>
+                  京发改规〔2024〕1号
+                </div>
+                <Title level={3} style={{ fontFamily: "SimHei, '黑体', sans-serif", margin: "20px 0" }}>
+                  {policyData.title}
+                </Title>
+              </div>
+
+              <div style={{ 
+                fontFamily: "FangSong, '仿宋', serif", 
+                fontSize: "18px", 
+                lineHeight: "2.0", 
+                color: "#333",
+                textIndent: "2em",
+                position: "relative",
+                zIndex: 1
+              }}>
+                <p>各有关单位：</p>
+                <p>{policyData.description}</p>
+                <p>为全面贯彻落实国家及本市关于节能减排、绿色低碳发展的决策部署，充分发挥财政资金的引导和放大作用，鼓励和引导企业加大节能技术改造投入，进一步提升本市能源利用效率，根据《北京市节能减排综合工作方案》和《北京市促进节能技术改造专项资金管理办法》等有关规定，现就开展2024-2025年北京市节能技术改造项目资金奖励申报工作通知如下：</p>
+                
+                <h4 style={{ fontWeight: "bold", marginTop: "24px", textIndent: 0 }}>一、 支持范围与标准</h4>
+                <p>支持在本市行政区域内实施的，采用先进适用节能技术、产品和设备，对现有生产工艺、设备、设施等进行节能技术改造，并取得显著节能效果的项目。</p>
+                
+                <h4 style={{ fontWeight: "bold", marginTop: "24px", textIndent: 0 }}>二、 申报主体条件</h4>
+                <p>（一）在北京市行政区域内依法登记注册，具有独立法人资格；</p>
+                <p>（二）企业经营状况良好，财务管理制度健全；</p>
+                <p>（三）近三年内未发生重大安全、环保、质量等事故，无严重失信行为记录。</p>
+              </div>
+
+              {/* 模拟落款印章 */}
+              <div style={{
+                position: "absolute",
+                right: "40px",
+                bottom: "10px",
+                width: "140px",
+                height: "140px",
+                border: "4px solid #e1251b",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#e1251b",
+                opacity: 0.85,
+                pointerEvents: "none",
+                zIndex: 2,
+                transform: "rotate(-15deg)",
+                background: "radial-gradient(circle, transparent 40%, rgba(225, 37, 27, 0.05) 100%)"
+              }}>
+                <div style={{ textAlign: "center", width: "100%" }}>
+                  <div style={{ fontSize: "16px", marginBottom: "8px" }}>★</div>
+                  <div style={{ fontSize: "16px", fontWeight: "bold", transform: "scale(0.9)", letterSpacing: "1px" }}>{policyData.department}</div>
+                </div>
+              </div>
+
+              <div style={{ 
+                marginTop: 60, 
+                textAlign: "right", 
+                fontFamily: "FangSong, '仿宋', serif", 
+                fontSize: "18px",
+                position: "relative",
+                paddingRight: "60px",
+                zIndex: 1
+              }}>
+                <div style={{ marginBottom: 10 }}>{policyData.department}</div>
+                <div>{dayjs().format('YYYY年MM月DD日')}</div>
+              </div>
+            </Card>
+
             {/* 申报状态提醒 */}
             <Card
+              id="section-status"
               style={{
                 marginBottom: 24,
                 borderRadius: 8,
@@ -760,6 +1018,7 @@ const EnhancedPolicyDetail: React.FC = () => {
 
             {/* 基本信息 */}
             <Card
+              id="section-basic"
               title={
                 <Space>
                   <SafetyOutlined style={{ color: "#1890ff" }} />
@@ -821,6 +1080,7 @@ const EnhancedPolicyDetail: React.FC = () => {
 
             {/* 申报材料清单 */}
             <Card
+              id="section-materials"
               title={
                 <Space>
                   <FileTextOutlined style={{ color: "#1890ff" }} />
@@ -853,6 +1113,7 @@ const EnhancedPolicyDetail: React.FC = () => {
 
             {/* 办理流程 */}
             <Card
+              id="section-process"
               title={
                 <Space>
                   <CheckCircleOutlined style={{ color: "#1890ff" }} />
@@ -887,6 +1148,7 @@ const EnhancedPolicyDetail: React.FC = () => {
 
             {/* 联系方式 */}
             <Card
+              id="section-contact"
               title={
                 <Space>
                   <PhoneOutlined style={{ color: "#1890ff" }} />
@@ -915,72 +1177,85 @@ const EnhancedPolicyDetail: React.FC = () => {
             </Card>
           </Col>
 
-          {/* 右侧辅助功能区 */}
-          <Col xs={24} lg={8}>
-            {/* 快速申报通道 */}
-            <Card
-              style={{
-                marginBottom: 24,
-                borderRadius: 8,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              }}
-              styles={{ body: { padding: 24 } }}
-            >
-              <Space direction="vertical" size={16} style={{ width: "100%" }}>
-                <div style={{ textAlign: "center" }}>
-                  <RocketOutlined
-                    style={{ fontSize: 48, color: "#fff", marginBottom: 16 }}
-                  />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
-                    快速申报通道
-                  </Title>
-                  <Text style={{ color: "rgba(255,255,255,0.8)" }}>
-                    一键启动申报流程
-                  </Text>
+          {/* 右侧：操作与辅助功能区 (新版设计) */}
+          <Col xs={24} lg={6}>
+            <div style={{ position: "sticky", top: 24 }}>
+              {/* 微信下载与分享 */}
+              <Card
+                style={{
+                  marginBottom: 16,
+                  borderRadius: 4,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                  border: "1px solid #f0f0f0"
+                }}
+                styles={{ body: { padding: "0" } }}
+              >
+                <div style={{ padding: "16px 20px", borderBottom: "1px solid #f0f0f0", fontSize: "14px", fontWeight: "bold" }}>微信下载与分享</div>
+                <div style={{ padding: "16px 20px" }}>
+                  <Space style={{ width: "100%", justifyContent: "center", gap: "24px" }}>
+                    <div style={{ textAlign: "center", cursor: "pointer" }} onClick={() => message.info("开始下载")}>
+                      <div style={{ width: 40, height: 40, background: "#f0f5ff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                        <DownloadOutlined style={{ fontSize: 18, color: "#1890ff" }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: "#666" }}>下载至本地</span>
+                    </div>
+                    <div style={{ textAlign: "center", cursor: "pointer" }} onClick={handleShare}>
+                      <div style={{ width: 40, height: 40, background: "#f6ffed", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}>
+                        <WechatOutlined style={{ fontSize: 18, color: "#52c41a" }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: "#666" }}>分享至微信</span>
+                    </div>
+                  </Space>
+                  <Divider style={{ margin: "16px 0" }} />
+                  <Button type="link" block icon={<ShareAltOutlined />} style={{ color: "#666" }}>
+                    对申报政策评价
+                  </Button>
                 </div>
-                <Button
-                  type="primary"
-                  size="large"
-                  block
-                  icon={<RocketOutlined />}
-                  onClick={handleApply}
-                  disabled={isExpired}
-                  style={{
-                    height: 48,
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    background: "#fff",
-                    color: "#667eea",
-                    border: "none",
-                  }}
-                >
-                  {isExpired ? "已截止" : "立即申报"}
-                </Button>
-                <Space style={{ width: "100%", justifyContent: "center" }}>
-                  <Button
-                    type="text"
-                    icon={isFavorited ? <HeartFilled /> : <HeartOutlined />}
-                    onClick={handleFavorite}
-                    style={{ color: "#fff" }}
+              </Card>
+              
+              {/* 悬浮侧边栏工具 (联系客服等) */}
+              <div style={{
+                position: "absolute",
+                right: "-60px",
+                top: "100px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1px",
+                background: "#fff",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+                borderRadius: "4px",
+                overflow: "hidden"
+              }}>
+                <Tooltip placement="left" title="项目进度">
+                  <div style={{ padding: "12px", cursor: "pointer", textAlign: "center", borderBottom: "1px solid #f0f0f0" }}>
+                    <ClockCircleOutlined style={{ fontSize: 18, color: "#666" }} />
+                  </div>
+                </Tooltip>
+                <Tooltip placement="left" title="我要提问">
+                  <div style={{ padding: "12px", cursor: "pointer", textAlign: "center", borderBottom: "1px solid #f0f0f0" }}>
+                    <QuestionCircleOutlined style={{ fontSize: 18, color: "#666" }} />
+                  </div>
+                </Tooltip>
+                <Tooltip placement="left" title="诉求响应">
+                  <div style={{ padding: "12px", cursor: "pointer", textAlign: "center", borderBottom: "1px solid #f0f0f0" }}>
+                    <MessageOutlined style={{ fontSize: 18, color: "#666" }} />
+                  </div>
+                </Tooltip>
+                <Tooltip placement="left" title="技术支持">
+                  <div style={{ padding: "12px", cursor: "pointer", textAlign: "center", borderBottom: "1px solid #f0f0f0" }}>
+                    <PhoneOutlined style={{ fontSize: 18, color: "#666" }} />
+                  </div>
+                </Tooltip>
+                <Tooltip placement="left" title="返回顶部">
+                  <div 
+                    style={{ padding: "12px", cursor: "pointer", textAlign: "center" }}
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   >
-                    {isFavorited ? "已收藏" : "收藏"}
-                  </Button>
-                  <Divider
-                    type="vertical"
-                    style={{ background: "rgba(255,255,255,0.3)" }}
-                  />
-                  <Button
-                    type="text"
-                    icon={<ShareAltOutlined />}
-                    onClick={handleShare}
-                    style={{ color: "#fff" }}
-                  >
-                    分享
-                  </Button>
-                </Space>
-              </Space>
-            </Card>
+                    <VerticalAlignTopOutlined style={{ fontSize: 18, color: "#666" }} />
+                  </div>
+                </Tooltip>
+              </div>
+            </div>
           </Col>
         </Row>
       </Content>

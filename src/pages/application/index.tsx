@@ -55,8 +55,10 @@ import {
   CloseCircleOutlined,
   UploadOutlined,
   SendOutlined,
-  AppstoreOutlined,
   StopOutlined,
+  BankOutlined,
+  AppstoreOutlined,
+  EnvironmentOutlined,
 } from "@ant-design/icons";
 import ApplyButton from "../../components/common/ApplyButton";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
@@ -233,16 +235,15 @@ const OptimizedApplicationManagement: React.FC = () => {
     return (view as ViewType) || "list";
   });
 
-  // 监听路由参数变化
   useEffect(() => {
     const view = searchParams.get("view");
     if (view && view !== currentView) {
       setCurrentView(view as ViewType);
-    } else if (location.pathname === "/policy-center/my-applications") {
+    } else if (location.pathname === "/policy-center/my-applications" && currentView !== "status") {
       // 如果是直接访问我的申报路由，强制切换到 status 视图
       setCurrentView("status");
     }
-  }, [searchParams, location.pathname, currentView]);
+  }, [searchParams, location.pathname]); // Removed currentView to avoid infinite loop warning
 
   const [filterExpanded, setFilterExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -381,19 +382,19 @@ const OptimizedApplicationManagement: React.FC = () => {
 
       let filteredProjects = [...mockProjects];
 
-      if (filters.status.length > 0) {
+      if (filters.status && filters.status.length > 0) {
         filteredProjects = filteredProjects.filter((project) =>
           filters.status.includes(getProjectStatus(project)),
         );
       }
 
-      if (filters.projectType.length > 0) {
+      if (filters.projectType && filters.projectType.length > 0) {
         filteredProjects = filteredProjects.filter((project) =>
           filters.projectType.includes(project.type),
         );
       }
 
-      if (filters.year.length > 0) {
+      if (filters.year && filters.year.length > 0) {
         filteredProjects = filteredProjects.filter((project) =>
           filters.year.includes(project.year),
         );
@@ -413,7 +414,7 @@ const OptimizedApplicationManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters, pagination]);
+  }, [filters, pagination.current, pagination.pageSize]); // 修复依赖项
 
   // 重置筛选条件
   const resetFilters = () => {
@@ -531,7 +532,8 @@ const OptimizedApplicationManagement: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.current, pagination.pageSize, filters]);
 
   // 渲染筛选区域
   const renderFilterSection = () => {
@@ -557,160 +559,157 @@ const OptimizedApplicationManagement: React.FC = () => {
 
     return (
       <Card
+        variant="borderless"
         style={{
           marginBottom: 24,
-          background: "#fafafa",
+          background: "#fff",
           border: "1px solid #e8e8e8",
           borderRadius: "8px",
-          boxShadow: "none",
+          boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)",
         }}
-        styles={{ body: { padding: "24px" } }}
+        styles={{ body: { padding: "20px 24px" } }}
       >
-        {/* 筛选条件区域 */}
-        {filterExpanded && (
-          <>
-            <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-              {allFilters.slice(0, 3).map((filterKey) => (
-                <Col key={filterKey} xs={24} sm={12} md={8} lg={8}>
-                  <div>
-                    <Text
-                      style={{
-                        fontSize: "13px",
-                        color: "#8c8c8c",
-                        marginBottom: "6px",
-                        display: "block",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {filterLabels[filterKey as keyof typeof filterLabels]}
-                    </Text>
-                    {filterKey === "policyLevel" ? (
-                      <Cascader
-                        placeholder="请选择"
-                        options={filterOptions.policyLevel}
-                        multiple
-                        maxTagCount={2}
-                        showSearch
-                        style={{
-                          width: "100%",
-                          height: "40px",
-                        }}
-                        value={filters.policyLevel as any}
-                        onChange={(value) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            policyLevel: value as (string | number)[][],
-                          }))
-                        }
-                      />
-                    ) : (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          {/* 筛选条件区域 */}
+          <div style={{ flex: 1, paddingRight: 24 }}>
+            <Row gutter={[24, 16]}>
+              <Col span={8}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ color: "#595959", width: 70 }}>政策层级：</span>
+                  <Cascader
+                    placeholder="不限"
+                    options={filterOptions.policyLevel}
+                    multiple
+                    maxTagCount={1}
+                    style={{ flex: 1 }}
+                    value={filters.policyLevel as any}
+                    onChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        policyLevel: value as (string | number)[][],
+                      }))
+                    }
+                  />
+                </div>
+              </Col>
+              <Col span={8}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ color: "#595959", width: 70 }}>申报状态：</span>
+                  <Select
+                    placeholder="不限"
+                    mode="multiple"
+                    allowClear
+                    style={{ flex: 1 }}
+                    value={filters.status}
+                    onChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}
+                    maxTagCount={1}
+                  >
+                    {filterOptions.status.map((option: any) => (
+                      <Option key={option.value} value={option.value}>{option.label}</Option>
+                    ))}
+                  </Select>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ color: "#595959", width: 70 }}>主管部门：</span>
+                  <Select
+                    placeholder="不限"
+                    mode="multiple"
+                    allowClear
+                    showSearch
+                    style={{ flex: 1 }}
+                    value={filters.department}
+                    onChange={(value) => setFilters((prev) => ({ ...prev, department: value }))}
+                    maxTagCount={1}
+                  >
+                    {filterOptions.department.map((option: any) => (
+                      <Option key={option.value} value={option.value}>{option.label}</Option>
+                    ))}
+                  </Select>
+                </div>
+              </Col>
+              
+              {filterExpanded && (
+                <>
+                  <Col span={8}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <span style={{ color: "#595959", width: 70 }}>项目类型：</span>
                       <Select
-                        placeholder="请选择"
+                        placeholder="不限"
+                        mode="multiple"
+                        allowClear
+                        style={{ flex: 1 }}
+                        value={filters.projectType}
+                        onChange={(value) => setFilters((prev) => ({ ...prev, projectType: value }))}
+                        maxTagCount={1}
+                      >
+                        {filterOptions.projectType.map((option: any) => (
+                          <Option key={option.value} value={option.value}>{option.label}</Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <span style={{ color: "#595959", width: 70 }}>所属行业：</span>
+                      <Select
+                        placeholder="不限"
                         mode="multiple"
                         allowClear
                         showSearch
-                        style={{
-                          width: "100%",
-                          height: "40px",
-                        }}
-                        value={filters[filterKey as keyof FilterState]}
-                        onChange={(value) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            [filterKey]: value,
-                          }))
-                        }
-                        maxTagCount={2}
+                        style={{ flex: 1 }}
+                        value={filters.industry}
+                        onChange={(value) => setFilters((prev) => ({ ...prev, industry: value }))}
+                        maxTagCount={1}
                       >
-                        {filterOptions[
-                          filterKey as keyof typeof filterOptions
-                        ]?.map((option: any) => (
-                          <Option key={option.value} value={option.value}>
-                            {option.label}
-                          </Option>
+                        {filterOptions.industry.map((option: any) => (
+                          <Option key={option.value} value={option.value}>{option.label}</Option>
                         ))}
                       </Select>
-                    )}
-                  </div>
-                </Col>
-              ))}
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <span style={{ color: "#595959", width: 70 }}>年度：</span>
+                      <Select
+                        placeholder="不限"
+                        mode="multiple"
+                        allowClear
+                        style={{ flex: 1 }}
+                        value={filters.year}
+                        onChange={(value) => setFilters((prev) => ({ ...prev, year: value }))}
+                        maxTagCount={2}
+                      >
+                        {filterOptions.year.map((option: any) => (
+                          <Option key={option.value} value={option.value}>{option.label}</Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </Col>
+                </>
+              )}
             </Row>
-            <Row gutter={[16, 16]}>
-              {allFilters.slice(3).map((filterKey) => (
-                <Col key={filterKey} xs={24} sm={12} md={8} lg={6}>
-                  <div>
-                    <Text
-                      style={{
-                        fontSize: "13px",
-                        color: "#8c8c8c",
-                        marginBottom: "6px",
-                        display: "block",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {filterLabels[filterKey as keyof typeof filterLabels]}
-                    </Text>
-                    <Select
-                      placeholder="请选择"
-                      mode="multiple"
-                      allowClear
-                      showSearch
-                      style={{
-                        width: "100%",
-                        height: "40px",
-                      }}
-                      value={filters[filterKey as keyof FilterState]}
-                      onChange={(value) =>
-                        setFilters((prev) => ({ ...prev, [filterKey]: value }))
-                      }
-                      maxTagCount={2}
-                    >
-                      {filterOptions[
-                        filterKey as keyof typeof filterOptions
-                      ]?.map((option: any) => (
-                        <Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </div>
-                </Col>
-              ))}
-            </Row>
-          </>
-        )}
+          </div>
 
-        {/* 操作按钮区 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: "12px",
-            marginTop: filterExpanded ? 16 : 0,
-          }}
-        >
-          <Button
-            onClick={resetFilters}
-            style={{
-              height: "40px",
-              borderRadius: "6px",
-              fontWeight: 500,
-            }}
-          >
-            重置
-          </Button>
-          <Button
-            icon={filterExpanded ? <UpOutlined /> : <DownOutlined />}
-            onClick={() => setFilterExpanded(!filterExpanded)}
-            style={{
-              height: "40px",
-              borderRadius: "6px",
-              fontWeight: 500,
-            }}
-          >
-            {filterExpanded ? "收起" : "展开筛选"}
-          </Button>
+          {/* 操作按钮区 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "180px", borderLeft: "1px solid #f0f0f0", paddingLeft: 24 }}>
+            <Input.Search
+              placeholder="搜索项目名称"
+              onSearch={(val) => {
+                setSearchText(val);
+                setPagination((prev) => ({ ...prev, current: 1 }));
+              }}
+              style={{ width: "100%" }}
+            />
+            <Space>
+              <Button type="primary" onClick={loadData}>查询</Button>
+              <Button onClick={resetFilters}>重置</Button>
+              <Button type="link" style={{ padding: 0 }} onClick={() => setFilterExpanded(!filterExpanded)}>
+                {filterExpanded ? "收起" : "展开"} {filterExpanded ? <UpOutlined /> : <DownOutlined />}
+              </Button>
+            </Space>
+          </div>
         </div>
       </Card>
     );
@@ -730,24 +729,17 @@ const OptimizedApplicationManagement: React.FC = () => {
       <Card
         key={project.id}
         hoverable={!isExpired}
+        size="small"
         style={{
-          height: "280px",
-          marginBottom: 20,
+          marginBottom: 16,
           border: "1px solid #e8e8e8",
-          borderRadius: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          borderRadius: "8px",
+          boxShadow: "0 1px 2px -2px rgba(0, 0, 0, 0.08), 0 3px 6px 0 rgba(0, 0, 0, 0.06), 0 5px 12px 4px rgba(0, 0, 0, 0.04)",
           transition: "all 0.3s ease",
           cursor: isExpired ? "default" : "pointer",
-          opacity: isExpired ? 0.7 : 1,
+          opacity: isExpired ? 0.8 : 1,
         }}
-        styles={{
-          body: {
-            padding: "20px",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-          },
-        }}
+        styles={{ body: { padding: "16px 24px" } }}
         onClick={(e) => {
           if (isExpired) return;
           const target = e.target as HTMLElement;
@@ -756,234 +748,90 @@ const OptimizedApplicationManagement: React.FC = () => {
           }
           handleViewDetail(project);
         }}
-        onMouseEnter={(e) => {
-          if (!isExpired) {
-            e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)";
-            e.currentTarget.style.transform = "translateY(-2px)";
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isExpired) {
-            e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
-            e.currentTarget.style.transform = "translateY(0)";
-          }
-        }}
       >
-        {/* 顶部：项目名称 */}
-        <div style={{ marginBottom: "12px" }}>
-          <Title
-            level={4}
-            style={{
-              margin: 0,
-              fontSize: "18px",
-              fontWeight: 600,
-              color: "#262626",
-              lineHeight: "26px",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-            onClick={() => !isExpired && handleViewDetail(project)}
-          >
-            <HighlightText
-              text={project.title}
-              keywords={searchText || ""}
-              highlightStyle={{
-                backgroundColor: "#fff2e8",
-                color: "#fa541c",
-                fontWeight: 600,
-                padding: "2px 4px",
-                borderRadius: "3px",
-              }}
-            />
-          </Title>
-        </div>
-
-        {/* 中部：扶持描述 */}
-        <div style={{ flex: 1, marginBottom: "16px" }}>
-          <Text
-            style={{
-              fontSize: "14px",
-              color: "#595959",
-              lineHeight: "22px",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            <HighlightText
-              text={project.description}
-              keywords={searchText || ""}
-              highlightStyle={{
-                backgroundColor: "#fff7e6",
-                color: "#fa8c16",
-                fontWeight: 500,
-                padding: "1px 3px",
-                borderRadius: "2px",
-              }}
-            />
-          </Text>
-        </div>
-
-        {/* 下部：标签组 */}
-        <div style={{ marginBottom: "16px" }}>
-          <Space wrap size={[8, 8]}>
-            <Tag
-              style={{
-                backgroundColor: "#e6f7ff",
-                color: "#1890ff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "4px 10px",
-                fontSize: "12px",
-                fontWeight: 500,
-              }}
-            >
-              {project.type}
-            </Tag>
-            <Tag
-              style={{
-                backgroundColor: "#f6ffed",
-                color: "#52c41a",
-                border: "none",
-                borderRadius: "6px",
-                padding: "4px 10px",
-                fontSize: "12px",
-                fontWeight: 500,
-              }}
-            >
-              {project.region}
-            </Tag>
-            <Tag
-              style={{
-                backgroundColor: "#fff7e6",
-                color: "#fa8c16",
-                border: "none",
-                borderRadius: "6px",
-                padding: "4px 10px",
-                fontSize: "12px",
-                fontWeight: 500,
-              }}
-            >
-              {project.funding}
-            </Tag>
-          </Space>
-        </div>
-
-        {/* 截止时间（倒计时样式高亮） */}
-        <div
-          style={{
-            background:
-              countdownDays <= 7 && status === "in_progress"
-                ? "#fff2e8"
-                : "#f8f9fa",
-            padding: "12px",
-            borderRadius: "8px",
-            marginBottom: "16px",
-            border: `1px solid ${countdownDays <= 7 && status === "in_progress" ? "#ffbb96" : "#e9ecef"}`,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ fontSize: "12px", color: "#8c8c8c" }}>截止时间</Text>
-            <div style={{ textAlign: "right" }}>
-              <Text
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          {/* 左侧主要信息 */}
+          <div style={{ flex: 1, paddingRight: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: 12, gap: 12 }}>
+              <Title
+                level={5}
                 style={{
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  color: isExpired
-                    ? "#ff4d4f"
-                    : countdownDays <= 7 && status === "in_progress"
-                      ? "#fa541c"
-                      : "#262626",
+                  margin: 0,
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#262626",
+                  lineHeight: "24px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
                 }}
               >
-                {project.deadline}
-              </Text>
-              {status === "in_progress" && countdownDays > 0 && (
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: countdownDays <= 7 ? "#fa541c" : "#1890ff",
-                    marginTop: "2px",
-                  }}
-                >
-                  {countdownDays <= 7 && (
-                    <ClockCircleOutlined style={{ marginRight: 4 }} />
-                  )}
-                  还剩 {countdownDays} 天
-                </div>
-              )}
-              {isExpired && (
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#ff4d4f",
-                    marginTop: "2px",
-                  }}
-                >
-                  <StopOutlined style={{ marginRight: 4 }} />
-                  已截止
-                </div>
+                <HighlightText
+                  text={project.title}
+                  keywords={searchText || ""}
+                />
+              </Title>
+              {isExpired ? (
+                <Tag color="default" style={{ margin: 0 }}>已截止</Tag>
+              ) : countdownDays <= 7 ? (
+                <Badge count={`仅剩${countdownDays}天`} style={{ backgroundColor: '#ff4d4f' }} />
+              ) : (
+                <Tag color="processing" style={{ margin: 0 }}>申报中</Tag>
               )}
             </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <Space split={<Divider type="vertical" />} size={4} style={{ color: "#595959", fontSize: "13px" }}>
+                <span><BankOutlined style={{ marginRight: 4 }} />{project.department}</span>
+                <span><AppstoreOutlined style={{ marginRight: 4 }} />{project.type}</span>
+                <span><EnvironmentOutlined style={{ marginRight: 4 }} />{project.region}</span>
+              </Space>
+            </div>
+            
+            <div style={{ color: "#8c8c8c", fontSize: "13px" }}>
+              <HighlightText
+                text={project.description}
+                keywords={searchText || ""}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* 底部：操作按钮组 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "12px",
-            paddingTop: "16px",
-            borderTop: "1px solid #f0f0f0",
-          }}
-        >
-          <Button
-            size="middle"
-            style={{
-              borderRadius: "6px",
-              fontWeight: 500,
-            }}
-            onClick={() => handleViewDetail(project)}
-          >
-            查看详情
-          </Button>
+          {/* 右侧操作区 */}
+          <div style={{ 
+            width: "200px", 
+            borderLeft: "1px solid #f0f0f0", 
+            paddingLeft: 24, 
+            display: "flex", 
+            flexDirection: "column", 
+            justifyContent: "space-between",
+            alignItems: "flex-end"
+          }}>
+            <div style={{ textAlign: "right", width: "100%", marginBottom: 16 }}>
+              <div style={{ color: "#8c8c8c", fontSize: "12px", marginBottom: 4 }}>扶持金额</div>
+              <div style={{ color: "#faad14", fontSize: "18px", fontWeight: "bold", fontFamily: "DIN, Roboto Mono, monospace" }}>
+                {project.funding}
+              </div>
+            </div>
 
-          {isExpired ? (
-            <Button
-              size="middle"
-              disabled
-              style={{
-                borderRadius: "6px",
-                backgroundColor: "#f5f5f5",
-                borderColor: "#d9d9d9",
-                color: "#bfbfbf",
-              }}
-            >
-              已截止
-            </Button>
-          ) : (
-            <Button
-              type="primary"
-              size="middle"
-              style={{
-                borderRadius: "6px",
-                fontWeight: 500,
-              }}
-              onClick={() => handleApplyClick(project)}
-            >
-              立即申报
-            </Button>
-          )}
+            <div style={{ textAlign: "right", width: "100%", marginBottom: 16 }}>
+              <div style={{ color: "#8c8c8c", fontSize: "12px", marginBottom: 4 }}>截止日期</div>
+              <div style={{ color: isExpired ? "#ff4d4f" : "#333", fontSize: "14px", fontWeight: 500 }}>
+                {project.deadline}
+              </div>
+            </div>
+
+            <Space>
+              <Button size="middle" onClick={() => handleViewDetail(project)}>
+                查看详情
+              </Button>
+              {!isExpired && (
+                <Button type="primary" size="middle" onClick={() => handleApplyClick(project)}>
+                  立即申报
+                </Button>
+              )}
+            </Space>
+          </div>
         </div>
       </Card>
     );
@@ -1001,16 +849,18 @@ const OptimizedApplicationManagement: React.FC = () => {
               borderColor: DESIGN_TOKENS.colors.border,
             }}
           />
-          <Row gutter={[20, 0]}>
-            {[1, 2, 3, 4].map((i) => (
-              <Col key={i} xs={24} lg={12}>
+          <Row gutter={[16, 16]}>
+            {Array.from({ length: 8 }).map((_, index) => (
+              <Col xs={24} key={index}>
                 <Card
+                  variant="borderless"
                   style={{
-                    height: "200px",
-                    marginBottom: DESIGN_TOKENS.spacing.md,
+                    height: "140px",
+                    border: "1px solid #e8e8e8",
+                    borderRadius: "8px",
                   }}
                 >
-                  <Skeleton active paragraph={{ rows: 4 }} />
+                  <Skeleton active paragraph={{ rows: 2 }} />
                 </Card>
               </Col>
             ))}
@@ -1089,21 +939,27 @@ const OptimizedApplicationManagement: React.FC = () => {
         />
 
         {/* 项目统计 */}
-        <div style={{ marginBottom: DESIGN_TOKENS.spacing.sm }}>
+        <div
+          style={{
+            marginBottom: "16px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Text
             style={{
-              fontSize: DESIGN_TOKENS.fontSize.md,
-              color: DESIGN_TOKENS.colors.text.secondary,
-              fontFamily: "Microsoft YaHei",
+              fontSize: "14px",
+              color: "#595959",
             }}
           >
-            共 {pagination.total} 条项目
+            共找到 <Text strong>{pagination.total}</Text> 个符合条件的项目
           </Text>
         </div>
 
-        <Row gutter={[20, 0]}>
+        <Row gutter={[16, 16]}>
           {projects.map((project) => (
-            <Col key={project.id} xs={24} lg={12}>
+            <Col key={project.id} xs={24}>
               {renderProjectCard(project)}
             </Col>
           ))}

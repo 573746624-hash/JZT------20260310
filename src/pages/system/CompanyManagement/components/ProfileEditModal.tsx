@@ -1014,57 +1014,51 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
   // 构建 footer 按钮
   const buildFooter = () => {
-    if (editMode) {
-      const buttons = [
+    if (!editMode) {
+      return [
+        <Button key="close" onClick={onClose}>
+          关闭
+        </Button>,
         <Button
-          key="cancel"
-          onClick={() => {
-            onCancelEdit();
-            onStepChange(0);
-          }}
+          key="edit"
+          type="primary"
+          icon={<EditOutlined />}
+          onClick={() => onEditModeChange(true)}
         >
-          取消
+          进入编辑模式
         </Button>,
       ];
-      if (currentStep > 0) {
-        buttons.push(
-          <Button key="prev" onClick={() => onStepChange(currentStep - 1)}>
-            上一步
-          </Button>,
-        );
-      }
-      if (currentStep < 3) {
-        buttons.push(
-          <Button
-            key="next"
-            type="primary"
-            onClick={() => onStepChange(currentStep + 1)}
-          >
-            下一步
-          </Button>,
-        );
-      } else {
-        buttons.push(
-          <Button key="save" type="primary" loading={loading} onClick={onSave}>
-            保存
-          </Button>,
-        );
-      }
-      return buttons;
     }
+
     return [
-      <Button key="close" onClick={onClose}>
-        关闭
+      <Button key="cancel" onClick={onCancelEdit}>
+        取消
       </Button>,
-      <Button
-        key="edit"
-        type="primary"
-        icon={<EditOutlined />}
-        onClick={() => onEditModeChange(true)}
-      >
-        编辑
-      </Button>,
-    ];
+      currentStep > 0 && (
+        <Button key="prev" onClick={() => onStepChange(currentStep - 1)}>
+          上一步
+        </Button>
+      ),
+      currentStep < 1 && (
+        <Button
+          key="next"
+          type="primary"
+          onClick={() => onStepChange(currentStep + 1)}
+        >
+          下一步
+        </Button>
+      ),
+      currentStep === 1 && (
+        <Button
+          key="save"
+          type="primary"
+          loading={loading}
+          onClick={onSave}
+        >
+          保存
+        </Button>
+      ),
+    ].filter(Boolean);
   };
 
   return (
@@ -1086,8 +1080,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             items={[
               { title: "基础信息" },
               { title: "财务信息" },
-              { title: "资质信息" },
-              { title: "动态标签" },
             ]}
           />
         )}
@@ -1097,12 +1089,6 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
         {/* 步骤2：财务信息 */}
         {(!editMode || currentStep === 1) && renderFinanceStep()}
-
-        {/* 步骤3：资质信息 */}
-        {(!editMode || currentStep === 2) && renderQualificationStep()}
-
-        {/* 步骤4：动态标签 */}
-        {(!editMode || currentStep === 3) && renderTagsStep()}
 
         <Divider />
 
