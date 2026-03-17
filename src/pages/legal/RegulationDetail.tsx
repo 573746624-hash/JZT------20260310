@@ -15,6 +15,10 @@ import {
   Menu,
   Divider,
   Breadcrumb,
+  Card,
+  Affix,
+  Tag,
+  Badge,
 } from "antd";
 import {
   ShareAltOutlined,
@@ -23,6 +27,15 @@ import {
   BulbFilled,
   WarningOutlined,
   BellOutlined,
+  FileWordOutlined,
+  FilePdfOutlined,
+  DownloadOutlined,
+  EyeOutlined,
+  LinkOutlined,
+  SearchOutlined,
+  FontSizeOutlined,
+  PrinterOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
 import PageWrapper from "../../components/PageWrapper";
 import dayjs from "dayjs";
@@ -333,9 +346,34 @@ const RegulationDetail: React.FC = () => {
   const [data, setData] = useState<RegulationDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<string[]>(["art-20-interp"]);
+  const [currentArticle, setCurrentArticle] = useState<string>("");
+  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [showBackTop, setShowBackTop] = useState(false);
 
   // 收藏状态管理
   const [isFavorited, setIsFavorited] = useState(false);
+
+  // 目录点击跳转
+  const handleMenuClick = ({ key }: { key: string }) => {
+    const element = document.getElementById(`article-${key}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setCurrentArticle(key);
+    }
+  };
+
+  // 打印功能
+  const handlePrint = () => {
+    window.print();
+    message.success('准备打印');
+  };
+
+  // 字体大小映射
+  const fontSizeMap = {
+    small: 14,
+    medium: 16,
+    large: 18,
+  };
 
   // 检查收藏状态
   useEffect(() => {
@@ -433,62 +471,136 @@ const RegulationDetail: React.FC = () => {
 
   return (
     <PageWrapper>
-      <div style={{ padding: "0 24px" }}>
-        <Breadcrumb
-          items={[{ title: "法律护航" }, { title: "法规详情" }]}
-          style={{ margin: "16px 0" }}
-        />
-      </div>
-      <Layout style={{ background: "#fff", padding: "24px 0" }}>
-        <Sider
-          width={250}
-          style={{
-            background: "#fff",
-            borderRight: "1px solid #f0f0f0",
-            overflowY: "auto",
-            height: "calc(100vh - 150px)",
-            position: "sticky",
-            top: 0,
-          }}
-        >
-          <div style={{ padding: "0 16px 16px" }}>
-            <Title level={5}>目录</Title>
-            {/* Mock Directory Tree */}
-            <Menu
-              mode="inline"
-              defaultOpenKeys={["part1", "part2"]}
-              style={{ borderRight: 0 }}
-              items={[
-                {
-                  key: "part1",
-                  label: "第一编 总则",
-                  children: [
-                    { key: "ch1", label: "第一章 基本规定" },
-                    { key: "ch2", label: "第二章 自然人" },
-                    { key: "ch3", label: "第三章 法人" },
-                    { key: "ch4", label: "第四章 非法人组织" },
-                    { key: "ch5", label: "第五章 民事权利" },
-                    { key: "ch6", label: "第六章 民事法律行为" },
-                    { key: "ch7", label: "第七章 代理" },
-                    { key: "ch8", label: "第八章 民事责任" },
-                    { key: "ch9", label: "第九章 诉讼时效" },
-                    { key: "ch10", label: "第十章 期间计算" },
-                  ],
-                },
-                {
-                  key: "part2",
-                  label: "第二编 物权",
-                  children: [
-                    { key: "p2ch1", label: "第一分编 通则" },
-                    { key: "p2ch2", label: "第二分编 所有权" },
-                    { key: "p2ch3", label: "第三分编 用益物权" },
-                  ],
-                },
-              ]}
-            />
-          </div>
-        </Sider>
-        <Content style={{ padding: "0 48px", minHeight: 280 }}>
+      {/* 顶部工具栏 */}
+      <Affix offsetTop={0}>
+        <div style={{ 
+          background: '#fff', 
+          borderBottom: '1px solid #f0f0f0',
+          padding: '12px 24px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+        }}>
+          <Row justify="space-between" align="middle">
+            {/* 左侧：法规基本信息 */}
+            <Col>
+              <Space split={<Divider type="vertical" />}>
+                <Tag color="gold">{data?.level}</Tag>
+                <Tag color={data?.status === 'effective' ? 'success' : 'default'}>
+                  {data?.status === 'effective' ? '现行有效' : '已失效'}
+                </Tag>
+                <Text type="secondary" style={{ fontSize: 13 }}>
+                  发布：{data?.publishDate}
+                </Text>
+                <Text type="secondary" style={{ fontSize: 13 }}>
+                  施行：{data?.effectiveDate}
+                </Text>
+              </Space>
+            </Col>
+
+            {/* 右侧：工具按钮 */}
+            <Col>
+              <Space>
+                <Tooltip title="字体大小">
+                  <Button.Group size="small">
+                    <Button 
+                      type={fontSize === 'small' ? 'primary' : 'default'}
+                      onClick={() => setFontSize('small')}
+                    >
+                      小
+                    </Button>
+                    <Button 
+                      type={fontSize === 'medium' ? 'primary' : 'default'}
+                      onClick={() => setFontSize('medium')}
+                    >
+                      中
+                    </Button>
+                    <Button 
+                      type={fontSize === 'large' ? 'primary' : 'default'}
+                      onClick={() => setFontSize('large')}
+                    >
+                      大
+                    </Button>
+                  </Button.Group>
+                </Tooltip>
+                <Divider type="vertical" />
+                <Tooltip title="打印">
+                  <Button 
+                    size="small"
+                    icon={<PrinterOutlined />}
+                    onClick={handlePrint}
+                  >
+                    打印
+                  </Button>
+                </Tooltip>
+                <Tooltip title="下载PDF">
+                  <Button 
+                    size="small"
+                    icon={<DownloadOutlined />}
+                    onClick={() => message.info('PDF导出功能开发中')}
+                  >
+                    下载
+                  </Button>
+                </Tooltip>
+              </Space>
+            </Col>
+          </Row>
+        </div>
+      </Affix>
+      
+      {/* 三栏布局 */}
+      <div style={{ padding: "24px", background: "#fff" }}>
+        <Row gutter={24}>
+          {/* 左侧目录导航 */}
+          <Col span={5}>
+            <Affix offsetTop={80}>
+              <Card 
+                title={<Text strong>目录导航</Text>}
+                size="small"
+                style={{ 
+                  maxHeight: "calc(100vh - 200px)", 
+                  overflowY: "auto" 
+                }}
+              >
+                <Menu
+                  mode="inline"
+                  defaultOpenKeys={["part1", "part2"]}
+                  selectedKeys={[currentArticle]}
+                  onClick={handleMenuClick}
+                  style={{ borderRight: 0 }}
+                  items={[
+                    {
+                      key: "part1",
+                      label: "第一编 总则",
+                      children: [
+                        { key: "ch1", label: "第一章 基本规定" },
+                        { key: "ch2", label: "第二章 自然人" },
+                        { key: "ch3", label: "第三章 法人" },
+                        { key: "ch4", label: "第四章 非法人组织" },
+                        { key: "ch5", label: "第五章 民事权利" },
+                        { key: "ch6", label: "第六章 民事法律行为" },
+                        { key: "ch7", label: "第七章 代理" },
+                        { key: "ch8", label: "第八章 民事责任" },
+                        { key: "ch9", label: "第九章 诉讼时效" },
+                        { key: "ch10", label: "第十章 期间计算" },
+                      ],
+                    },
+                    {
+                      key: "part2",
+                      label: "第二编 物权",
+                      children: [
+                        { key: "p2ch1", label: "第一分编 通则" },
+                        { key: "p2ch2", label: "第二分编 所有权" },
+                        { key: "p2ch3", label: "第三分编 用益物权" },
+                      ],
+                    },
+                  ]}
+                />
+              </Card>
+            </Affix>
+          </Col>
+
+          {/* 中间内容区 */}
+          <Col span={13}>
+            <Card id="regulation-content">
           {/* Header Section */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
             <Title level={2} style={{ marginBottom: 8 }}>
@@ -658,6 +770,7 @@ const RegulationDetail: React.FC = () => {
                 if (item.type === "part") {
                   return (
                     <div
+                      id={`article-${item.id}`}
                       style={{
                         textAlign: "center",
                         marginTop: 48,
@@ -670,14 +783,14 @@ const RegulationDetail: React.FC = () => {
                 }
                 if (item.type === "chapter") {
                   return (
-                    <div style={{ marginTop: 32, marginBottom: 16 }}>
+                    <div id={`article-${item.id}`} style={{ marginTop: 32, marginBottom: 16 }}>
                       <Title level={4}>{item.title}</Title>
                     </div>
                   );
                 }
                 if (item.type === "section") {
                   return (
-                    <div style={{ marginTop: 24, marginBottom: 12 }}>
+                    <div id={`article-${item.id}`} style={{ marginTop: 24, marginBottom: 12 }}>
                       <Title level={5} style={{ color: "#666" }}>
                         {item.title}
                       </Title>
@@ -686,7 +799,7 @@ const RegulationDetail: React.FC = () => {
                 }
 
                 return (
-                  <div style={{ marginBottom: 32 }}>
+                  <div id={`article-${item.id}`} style={{ marginBottom: 32 }}>
                     {/* Article Header */}
                     <div style={{ marginBottom: 12 }}>
                       <Text strong style={{ fontSize: 16 }}>
@@ -697,7 +810,7 @@ const RegulationDetail: React.FC = () => {
                     {/* Article Text */}
                     <Paragraph
                       style={{
-                        fontSize: 16,
+                        fontSize: fontSizeMap[fontSize],
                         lineHeight: 1.8,
                         marginBottom: 16,
                         textIndent: "2em",
@@ -771,38 +884,128 @@ const RegulationDetail: React.FC = () => {
               }}
             />
           </div>
-        </Content>
-        {/* Right Action Bar (Floating) */}
-        <div
-          style={{
-            position: "fixed",
-            right: 40,
-            bottom: 100,
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}
-        >
-          <Tooltip title={isFavorited ? "取消收藏" : "收藏本法"}>
-            <Button
-              shape="circle"
-              size="large"
-              type={isFavorited ? "primary" : "default"}
-              icon={isFavorited ? <StarFilled /> : <StarOutlined />}
-              onClick={toggleFavorite}
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-            />
-          </Tooltip>
-          <Tooltip title="分享">
-            <Button
-              shape="circle"
-              size="large"
-              icon={<ShareAltOutlined />}
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-            />
-          </Tooltip>
-        </div>
-      </Layout>
+            </Card>
+          </Col>
+
+          {/* 右侧边栏 */}
+          <Col span={6}>
+            <Affix offsetTop={80}>
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {/* 相关法规 */}
+                <Card 
+                  title={<Text strong>相关法规</Text>}
+                  size="small"
+                  extra={<LinkOutlined style={{ color: '#1890ff' }} />}
+                >
+                  <List
+                    size="small"
+                    dataSource={[
+                      { id: '1', title: '民法典总则编司法解释', level: '司法解释' },
+                      { id: '2', title: '合同法', level: '法律' },
+                      { id: '3', title: '物权法', level: '法律' },
+                    ]}
+                    renderItem={item => (
+                      <List.Item style={{ padding: '8px 0' }}>
+                        <Space direction="vertical" size={0} style={{ width: '100%' }}>
+                          <Link to={`/legal-support/regulation-query/detail/${item.id}`}>
+                            <Text ellipsis style={{ fontSize: 13 }}>{item.title}</Text>
+                          </Link>
+                          <Tag color="blue" style={{ fontSize: 11 }}>{item.level}</Tag>
+                        </Space>
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+
+                {/* 典型案例 */}
+                <Card 
+                  title={<Text strong>典型案例</Text>}
+                  size="small"
+                  extra={<Badge count={data.relatedCases.length} style={{ backgroundColor: '#52c41a' }} />}
+                >
+                  <List
+                    size="small"
+                    dataSource={data.relatedCases}
+                    renderItem={item => (
+                      <List.Item style={{ padding: '8px 0' }}>
+                        <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                          <Link to={`/case/${item.id}`}>
+                            <Text ellipsis style={{ fontSize: 13 }}>{item.title}</Text>
+                          </Link>
+                          <Space size="small">
+                            <Tag color="orange" style={{ fontSize: 11 }}>{item.tag}</Tag>
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                              <EyeOutlined /> {item.views > 1000 ? `${(item.views / 1000).toFixed(1)}k` : item.views}
+                            </Text>
+                          </Space>
+                        </Space>
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+
+                {/* 文书模板 */}
+                <Card 
+                  title={<Text strong>文书模板</Text>}
+                  size="small"
+                  extra={<Badge count={data.templates.length} />}
+                >
+                  <List
+                    size="small"
+                    dataSource={data.templates}
+                    renderItem={item => (
+                      <List.Item 
+                        style={{ padding: '8px 0' }}
+                        extra={
+                          <Tooltip title="下载">
+                            <Button 
+                              type="link" 
+                              size="small"
+                              icon={<DownloadOutlined />}
+                              onClick={() => message.success('开始下载')}
+                            />
+                          </Tooltip>
+                        }
+                      >
+                        <Space size="small">
+                          {item.type === 'docx' ? (
+                            <FileWordOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                          ) : (
+                            <FilePdfOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
+                          )}
+                          <Text ellipsis style={{ fontSize: 13, maxWidth: 150 }}>
+                            {item.title}
+                          </Text>
+                        </Space>
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+
+                {/* 操作按钮 */}
+                <Card size="small">
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Button 
+                      block
+                      type={isFavorited ? "default" : "primary"}
+                      icon={isFavorited ? <StarFilled /> : <StarOutlined />}
+                      onClick={toggleFavorite}
+                    >
+                      {isFavorited ? '已收藏' : '收藏本法'}
+                    </Button>
+                    <Button 
+                      block
+                      icon={<ShareAltOutlined />}
+                    >
+                      分享
+                    </Button>
+                  </Space>
+                </Card>
+              </Space>
+            </Affix>
+          </Col>
+        </Row>
+      </div>
     </PageWrapper>
   );
 };

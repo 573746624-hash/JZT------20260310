@@ -537,12 +537,14 @@ const ApplyWizardWithLayout: React.FC = () => {
               </Typography.Title>
               <Descriptions
                 column={1}
-                labelStyle={{
-                  width: 150,
-                  justifyContent: "flex-end",
-                  fontSize: 16,
+                styles={{
+                  label: {
+                    width: 150,
+                    justifyContent: "flex-end",
+                    fontSize: 16,
+                  },
+                  content: { fontSize: 16, fontWeight: 500 }
                 }}
-                contentStyle={{ fontSize: 16, fontWeight: 500 }}
               >
                 <Descriptions.Item label="申请企业">
                   {previewData.basicInfo.applicant}
@@ -896,7 +898,7 @@ const ApplyWizardWithLayout: React.FC = () => {
             bordered={false}
             style={{ marginBottom: DESIGN_TOKENS.spacing.md }}
             headStyle={{ borderBottom: "none", paddingLeft: 0 }}
-            bodyStyle={{ paddingLeft: 0, paddingRight: 0 }}
+            styles={{ body: { paddingLeft: 0, paddingRight: 0 } }}
           >
             <Row gutter={24}>
               <Col span={12}>
@@ -930,7 +932,7 @@ const ApplyWizardWithLayout: React.FC = () => {
             bordered={false}
             style={{ marginBottom: DESIGN_TOKENS.spacing.md }}
             headStyle={{ borderBottom: "none", paddingLeft: 0 }}
-            bodyStyle={{ paddingLeft: 0, paddingRight: 0 }}
+            styles={{ body: { paddingLeft: 0, paddingRight: 0 } }}
           >
             <Alert
               message="资质选择说明"

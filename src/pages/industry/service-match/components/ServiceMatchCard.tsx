@@ -56,7 +56,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
         boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         position: "relative",
       }}
-      bodyStyle={{ padding: "20px 20px 20px 50px" }}
+      styles={{ body: { padding: "20px 20px 20px 50px" } }}
       onClick={() => navigate(`/industry/service-match/detail/${item.id}`)}
     >
       {/* Selection Checkbox */}

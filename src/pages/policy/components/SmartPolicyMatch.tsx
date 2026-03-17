@@ -407,7 +407,7 @@ const SmartPolicyMatch: React.FC = () => {
         maskClosable={false}
         centered
         width={480}
-        bodyStyle={{ textAlign: "center", padding: "32px 24px" }}
+        styles={{ body: { textAlign: "center", padding: "32px 24px" } }}
       >
         <LockOutlined style={{ fontSize: 48, color: "#faad14", marginBottom: 16 }} />
         <Title level={4} style={{ marginBottom: 16 }}>

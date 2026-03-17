@@ -58,7 +58,7 @@ export const RegulationQuery = lazy(
 export const RegulationDetail = lazy(
   () => import("../pages/legal/RegulationDetail"),
 );
-export const AILawyer = lazy(() => import("../pages/legal-support/AILawyer"));
+export const AILawyer = lazy(() => import("../pages/legal-support/AILawyer/index"));
 export const TimelinessManagement = lazy(
   () => import("../pages/legal/TimelinessManagement/index"),
 );

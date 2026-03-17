@@ -158,7 +158,7 @@ const MyMatches: React.FC = () => {
                 <Card
                   hoverable
                   style={{ ...COMMON_STYLES.card, padding: "15px" }}
-                  bodyStyle={{ padding: 0 }}
+                  styles={{ body: { padding: 0 } }}
                 >
                   <div
                     style={{

@@ -111,7 +111,7 @@ const SmartPolicyResults: React.FC<SmartPolicyResultsProps> = ({
         />
       </div>
 
-      <Card bordered={false} bodyStyle={{ padding: "0 24px 24px" }}>
+      <Card bordered={false} styles={{ body: { padding: "0 24px 24px" } }}>
         {/* List */}
         <List
           loading={loading}

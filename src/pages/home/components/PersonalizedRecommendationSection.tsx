@@ -321,11 +321,13 @@ export const PersonalizedRecommendationSection: React.FC = () => {
             </div>
           }
           style={{ height: "100%", minHeight: "480px" }}
-          bodyStyle={{
-            padding: "16px 20px",
-            display: "flex",
-            flexDirection: "column",
-            height: "calc(100% - 58px)",
+          styles={{
+            body: {
+              padding: "16px 20px",
+              display: "flex",
+              flexDirection: "column",
+              height: "calc(100% - 58px)",
+            }
           }}
         >
           <div style={{ flex: 1, overflowY: "auto", paddingRight: "8px" }}>
@@ -353,8 +355,10 @@ export const PersonalizedRecommendationSection: React.FC = () => {
               <Descriptions
                 column={1}
                 size="small"
-                labelStyle={{ color: "#8c8c8c" }}
-                contentStyle={{ fontWeight: 500 }}
+                styles={{
+                  label: { color: "#8c8c8c" },
+                  content: { fontWeight: 500 }
+                }}
               >
                 <Descriptions.Item label="信用代码">
                   {profile.creditCode || "--"}

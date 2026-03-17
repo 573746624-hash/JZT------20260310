@@ -169,22 +169,6 @@ const ConnectModal: React.FC<ConnectModalProps> = ({
                 <span>{singleTarget?.tags?.[0] || "行业未知"}</span>
               </Space>
             </Col>
-            <Col flex="80px" style={{ textAlign: "center" }}>
-              <Progress
-                type="circle"
-                percent={singleTarget?.matchDegree || 0}
-                width={50}
-                strokeColor={getMatchColor(singleTarget?.matchDegree || 0)}
-                format={(percent) => (
-                  <span style={{ fontSize: "12px", color: "#333" }}>
-                    {percent}%
-                  </span>
-                )}
-              />
-              <div style={{ fontSize: "10px", marginTop: 4, color: "#999" }}>
-                匹配度
-              </div>
-            </Col>
           </Row>
         )}
       </div>
@@ -458,7 +442,7 @@ const ConnectModal: React.FC<ConnectModalProps> = ({
       title={isSuccess ? null : "发起对接申请"}
       centered
       maskClosable={false}
-      destroyOnClose
+      destroyOnHidden
     >
       {isSuccess ? renderSuccess() : renderForm()}
     </Modal>

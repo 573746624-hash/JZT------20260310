@@ -63,12 +63,12 @@ const HallHeader: React.FC<HallHeaderProps> = ({
   const filterMenu = (
     <Card
       style={{ width: 400, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-      bodyStyle={{ padding: "20px" }}
+      styles={{ body: { padding: "20px" } }}
     >
       <Space direction="vertical" style={{ width: "100%" }} size="middle">
         <div>
           <div style={{ marginBottom: 8, color: THEME.textBody }}>
-            {isProcurement ? "采购品类" : "产品类别"}
+            {isProcurement ? "采购品类" : "服务类别"}
           </div>
           <Select
             style={{ width: "100%" }}
@@ -76,9 +76,14 @@ const HallHeader: React.FC<HallHeaderProps> = ({
             allowClear
             onChange={(val) => handleFilterChange("category", val)}
           >
-            <Option value="tech">技术类</Option>
-            <Option value="service">服务类</Option>
-            <Option value="hardware">硬件类</Option>
+            <Option value="tech">技术服务</Option>
+            <Option value="legal">法律服务</Option>
+            <Option value="finance">财税服务</Option>
+            <Option value="hr">人力资源</Option>
+            <Option value="ip">知识产权</Option>
+            <Option value="marketing">市场推广</Option>
+            <Option value="office">办公服务</Option>
+            <Option value="financial">金融服务</Option>
           </Select>
         </div>
 

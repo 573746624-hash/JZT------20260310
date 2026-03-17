@@ -244,7 +244,7 @@ const QualificationDrawer: React.FC<QualificationDrawerProps> = ({
           cursor: "pointer",
           transition: "all 0.3s",
         }}
-        bodyStyle={{ padding: "12px 16px" }}
+        styles={{ body: { padding: "12px 16px" } }}
         hoverable
       >
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -460,7 +460,7 @@ const QualificationDrawer: React.FC<QualificationDrawerProps> = ({
       open={visible}
       onClose={handleCancel}
       maskClosable
-      destroyOnClose
+      destroyOnHidden
       styles={{
         body: {
           padding: 0,

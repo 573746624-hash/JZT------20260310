@@ -18,6 +18,11 @@ import {
   Breadcrumb,
   Radio,
   Spin,
+  Empty,
+  Checkbox,
+  DatePicker,
+  Divider,
+  Progress,
 } from "antd";
 import { useNavigate, useLocation, Link as RouterLink } from "react-router-dom";
 import PageWrapper from "../../components/PageWrapper";
@@ -40,6 +45,7 @@ import {
   CrownOutlined,
   FileTextOutlined,
   PieChartOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -80,6 +86,10 @@ interface FilterCriteria {
   status: "effective" | "revised" | "abolished" | "all"; // 法规状态
   timeRange: string; // 时效性
   keyword: string;
+  field: string[]; // 业务领域
+  applicableScenario: string[]; // 适用场景
+  publishOrg: string[]; // 发布机关
+  dateRange: [string, string] | null; // 发布时间范围
 }
 
 interface SavedFilter {
@@ -221,12 +231,27 @@ const hotScenarios = [
   { label: "电商维权", icon: <BankOutlined />, color: "#eb2f96" },
 ];
 
+// 筛选选项配置
+const filterOptions = {
+  levels: ["法律", "行政法规", "部门规章", "地方性法规", "司法解释", "规范性文件"],
+  fields: ["劳动法", "公司法", "财税法", "知识产权", "合同法", "网络安全", "民商法", "刑法"],
+  applicableScenarios: ["用工合规", "税务合规", "数据合规", "合同履约", "公司治理", "电商维权", "知识产权保护"],
+  publishOrgs: ["全国人大", "全国人大常委会", "国务院", "最高人民法院", "最高人民检察院", "各部委", "地方政府"],
+  statuses: [
+    { label: "现行有效", value: "effective" },
+    { label: "已修订", value: "revised" },
+    { label: "已废止", value: "abolished" },
+    { label: "全部", value: "all" },
+  ],
+};
+
 const RegulationQuery: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   // const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // 筛选状态
   const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>({
@@ -235,6 +260,10 @@ const RegulationQuery: React.FC = () => {
     status: "effective",
     timeRange: "全部",
     keyword: "",
+    field: [], // 业务领域
+    applicableScenario: [], // 适用场景
+    publishOrg: [], // 发布机关
+    dateRange: null, // 发布时间范围
   });
 
   // 搜索相关
@@ -244,6 +273,7 @@ const RegulationQuery: React.FC = () => {
   >([]);
   const debouncedKeyword = useDebounce(searchKeyword, 300);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
 
   // 排序
   const [sortBy, setSortBy] = useState<"relevance" | "date" | "level">(
@@ -270,7 +300,7 @@ const RegulationQuery: React.FC = () => {
   // 收藏状态管理
   const [favorites, setFavorites] = useState<any[]>([]);
 
-  // 加载收藏数据
+  // 加载收藏数据和搜索历史
   useEffect(() => {
     const loadFavorites = () => {
       try {
@@ -280,12 +310,26 @@ const RegulationQuery: React.FC = () => {
         console.error("Failed to load favorites", e);
       }
     };
+    
+    const loadSearchHistory = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem("search-history") || "[]");
+        setSearchHistory(stored);
+      } catch (e) {
+        console.error("Failed to load search history", e);
+      }
+    };
+    
     loadFavorites();
+    loadSearchHistory();
 
     // 监听 storage 事件以同步状态
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "my-favorites") {
         loadFavorites();
+      }
+      if (e.key === "search-history") {
+        loadSearchHistory();
       }
     };
     window.addEventListener("storage", handleStorageChange);
@@ -343,13 +387,14 @@ const RegulationQuery: React.FC = () => {
   useEffect(() => {
     const state = location.state as { scenario?: string } | undefined;
     if (state?.scenario) {
+      setHasSearched(true); // 从其他页面跳转过来，标记已搜索
       setFilterCriteria((prev) => ({ ...prev, scenario: state.scenario! }));
       setSearchKeyword(state.scenario!);
       // Trigger risk alert for specific scenarios
       if (["电商维权", "数据合规"].includes(state.scenario!)) {
         setRiskAlertVisible(true);
         setRiskAlertMessage(
-          `检测到“${state.scenario}”涉及《电子商务法》及《个人信息保护法》交叉影响，近期海关统计要求有新变动，建议重点关注本周更新的红色条款。`,
+          `检测到"${state.scenario}"涉及《电子商务法》及《个人信息保护法》交叉影响，近期海关统计要求有新变动，建议重点关注本周更新的红色条款。`,
         );
       }
     }
@@ -442,16 +487,40 @@ const RegulationQuery: React.FC = () => {
     return result;
   }, [filterCriteria, sortBy]);
 
+  // 保存搜索历史
+  const saveSearchHistory = (keyword: string) => {
+    if (!keyword.trim()) return;
+    const history = [keyword, ...searchHistory.filter(h => h !== keyword)].slice(0, 5);
+    setSearchHistory(history);
+    localStorage.setItem('search-history', JSON.stringify(history));
+  };
+
+  // 删除单条搜索历史
+  const removeSearchHistory = (keyword: string) => {
+    const history = searchHistory.filter(h => h !== keyword);
+    setSearchHistory(history);
+    localStorage.setItem('search-history', JSON.stringify(history));
+  };
+
+  // 清空搜索历史
+  const clearSearchHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('search-history');
+    message.success('搜索历史已清空');
+  };
+
   // 处理搜索
   const handleSearch = (value: string) => {
+    setHasSearched(true); // 标记已搜索
     setFilterCriteria((prev) => ({ ...prev, keyword: value }));
     setSearchSuggestions([]); // 关闭联想
+    saveSearchHistory(value); // 保存搜索历史
 
     // Check for risk alert trigger based on keyword
     if (value.includes("电商") || value.includes("数据")) {
       setRiskAlertVisible(true);
       setRiskAlertMessage(
-        `检测到“${value}”涉及相关法规交叉影响，近期监管要求有变动，建议重点关注红色条款。`,
+        `检测到"${value}"涉及相关法规交叉影响，近期监管要求有变动，建议重点关注红色条款。`,
       );
     } else {
       setRiskAlertVisible(false);
@@ -461,6 +530,7 @@ const RegulationQuery: React.FC = () => {
   // 热门场景点击
   const handleScenarioClick = (scenario: string) => {
     // Toggle logic or set? Requirement says "click to trigger search"
+    setHasSearched(true); // 标记已搜索
     setFilterCriteria((prev) => ({
       ...prev,
       scenario: scenario,
@@ -504,6 +574,25 @@ const RegulationQuery: React.FC = () => {
     message.info('筛选已重置');
   };
   */
+
+  // 关键词高亮函数
+  const highlightKeyword = (text: string, keyword: string) => {
+    if (!keyword || !text) return text;
+    const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
+    return (
+      <>
+        {parts.map((part, index) => 
+          part.toLowerCase() === keyword.toLowerCase() ? (
+            <mark key={index} style={{ background: '#fff566', padding: '0 2px' }}>
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </>
+    );
+  };
 
   // 导出
   const handleExport = () => {
@@ -651,6 +740,14 @@ const RegulationQuery: React.FC = () => {
                     ? "已修订"
                     : "尚未生效"}
               </Tag>
+              {record.isNew && (
+                <Tag color="red">最新发布</Tag>
+              )}
+              {dayjs(record.effectiveDate).isAfter(dayjs()) && (
+                <Tag color="orange" icon={<ClockCircleOutlined />}>
+                  {dayjs(record.effectiveDate).fromNow()}施行
+                </Tag>
+              )}
               <a
                 onClick={() =>
                   navigate(
@@ -660,8 +757,19 @@ const RegulationQuery: React.FC = () => {
                 }
                 style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}
               >
-                {text}
+                {highlightKeyword(text, filterCriteria.keyword)}
               </a>
+              {record.matchScore && (
+                <Tooltip title={`匹配度: ${record.matchScore}%`}>
+                  <Progress 
+                    percent={record.matchScore} 
+                    size="small"
+                    strokeColor="#52c41a"
+                    style={{ width: 100, marginLeft: 12 }}
+                    showInfo={false}
+                  />
+                </Tooltip>
+              )}
             </Space>
           </div>
 
@@ -786,28 +894,75 @@ const RegulationQuery: React.FC = () => {
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <Dropdown
               menu={{
-                items: searchSuggestions.map((s) => ({
-                  key: s.value,
-                  label: (
-                    <Space>
-                      {s.type === "场景" ? (
-                        <EnvironmentOutlined style={{ color: "#1890ff" }} />
-                      ) : (
-                        <BookOutlined style={{ color: "#52c41a" }} />
-                      )}
-                      <span>{s.value}</span>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {s.type}
-                      </Text>
-                    </Space>
-                  ),
-                  onClick: () => {
-                    setSearchKeyword(s.value);
-                    handleSearch(s.value);
-                  },
-                })),
+                items: [
+                  // 搜索联想
+                  ...searchSuggestions.map((s) => ({
+                    key: `suggestion-${s.value}`,
+                    label: (
+                      <Space>
+                        {s.type === "场景" ? (
+                          <EnvironmentOutlined style={{ color: "#1890ff" }} />
+                        ) : (
+                          <BookOutlined style={{ color: "#52c41a" }} />
+                        )}
+                        <span>{s.value}</span>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {s.type}
+                        </Text>
+                      </Space>
+                    ),
+                    onClick: () => {
+                      setSearchKeyword(s.value);
+                      handleSearch(s.value);
+                    },
+                  })),
+                  // 搜索历史
+                  ...(searchSuggestions.length === 0 && searchHistory.length > 0 && searchKeyword === "" ? [
+                    {
+                      key: 'history-divider',
+                      type: 'divider' as const,
+                    },
+                    {
+                      key: 'history-title',
+                      label: (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Text type="secondary" style={{ fontSize: 12 }}>搜索历史</Text>
+                          <Button type="link" size="small" onClick={(e) => {
+                            e.stopPropagation();
+                            clearSearchHistory();
+                          }}>
+                            清空
+                          </Button>
+                        </div>
+                      ),
+                      disabled: true,
+                    },
+                    ...searchHistory.map((h) => ({
+                      key: `history-${h}`,
+                      label: (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Space>
+                            <HistoryOutlined style={{ color: "#999" }} />
+                            <span>{h}</span>
+                          </Space>
+                          <CloseOutlined 
+                            style={{ color: "#999", fontSize: 12 }} 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSearchHistory(h);
+                            }}
+                          />
+                        </div>
+                      ),
+                      onClick: () => {
+                        setSearchKeyword(h);
+                        handleSearch(h);
+                      },
+                    }))
+                  ] : []),
+                ],
               }}
-              open={searchSuggestions.length > 0}
+              open={searchSuggestions.length > 0 || (searchHistory.length > 0 && searchKeyword === "")}
             >
               <Input.Search
                 placeholder="请输入如“跨境电商知识产权侵权”或“员工加班费争议”等具体场景..."
@@ -905,8 +1060,160 @@ const RegulationQuery: React.FC = () => {
         )}
 
         <Row gutter={24}>
-          {/* 左侧筛选区已移除，内容区全宽显示 */}
-          <Col span={24}>
+          {/* 左侧筛选面板 */}
+          <Col span={6}>
+            <Card 
+              title={
+                <Space>
+                  <Text strong>筛选条件</Text>
+                  <Tag color="blue">{
+                    (filterCriteria.level.length > 0 ? 1 : 0) +
+                    (filterCriteria.field.length > 0 ? 1 : 0) +
+                    (filterCriteria.applicableScenario.length > 0 ? 1 : 0) +
+                    (filterCriteria.publishOrg.length > 0 ? 1 : 0) +
+                    (filterCriteria.dateRange ? 1 : 0)
+                  }</Tag>
+                </Space>
+              }
+              extra={
+                <Button 
+                  type="link" 
+                  size="small"
+                  onClick={() => {
+                    setFilterCriteria({
+                      scenario: "全部",
+                      level: filterOptions.levels,
+                      status: "effective",
+                      timeRange: "全部",
+                      keyword: "",
+                      field: [],
+                      applicableScenario: [],
+                      publishOrg: [],
+                      dateRange: null,
+                    });
+                    message.info("筛选条件已重置");
+                  }}
+                >
+                  重置
+                </Button>
+              }
+              style={{ marginBottom: 24 }}
+            >
+              {/* 效力层级 */}
+              <div style={{ marginBottom: 20 }}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>效力层级</Text>
+                <Checkbox.Group
+                  options={filterOptions.levels}
+                  value={filterCriteria.level}
+                  onChange={(values) => {
+                    setFilterCriteria({ ...filterCriteria, level: values as string[] });
+                    if (hasSearched) setHasSearched(true);
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                />
+              </div>
+
+              <Divider style={{ margin: "16px 0" }} />
+
+              {/* 业务领域 */}
+              <div style={{ marginBottom: 20 }}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>业务领域</Text>
+                <Checkbox.Group
+                  options={filterOptions.fields}
+                  value={filterCriteria.field}
+                  onChange={(values) => {
+                    setFilterCriteria({ ...filterCriteria, field: values as string[] });
+                    if (hasSearched) setHasSearched(true);
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                />
+              </div>
+
+              <Divider style={{ margin: "16px 0" }} />
+
+              {/* 适用场景 */}
+              <div style={{ marginBottom: 20 }}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>适用场景</Text>
+                <Checkbox.Group
+                  options={filterOptions.applicableScenarios}
+                  value={filterCriteria.applicableScenario}
+                  onChange={(values) => {
+                    setFilterCriteria({ ...filterCriteria, applicableScenario: values as string[] });
+                    if (hasSearched) setHasSearched(true);
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                />
+              </div>
+
+              <Divider style={{ margin: "16px 0" }} />
+
+              {/* 法规状态 */}
+              <div style={{ marginBottom: 20 }}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>法规状态</Text>
+                <Radio.Group
+                  value={filterCriteria.status}
+                  onChange={(e) => {
+                    setFilterCriteria({ ...filterCriteria, status: e.target.value });
+                    if (hasSearched) setHasSearched(true);
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                >
+                  {filterOptions.statuses.map(status => (
+                    <Radio key={status.value} value={status.value}>{status.label}</Radio>
+                  ))}
+                </Radio.Group>
+              </div>
+
+              <Divider style={{ margin: "16px 0" }} />
+
+              {/* 发布机关 */}
+              <div style={{ marginBottom: 20 }}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>发布机关</Text>
+                <Checkbox.Group
+                  options={filterOptions.publishOrgs}
+                  value={filterCriteria.publishOrg}
+                  onChange={(values) => {
+                    setFilterCriteria({ ...filterCriteria, publishOrg: values as string[] });
+                    if (hasSearched) setHasSearched(true);
+                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                />
+              </div>
+
+              <Divider style={{ margin: "16px 0" }} />
+
+              {/* 发布时间 */}
+              <div style={{ marginBottom: 20 }}>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>发布时间</Text>
+                <DatePicker.RangePicker
+                  style={{ width: "100%" }}
+                  placeholder={["开始日期", "结束日期"]}
+                  onChange={(dates, dateStrings) => {
+                    setFilterCriteria({ 
+                      ...filterCriteria, 
+                      dateRange: dates ? [dateStrings[0], dateStrings[1]] : null 
+                    });
+                    if (hasSearched) setHasSearched(true);
+                  }}
+                />
+              </div>
+
+              {/* 应用筛选按钮 */}
+              <Button 
+                type="primary" 
+                block
+                onClick={() => {
+                  setHasSearched(true);
+                  message.success("筛选条件已应用");
+                }}
+              >
+                应用筛选
+              </Button>
+            </Card>
+          </Col>
+
+          {/* 右侧内容区 */}
+          <Col span={18}>
             {/* 5. 法规列表区 */}
             <Card styles={{ body: { padding: 0 } }}>
               {/* List Header / Toolbar */}
@@ -938,33 +1245,119 @@ const RegulationQuery: React.FC = () => {
                 </Space>
               </div>
 
-              <Table
-                columns={columns}
-                dataSource={filteredData}
-                rowKey="id"
-                pagination={{
-                  pageSize: 10,
-                  showTotal: (total) => `共 ${total} 条`,
-                  showSizeChanger: true,
-                }}
-                showHeader={false}
-              />
+              {!hasSearched ? (
+                // 未搜索时显示空状态引导
+                <div style={{ padding: "80px 24px", textAlign: "center" }}>
+                  <Empty
+                    image={<BookOutlined style={{ fontSize: 80, color: "#d9d9d9" }} />}
+                    imageStyle={{ height: 100 }}
+                    description={
+                      <div>
+                        <Title level={3} style={{ color: "#595959", marginTop: 24 }}>
+                          开始您的法规查询
+                        </Title>
+                        <Paragraph type="secondary" style={{ fontSize: 14, marginTop: 16 }}>
+                          请在上方搜索框输入关键词，或点击热门场景快速查询
+                        </Paragraph>
+                        <Paragraph type="secondary" style={{ fontSize: 13, marginTop: 8 }}>
+                          支持搜索法规名称、文号、关键词或具体业务场景
+                        </Paragraph>
+                      </div>
+                    }
+                  >
+                    <Space direction="vertical" size="large" style={{ marginTop: 32 }}>
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 13 }}>快速开始：</Text>
+                        <div style={{ marginTop: 12 }}>
+                          <Space wrap>
+                            {hotScenarios.slice(0, 3).map((scene) => (
+                              <Button
+                                key={scene.label}
+                                type="dashed"
+                                icon={scene.icon}
+                                onClick={() => handleScenarioClick(scene.label)}
+                                style={{ borderColor: scene.color, color: scene.color }}
+                              >
+                                {scene.label}
+                              </Button>
+                            ))}
+                          </Space>
+                        </div>
+                      </div>
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 13 }}>或者尝试搜索：</Text>
+                        <div style={{ marginTop: 12 }}>
+                          <Space wrap>
+                            <Tag style={{ cursor: "pointer" }} onClick={() => handleSearch("劳动合同")}>劳动合同</Tag>
+                            <Tag style={{ cursor: "pointer" }} onClick={() => handleSearch("个人信息保护")}>个人信息保护</Tag>
+                            <Tag style={{ cursor: "pointer" }} onClick={() => handleSearch("电子商务")}>电子商务</Tag>
+                            <Tag style={{ cursor: "pointer" }} onClick={() => handleSearch("企业所得税")}>企业所得税</Tag>
+                          </Space>
+                        </div>
+                      </div>
+                    </Space>
+                  </Empty>
+                </div>
+              ) : (
+                // 已搜索时显示结果列表
+                <>
+                  <Table
+                    columns={columns}
+                    dataSource={filteredData}
+                    rowKey="id"
+                    pagination={{
+                      pageSize: 10,
+                      showTotal: (total) => `共 ${total} 条`,
+                      showSizeChanger: true,
+                    }}
+                    showHeader={false}
+                    locale={{
+                      emptyText: (
+                        <Empty
+                          description={
+                            <div>
+                              <Text>未找到符合条件的法规</Text>
+                              <div style={{ marginTop: 8 }}>
+                                <Button type="link" onClick={() => setHasSearched(false)}>
+                                  返回首页
+                                </Button>
+                                <Button type="link" onClick={() => {
+                                  setFilterCriteria({
+                                    scenario: "全部",
+                                    level: ["法律", "行政法规", "最高院司法解释", "地方性法规"],
+                                    status: "effective",
+                                    timeRange: "全部",
+                                    keyword: "",
+                                  });
+                                  setSearchKeyword("");
+                                }}>
+                                  清空筛选条件
+                                </Button>
+                              </div>
+                            </div>
+                          }
+                        />
+                      ),
+                    }}
+                  />
 
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "16px 0",
-                  color: "#999",
-                }}
-              >
-                {loading ? (
-                  <Space>
-                    <Spin /> 正在加载历史法规数据...
-                  </Space>
-                ) : (
-                  "已加载全部数据"
-                )}
-              </div>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "16px 0",
+                      color: "#999",
+                    }}
+                  >
+                    {loading ? (
+                      <Space>
+                        <Spin /> 正在加载历史法规数据...
+                      </Space>
+                    ) : (
+                      "已加载全部数据"
+                    )}
+                  </div>
+                </>
+              )}
             </Card>
           </Col>
         </Row>
@@ -976,7 +1369,7 @@ const RegulationQuery: React.FC = () => {
           onCancel={() => setMemberModalVisible(false)} // Can close via X or button
           footer={null}
           width={400}
-          bodyStyle={{ textAlign: "center", padding: 40 }}
+          styles={{ body: { textAlign: "center", padding: 40 } }}
           centered
         >
           <CrownOutlined

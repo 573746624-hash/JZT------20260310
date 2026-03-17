@@ -109,7 +109,7 @@ export const EnterpriseCertificationModal: React.FC<
       open={visible}
       onCancel={handleClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       width={700}
     >
       <Spin spinning={loading}>
