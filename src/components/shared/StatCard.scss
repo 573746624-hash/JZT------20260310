@@ -1,0 +1,125 @@
+.stat-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: none;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .ant-card-body {
+    padding: 24px;
+  }
+
+  .stat-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(24, 144, 255, 0.1);
+
+      .icon-emoji {
+        font-size: 24px;
+      }
+    }
+
+    .stat-info {
+      flex: 1;
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #262626;
+        line-height: 1.2;
+        margin-bottom: 4px;
+      }
+
+      .stat-title {
+        font-size: 14px;
+        color: #8c8c8c;
+        margin-bottom: 8px;
+      }
+
+      .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 500;
+
+        .trend-icon {
+          font-size: 10px;
+        }
+
+        &.trend-positive {
+          color: #52c41a;
+        }
+
+        &.trend-negative {
+          color: #ff4d4f;
+        }
+      }
+    }
+  }
+
+  // 不同颜色主题
+  &.stat-card--blue {
+    .stat-icon {
+      background: rgba(24, 144, 255, 0.1);
+      color: #1890ff;
+    }
+  }
+
+  &.stat-card--green {
+    .stat-icon {
+      background: rgba(82, 196, 26, 0.1);
+      color: #52c41a;
+    }
+  }
+
+  &.stat-card--orange {
+    .stat-icon {
+      background: rgba(250, 140, 22, 0.1);
+      color: #fa8c16;
+    }
+  }
+
+  &.stat-card--purple {
+    .stat-icon {
+      background: rgba(114, 46, 209, 0.1);
+      color: #722ed1;
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .stat-card {
+    .stat-content {
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+
+        .icon-emoji {
+          font-size: 20px;
+        }
+      }
+
+      .stat-info {
+        .stat-value {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}
