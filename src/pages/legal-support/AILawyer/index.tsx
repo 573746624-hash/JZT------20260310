@@ -367,7 +367,7 @@ const AILawyer: React.FC = () => {
           item.id === chatId
             ? {
                 ...item,
-                messages: updatedMessages,
+                messages: [...item.messages, aiMessage],
                 timestamp: new Date(),
               }
             : item,

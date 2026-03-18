@@ -209,6 +209,9 @@ export const routeMenuMap: Record<string, string> = {
 
   // 申报管理模块路由映射（已迁移至政策中心下）- 2026-03-03
   "/application": "/application?view=status", // 我的申报页面 - 默认显示状态视图
+  "/application?view=list": "/application?view=list", // 申报管理列表视图
+  "/application?view=status": "/application?view=status", // 我的申报状态视图
+  "/application?view=statistics": "/application?view=statistics", // 统计分析视图
   "/application/detail": "/application?view=status", // 申报详情页面
   "/application/apply": "/application?view=status", // 申报申请页面
   "/application/success": "/application?view=status", // 申报成功页面
@@ -360,7 +363,8 @@ export function getSelectedKeys(pathname: string): string[] {
       case "statistics":
         return ["/application?view=statistics"];
       default:
-        return ["/application?view=list"];
+        // 默认选中"我的申报"
+        return ["/application?view=status"];
     }
   }
 

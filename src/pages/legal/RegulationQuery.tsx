@@ -34,8 +34,6 @@ import {
   BankOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
-  HeartOutlined,
-  HeartFilled,
   RiseOutlined,
   WarningOutlined,
   ThunderboltOutlined,
@@ -297,20 +295,9 @@ const RegulationQuery: React.FC = () => {
   const [memberModalVisible, setMemberModalVisible] = useState(false);
   const [analysisClickCount, setAnalysisClickCount] = useState(0);
 
-  // 收藏状态管理
-  const [favorites, setFavorites] = useState<any[]>([]);
 
-  // 加载收藏数据和搜索历史
+  // 加载搜索历史
   useEffect(() => {
-    const loadFavorites = () => {
-      try {
-        const stored = JSON.parse(localStorage.getItem("my-favorites") || "[]");
-        setFavorites(stored);
-      } catch (e) {
-        console.error("Failed to load favorites", e);
-      }
-    };
-    
     const loadSearchHistory = () => {
       try {
         const stored = JSON.parse(localStorage.getItem("search-history") || "[]");
@@ -320,14 +307,10 @@ const RegulationQuery: React.FC = () => {
       }
     };
     
-    loadFavorites();
     loadSearchHistory();
 
     // 监听 storage 事件以同步状态
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "my-favorites") {
-        loadFavorites();
-      }
       if (e.key === "search-history") {
         loadSearchHistory();
       }
@@ -336,52 +319,6 @@ const RegulationQuery: React.FC = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // 切换收藏状态
-  const toggleFavorite = (record: RegulationItem, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      const list = [...favorites];
-      const index = list.findIndex(
-        (item: any) => item.id === record.id && item.type === "regulation",
-      );
-
-      if (index > -1) {
-        // 取消收藏
-        list.splice(index, 1);
-        message.success("已取消收藏");
-      } else {
-        // 添加收藏
-        list.unshift({
-          id: record.id,
-          title: record.title,
-          description: record.summary,
-          type: "regulation",
-          category: record.level,
-          addedDate: dayjs().format("YYYY-MM-DD"),
-          sourceModule: "合规管理",
-          url: `/legal-support/regulation-query/detail/${record.id}`,
-          tags: record.tags,
-          status: record.status,
-          amount: 0,
-        });
-        message.success("已添加至收藏");
-      }
-
-      setFavorites(list);
-      localStorage.setItem("my-favorites", JSON.stringify(list));
-
-      // 触发 storage 事件以便其他组件感知
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: "my-favorites",
-          newValue: JSON.stringify(list),
-        }),
-      );
-    } catch (error) {
-      console.error("操作失败:", error);
-      message.error("操作失败");
-    }
-  };
 
   // 初始化来自 State 的参数
   useEffect(() => {
@@ -825,32 +762,6 @@ const RegulationQuery: React.FC = () => {
                   { state: { scenario: record.scenario } },
                 )
               }
-            />
-          </Tooltip>
-
-          <Tooltip
-            title={
-              favorites.some(
-                (f) => f.id === record.id && f.type === "regulation",
-              )
-                ? "取消收藏"
-                : "收藏"
-            }
-          >
-            <Button
-              type="text"
-              icon={
-                favorites.some(
-                  (f) => f.id === record.id && f.type === "regulation",
-                ) ? (
-                  <HeartFilled style={{ fontSize: "16px", color: "#ff4d4f" }} />
-                ) : (
-                  <HeartOutlined
-                    style={{ fontSize: "16px", color: "#ff4d4f" }}
-                  />
-                )
-              }
-              onClick={(e) => toggleFavorite(record, e)}
             />
           </Tooltip>
 

@@ -149,24 +149,6 @@ const BusinessHallBanner: React.FC<BusinessHallBannerProps> = ({
               快捷操作
             </Title>
             <Space size="large" direction="vertical" style={{ width: "100%" }}>
-              <Button
-                type="primary"
-                size="large"
-                icon={<PlusOutlined />}
-                onClick={onPublishClick}
-                style={{
-                  width: "200px",
-                  height: "48px",
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  borderColor: "rgba(255, 255, 255, 0.3)",
-                  backdropFilter: "blur(10px)",
-                  fontWeight: "500",
-                  fontSize: "16px",
-                }}
-                ghost
-              >
-                发布业务需求
-              </Button>
               <Space size="middle">
                 <Button
                   type="text"
@@ -179,7 +161,7 @@ const BusinessHallBanner: React.FC<BusinessHallBannerProps> = ({
                     padding: "8px 16px",
                   }}
                 >
-                  我的服务
+                  我的业务
                 </Button>
                 <Button
                   type="text"

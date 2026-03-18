@@ -394,9 +394,7 @@ const ServiceMatchHome: React.FC = () => {
       <div style={{ padding: "20px" }}>
         {/* Privacy Control Panel */}
         <PrivacyControlPanel
-          userLevel={userLevel}
           showMaskedData={showMaskedData}
-          onUserLevelChange={setUserLevel}
           onMaskingToggle={setShowMaskedData}
           compact={true}
         />
@@ -436,9 +434,6 @@ const ServiceMatchHome: React.FC = () => {
             onChange={handleSortChange}
             buttonStyle="solid"
           >
-            <Radio.Button value="match">匹配度</Radio.Button>
-            <Radio.Button value="time">发布时间</Radio.Button>
-            <Radio.Button value="qual">企业资质</Radio.Button>
           </Radio.Group>
         </div>
 

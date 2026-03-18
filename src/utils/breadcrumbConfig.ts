@@ -87,7 +87,7 @@ export const breadcrumbConfig: BreadcrumbConfig = {
   ],
   "/legal-support/ai-lawyer": [
     { title: "法律护航", path: "/legal-support" },
-    { title: "AI法律顾问" },
+    { title: "AI问答" },
   ],
 
   // 企服管理模块

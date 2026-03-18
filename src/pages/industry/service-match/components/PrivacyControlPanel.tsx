@@ -2,74 +2,30 @@ import React from "react";
 import {
   Card,
   Switch,
-  Select,
-  Space,
   Typography,
   Tooltip,
-  Badge,
   Divider,
 } from "antd";
 import {
   EyeOutlined,
   EyeInvisibleOutlined,
   SecurityScanOutlined,
-  CrownOutlined,
-  UserOutlined,
-  TeamOutlined,
 } from "@ant-design/icons";
 import { THEME } from "../styles";
 
 const { Text, Title } = Typography;
-const { Option } = Select;
 
 interface PrivacyControlPanelProps {
-  userLevel: string;
   showMaskedData: boolean;
-  onUserLevelChange: (level: string) => void;
   onMaskingToggle: (enabled: boolean) => void;
   compact?: boolean; // 紧凑模式
 }
 
 const PrivacyControlPanel: React.FC<PrivacyControlPanelProps> = ({
-  userLevel,
   showMaskedData,
-  onUserLevelChange,
   onMaskingToggle,
   compact = false,
 }) => {
-  const userLevelConfig = {
-    guest: {
-      label: "访客",
-      icon: <UserOutlined />,
-      color: "#999",
-      description: "基础信息查看",
-      maskedFields: ["企业名称", "联系电话", "邮箱地址", "详细地址", "价格信息", "项目案例"],
-    },
-    member: {
-      label: "会员",
-      icon: <TeamOutlined />,
-      color: "#1890ff",
-      description: "部分信息可见",
-      maskedFields: ["联系电话", "邮箱地址", "详细地址", "价格信息"],
-    },
-    vip: {
-      label: "VIP会员",
-      icon: <CrownOutlined />,
-      color: "#faad14",
-      description: "高级信息访问",
-      maskedFields: ["联系电话", "邮箱地址"],
-    },
-    admin: {
-      label: "管理员",
-      icon: <SecurityScanOutlined />,
-      color: "#52c41a",
-      description: "完整信息访问",
-      maskedFields: [],
-    },
-  };
-
-  const currentConfig = userLevelConfig[userLevel as keyof typeof userLevelConfig];
-
   if (compact) {
     return (
       <div
@@ -92,28 +48,6 @@ const PrivacyControlPanel: React.FC<PrivacyControlPanelProps> = ({
             size="small"
           />
         </Tooltip>
-        
-        <Select
-          value={userLevel}
-          onChange={onUserLevelChange}
-          size="small"
-          style={{ width: 100 }}
-        >
-          {Object.entries(userLevelConfig).map(([key, config]) => (
-            <Option key={key} value={key}>
-              <Space size={4}>
-                <span style={{ color: config.color }}>{config.icon}</span>
-                <span>{config.label}</span>
-              </Space>
-            </Option>
-          ))}
-        </Select>
-
-        <Badge
-          count={currentConfig.maskedFields.length}
-          style={{ backgroundColor: currentConfig.color }}
-          title={`${currentConfig.maskedFields.length}项信息被遮挡`}
-        />
       </div>
     );
   }

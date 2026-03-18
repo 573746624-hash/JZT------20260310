@@ -4,7 +4,7 @@
  * 功能: 完整展示政策详情，包含申报状态、基本信息、竞争力分析、快速申报等模块
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Layout,
   Card,
