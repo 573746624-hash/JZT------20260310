@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import StatCard from './StatCard';
 import CategoryGrid from './CategoryGrid';
 import FilterToolbar from './FilterToolbar';
-import './HallPageTemplate.scss';
+import './HallPageTemplate.css';
 
 interface HallPageTemplateProps {
   title: string;

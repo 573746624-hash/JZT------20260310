@@ -11,9 +11,9 @@ import {
   Typography,
   Button,
   Steps,
-  Breadcrumb,
   message,
 } from "antd";
+import BreadcrumbNav from "../../../../components/common/BreadcrumbNav";
 import { FileTextOutlined, CustomerServiceOutlined } from "@ant-design/icons";
 
 import type { FinancingOption } from "./types";
@@ -76,10 +76,7 @@ const FinancingDiagnosisResult: React.FC = () => {
       }}
     >
       {/* 面包屑导航 */}
-      <Breadcrumb
-        style={{ marginBottom: "16px" }}
-        items={[{ title: "金融服务" }, { title: "诊断分析报告" }]}
-      />
+      <BreadcrumbNav />
 
       {/* 页面标题 */}
       <Card style={{ marginBottom: "24px" }}>

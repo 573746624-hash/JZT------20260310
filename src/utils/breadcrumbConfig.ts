@@ -35,6 +35,18 @@ export const breadcrumbConfig: BreadcrumbConfig = {
     { title: "政策中心", path: "/policy-center" },
     { title: "获批名单" },
   ],
+  "/policy/search": [
+    { title: "政策中心", path: "/policy-center" },
+    { title: "政策搜索" },
+  ],
+  "/policy/ai-search": [
+    { title: "政策中心", path: "/policy-center" },
+    { title: "AI政策搜索" },
+  ],
+  "/policy/detail": [
+    { title: "政策中心", path: "/policy-center" },
+    { title: "政策详情" },
+  ],
 
   // 申报管理模块（已迁移至政策中心下）- 2026-03-04
   "/application": [
@@ -82,6 +94,10 @@ export const breadcrumbConfig: BreadcrumbConfig = {
   "/industry/service-match/workbench": [
     { title: "企服管理" },
     { title: "工作台" },
+  ],
+  "/industry/service-match/business-hall": [
+    { title: "企服管理" },
+    { title: "业务大厅" },
   ],
   "/industry/service-match/procurement-hall": [
     { title: "企服管理" },
@@ -183,6 +199,10 @@ export const getBreadcrumbItems = (pathname: string): BreadcrumbItem[] => {
     {
       pattern: /\/policy-center\/detail\/[^/]+$/,
       key: "/policy-center/detail",
+    },
+    {
+      pattern: /\/policy\/detail\/[^/]+$/,
+      key: "/policy/detail",
     },
 
     // 申报管理

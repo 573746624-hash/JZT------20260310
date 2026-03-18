@@ -1,0 +1,533 @@
+/* 采购大厅 - 完全按照业务大厅风格 */
+.procurement-hall-replica {
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* 顶部横幅 - 完全复制业务大厅风格 */
+.hall-header {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  color: white;
+  padding: 40px 24px;
+  position: relative;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.title-section .hall-title {
+  font-size: 36px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: white;
+}
+
+.title-section .hall-subtitle {
+  font-size: 16px;
+  margin: 0;
+  opacity: 0.9;
+  color: white;
+}
+
+.quick-actions .ant-btn {
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.quick-actions .ant-btn-primary {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.quick-actions .ant-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 统计数据 - 完全复制业务大厅风格 */
+.stats-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 32px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f9ff;
+  border-radius: 8px;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #262626;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+/* 分类区域 - 完全复制业务大厅的8个分类风格 */
+.categories-section {
+  max-width: 1200px;
+  margin: 48px auto;
+  padding: 0 24px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.categories-grid {
+  margin-bottom: 32px;
+}
+
+.category-item {
+  background: white;
+  border-radius: 8px;
+  padding: 24px 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid #f0f0f0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-item:hover {
+  border-color: #1890ff;
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.category-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f9ff;
+  border-radius: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.category-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.category-desc {
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 1.4;
+}
+
+/* 搜索筛选区域 - 完全复制业务大厅风格 */
+.search-filter-section {
+  max-width: 1200px;
+  margin: 0 auto 32px;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.search-container .ant-input-search {
+  border-radius: 6px;
+}
+
+.search-container .ant-input-search .ant-input {
+  border: 1px solid #d9d9d9;
+  font-size: 14px;
+}
+
+.search-container .ant-input-search .ant-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.filter-container .ant-select {
+  border-radius: 6px;
+}
+
+.filter-container .ant-select .ant-select-selector {
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+}
+
+/* 需求列表 - 完全复制业务大厅的服务卡片风格 */
+.requirements-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.requirements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 需求卡片 - 完全按照业务大厅的服务卡片风格 */
+.requirement-service-card {
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.requirement-service-card:hover {
+  border-color: #1890ff;
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.requirement-service-card .ant-card-body {
+  padding: 24px;
+}
+
+/* 卡片头部 - 完全复制业务大厅风格 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.company-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.company-details .company-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 6px;
+}
+
+.verified-badge {
+  color: #52c41a;
+  font-size: 14px;
+}
+
+.online-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  line-height: 1.2;
+}
+
+.company-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.category-tag {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.region-tag {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rating-section {
+  text-align: right;
+}
+
+.rating-text {
+  display: block;
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-top: 4px;
+}
+
+/* 服务内容 - 完全复制业务大厅风格 */
+.service-content {
+  margin-bottom: 16px;
+}
+
+.service-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1890ff;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.service-description {
+  font-size: 14px;
+  color: #595959;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.service-highlights {
+  background: #fafafa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.highlight-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.highlight-item:last-child {
+  margin-bottom: 0;
+}
+
+.highlight-label {
+  color: #8c8c8c;
+  margin-right: 8px;
+  min-width: 80px;
+}
+
+.highlight-value {
+  color: #262626;
+  font-weight: 500;
+}
+
+/* 标签区域 - 完全复制业务大厅风格 */
+.tags-section {
+  margin-bottom: 16px;
+}
+
+.service-tag {
+  margin-bottom: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #fa8c16;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+}
+
+/* 卡片底部 - 完全复制业务大厅风格 */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.stats-section .stat-item {
+  font-size: 12px;
+  color: #8c8c8c;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-buttons .ant-btn {
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.action-buttons .ant-btn-primary {
+  background: #1890ff;
+  border-color: #1890ff;
+  font-weight: 500;
+}
+
+.action-buttons .ant-btn-primary:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* 响应式设计 - 完全复制业务大厅风格 */
+@media (max-width: 768px) {
+  .hall-header {
+    padding: 24px 16px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .title-section .hall-title {
+    font-size: 28px;
+  }
+  
+  .categories-section,
+  .search-filter-section,
+  .requirements-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .search-filter-section {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .search-container {
+    width: 100%;
+  }
+  
+  .search-container .ant-input-search {
+    width: 100%;
+  }
+  
+  .filter-container {
+    width: 100%;
+  }
+  
+  .filter-container .ant-space {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .rating-section {
+    align-self: flex-end;
+    text-align: left;
+  }
+  
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .stats-section {
+    text-align: center;
+  }
+  
+  .action-buttons {
+    text-align: center;
+  }
+  
+  .action-buttons .ant-space {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .title-section .hall-title {
+    font-size: 24px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+  
+  .stat-number {
+    font-size: 20px;
+  }
+  
+  .category-item {
+    padding: 16px 12px;
+  }
+  
+  .category-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .category-name {
+    font-size: 14px;
+  }
+  
+  .category-desc {
+    font-size: 11px;
+  }
+  
+  .requirement-service-card .ant-card-body {
+    padding: 16px;
+  }
+  
+  .service-title {
+    font-size: 16px;
+  }
+  
+  .action-buttons .ant-space .ant-space-item {
+    flex: 1;
+  }
+  
+  .action-buttons .ant-btn {
+    width: 100%;
+  }
+}

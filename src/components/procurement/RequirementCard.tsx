@@ -9,9 +9,13 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined
 } from '@ant-design/icons';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
-import './RequirementCard.scss';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-cn';
+
+dayjs.extend(relativeTime);
+dayjs.locale('zh-cn');
+import './RequirementCard.css';
 
 interface Publisher {
   id: string;
@@ -144,10 +148,7 @@ const RequirementCard: React.FC<RequirementCardProps> = ({
               )}
             </div>
             <span className="publish-time">
-              发布于 {formatDistanceToNow(new Date(requirement.publishTime), { 
-                addSuffix: true, 
-                locale: zhCN 
-              })}
+              发布于 {dayjs(requirement.publishTime).fromNow()}
             </span>
           </div>
         </div>

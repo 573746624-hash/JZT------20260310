@@ -5,7 +5,8 @@
  */
 
 import React from "react";
-import { Row, Col, Typography, Button, Breadcrumb } from "antd";
+import { Row, Col, Typography, Button } from "antd";
+import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import { EditOutlined, BankOutlined } from "@ant-design/icons";
 import { ProfileOverviewCard, ProfileEditModal } from "./components/index.ts";
 import {
@@ -41,17 +42,7 @@ const CompanyManagement: React.FC = () => {
   return (
     <div style={{ background: "#f5f5f5", minHeight: "100vh", padding: "24px" }}>
       {/* 面包屑导航 */}
-      <Breadcrumb
-        style={{ marginBottom: "16px" }}
-        items={[
-          {
-            title: "系统管理",
-          },
-          {
-            title: "企业管理",
-          },
-        ]}
-      />
+      <BreadcrumbNav />
 
       {/* 页面头部 */}
       <Row

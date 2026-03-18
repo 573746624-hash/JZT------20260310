@@ -5,7 +5,8 @@
  */
 
 import React from "react";
-import { Card, Tabs, Breadcrumb, Spin, Alert, Button } from "antd";
+import { Card, Tabs, Spin, Alert, Button } from "antd";
+import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import {
   UserOutlined,
   HistoryOutlined,
@@ -85,10 +86,7 @@ const PersonalCenter: React.FC = () => {
   return (
     <div>
       {/* 面包屑导航 */}
-      <Breadcrumb
-        style={{ marginBottom: "16px" }}
-        items={[{ title: "系统管理" }, { title: "个人中心" }]}
-      />
+      <BreadcrumbNav />
 
       <div
         style={{

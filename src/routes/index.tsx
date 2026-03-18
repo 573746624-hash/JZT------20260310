@@ -87,6 +87,10 @@ export const industryRoutes = (
       element={<Pages.ServiceMatchWorkbench />}
     />
     <Route
+      path="/industry/service-match/business-hall"
+      element={<Pages.BusinessHall />}
+    />
+    <Route
       path="/industry/service-match/procurement-hall"
       element={<Pages.ProcurementHall />}
     />

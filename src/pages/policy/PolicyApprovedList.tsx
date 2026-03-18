@@ -5,7 +5,6 @@ import {
   Button,
   Space,
   Tag,
-  Breadcrumb,
   Pagination,
   Input,
 } from "antd";
@@ -15,6 +14,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import BreadcrumbNav from "../../components/common/BreadcrumbNav";
 
 const { Title, Text } = Typography;
 
@@ -95,42 +95,7 @@ const PolicyApprovedList: React.FC = () => {
         <div
           style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}
         >
-          <Breadcrumb
-            items={[
-              {
-                title: (
-                  <span
-                    style={{ cursor: "pointer" }}
-                    onClick={() => navigate("/")}
-                  >
-                    <HomeOutlined /> 首页
-                  </span>
-                ),
-              },
-              {
-                title: (
-                  <span
-                    style={{ cursor: "pointer" }}
-                    onClick={() => navigate("/policy-center/main")}
-                  >
-                    政策中心
-                  </span>
-                ),
-              },
-              {
-                title: (
-                  <span
-                    style={{ cursor: "pointer" }}
-                    onClick={() => navigate("/policy-center/smart-matching")}
-                  >
-                    智能匹配
-                  </span>
-                ),
-              },
-              { title: "历史获批企业名单" },
-            ]}
-            style={{ marginBottom: "24px" }}
-          />
+          <BreadcrumbNav />
 
           <div
             style={{

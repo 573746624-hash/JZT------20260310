@@ -21,9 +21,9 @@ import {
   Checkbox,
   DatePicker,
   Alert,
-  Breadcrumb,
 } from "antd";
 import PageWrapper from "../../../components/PageWrapper";
+import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import {
   SearchOutlined,
   BookOutlined,
@@ -94,10 +94,7 @@ const MyFavorites: React.FC = () => {
   return (
     <PageWrapper module="system">
       {/* 面包屑导航 */}
-      <Breadcrumb
-        style={{ marginBottom: "16px" }}
-        items={[{ title: "系统管理" }, { title: "我的收藏" }]}
-      />
+      <BreadcrumbNav />
 
       {/* 页面头部 */}
       <div style={{ marginBottom: 24 }}>

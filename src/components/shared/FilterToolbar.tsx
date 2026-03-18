@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Select, Button, Space, Input } from 'antd';
 import { SearchOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons';
-import './FilterToolbar.scss';
+import './FilterToolbar.css';
 
 const { Option } = Select;
 

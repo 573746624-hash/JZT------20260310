@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Badge } from 'antd';
-import './CategoryGrid.scss';
+import './CategoryGrid.css';
 
 interface Category {
   id: string;

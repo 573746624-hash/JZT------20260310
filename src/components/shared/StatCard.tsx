@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-import './StatCard.scss';
+import './StatCard.css';
 
 interface StatCardProps {
   title: string;
