@@ -4,13 +4,14 @@
  * 更新时间: 2026-02-26
  */
 
-export { PageHeader } from "./PageHeader.tsx";
-export { BannerSection } from "./BannerSection.tsx";
-export { DataOverviewSection } from "./DataOverviewSection.tsx";
-export { QuickActionsSection } from "./QuickActionsSection.tsx";
-export { ImportantRemindersSection } from "./ImportantRemindersSection.tsx";
-export { WeatherCalendarSection } from "./WeatherCalendarSection.tsx";
-export { EnterpriseGuideSection } from "./EnterpriseGuideSection.tsx";
-export { QuickToolsSection } from "./QuickToolsSection.tsx";
-export { PersonalizedRecommendationSection } from "./PersonalizedRecommendationSection.tsx";
-export { SmartDashboardSection } from "./SmartDashboardSection.tsx";
+export { PageHeader } from "./PageHeader";
+export { BannerSection } from "./BannerSection";
+export { DataOverviewSection } from "./DataOverviewSection";
+export { QuickActionsSection } from "./QuickActionsSection";
+export { ImportantRemindersSection } from "./ImportantRemindersSection";
+export { WeatherCalendarSection } from "./WeatherCalendarSection";
+export { EnterpriseGuideSection } from "./EnterpriseGuideSection";
+export { QuickToolsSection } from "./QuickToolsSection";
+export { PersonalizedRecommendationSection } from "./PersonalizedRecommendationSection";
+export { SmartDashboardSection } from "./SmartDashboardSection";
+export { SystemDynamicsSection } from "./SystemDynamicsSection";

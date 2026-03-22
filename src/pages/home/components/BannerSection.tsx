@@ -183,6 +183,7 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
       className="banner-section-wrapper hover-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{ borderRadius: '8px', overflow: 'hidden' }}
     >
       <div className="banner-carousel">
         {bannerData.map((item, index) => (
@@ -214,14 +215,14 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
         {/* 左右箭头 */}
         <button
           className="banner-arrow banner-arrow-left"
-          onClick={goToPrev}
+          onClick={(e) => { e.stopPropagation(); goToPrev(); }}
           aria-label="上一张"
         >
           <LeftOutlined />
         </button>
         <button
           className="banner-arrow banner-arrow-right"
-          onClick={goToNext}
+          onClick={(e) => { e.stopPropagation(); goToNext(); }}
           aria-label="下一张"
         >
           <RightOutlined />

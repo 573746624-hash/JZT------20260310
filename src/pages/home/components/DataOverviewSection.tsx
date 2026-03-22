@@ -34,7 +34,9 @@ export const DataOverviewSection: React.FC<DataOverviewSectionProps> = ({
             style={{
               background: `linear-gradient(135deg, ${item.color}15 0%, ${item.color}05 100%)`,
               border: `1px solid ${item.color}30`,
+              borderRadius: "8px",
             }}
+            bodyStyle={{ padding: '24px' }}
           >
             <div
               style={{

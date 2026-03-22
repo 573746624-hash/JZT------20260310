@@ -1,0 +1,93 @@
+/**
+ * 系统实时动态组件样式
+ * 创建时间: 2026-03-23
+ */
+
+.system-dynamics-wrapper {
+  position: relative;
+  overflow: hidden;
+  height: 280px; /* 默认高度适配常见空白 */
+  mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+}
+
+.system-dynamics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: scrollUp 20s linear infinite;
+}
+
+.system-dynamics-list:hover {
+  animation-play-state: paused;
+}
+
+.system-dynamics-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.system-dynamics-item:hover {
+  background: #fff;
+  border-color: #1890ff33;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.system-dynamics-icon {
+  margin-right: 12px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.system-dynamics-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.system-dynamics-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.system-dynamics-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #999;
+}
+
+@keyframes scrollUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .system-dynamics-wrapper {
+    height: 200px;
+  }
+}

@@ -329,71 +329,73 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
         <Card
           className="hover-card"
           title={
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", fontSize: "16px", fontWeight: 600 }}>
               <UserOutlined style={{ color: "#1890ff", marginRight: "8px" }} />
-              企业画像
+              企业基础画像
             </div>
           }
-          style={{ height: "100%", minHeight: "480px" }}
+          headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 24px', minHeight: '56px' }}
           styles={{
             body: {
-              padding: "16px 20px",
+              padding: "20px 24px",
               display: "flex",
-              flexDirection: "column",
-              height: "calc(100% - 58px)",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between"
             }
           }}
         >
-          <div style={{ flex: 1, overflowY: "auto", paddingRight: "8px" }}>
-            <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <Avatar
-                size={56}
-                icon={<BankOutlined />}
-                style={{ backgroundColor: "#1890ff" }}
-              />
-              <Title
-                level={5}
-                style={{ marginTop: "12px", marginBottom: "4px" }}
-              >
-                {profile.companyName || "未认证企业"}
-              </Title>
-              <Space>
-                <Tag color="blue">{profile.industry || "行业未填"}</Tag>
-                <Tag color="green">{profile.size || "规模未填"}</Tag>
-              </Space>
+          {!profile.isVerified ? (
+            <div style={{ width: "100%", textAlign: "center", padding: "16px 0" }}>
+              <SafetyCertificateOutlined style={{ fontSize: "32px", color: "#ff4d4f", marginBottom: "12px" }} />
+              <Title level={5} style={{ margin: "0 0 8px 0" }}>请您认证企业画像享受更多补贴服务</Title>
+              <Text type="secondary">认证后即可解锁智能匹配与精准推荐</Text>
+              <div style={{ marginTop: "16px" }}>
+                <Button type="primary" onClick={() => navigate("/onboarding/welcome")}>立即去认证</Button>
+              </div>
             </div>
-
-            <Divider style={{ margin: "12px 0" }} />
-
-            <div style={{ marginBottom: "16px" }}>
-              <Descriptions
-                column={1}
-                size="small"
-                styles={{
-                  label: { color: "#8c8c8c" },
-                  content: { fontWeight: 500 }
-                }}
-              >
-                <Descriptions.Item label="信用代码">
-                  {profile.creditCode || "--"}
-                </Descriptions.Item>
-                <Descriptions.Item label="法定代表人">
-                  {profile.legalPerson || "--"}
-                </Descriptions.Item>
-                <Descriptions.Item label="成立日期">
-                  {profile.establishDate || "--"}
-                </Descriptions.Item>
-                <Descriptions.Item label="注册资本">
-                  {profile.registeredCapital || "--"}
-                </Descriptions.Item>
-                <Descriptions.Item label="注册地址">
-                  {profile.address || "--"}
-                </Descriptions.Item>
-              </Descriptions>
-            </div>
-
-            <Divider style={{ margin: "12px 0" }} dashed />
-          </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                <Avatar
+                  size={64}
+                  icon={<BankOutlined />}
+                  style={{ backgroundColor: "#1890ff" }}
+                />
+                <div>
+                  <Title
+                    level={5}
+                    style={{ margin: "0 0 8px 0" }}
+                  >
+                    {profile.companyName || "未认证企业"}
+                  </Title>
+                  <Space>
+                    <Tag color="blue">{profile.industry || "行业未填"}</Tag>
+                    <Tag color="green">{profile.size || "规模未填"}</Tag>
+                  </Space>
+                </div>
+              </div>
+              
+              <div style={{ flex: 1, marginLeft: "48px" }}>
+                <Descriptions
+                  column={3}
+                  size="small"
+                  styles={{
+                    label: { color: "#8c8c8c" },
+                    content: { fontWeight: 500 }
+                  }}
+                >
+                  <Descriptions.Item label="法定代表人">{profile.legalPerson || "--"}</Descriptions.Item>
+                  <Descriptions.Item label="成立日期">{profile.establishDate || "--"}</Descriptions.Item>
+                  <Descriptions.Item label="注册资本">{profile.registeredCapital || "--"}</Descriptions.Item>
+                </Descriptions>
+              </div>
+              
+              <div>
+                 <Button type="link" onClick={() => navigate("/system/company-management")}>完善画像信息 &gt;</Button>
+              </div>
+            </>
+          )}
         </Card>
       </Col>
 
@@ -402,16 +404,41 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
         <Card
           className="hover-card"
           title={
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", fontSize: "16px", fontWeight: 600 }}>
               <StarOutlined style={{ color: "#fa8c16", marginRight: "8px" }} />
-              智能推荐 ({currentList.length})
+              智能推荐 ({profile.isVerified ? currentList.length : 0})
             </div>
           }
           style={{ height: "100%", minHeight: "480px" }}
+          headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 24px', minHeight: '56px' }}
+          styles={{ body: { padding: '0' } }}
         >
           <Spin spinning={loading}>
             <div style={{ height: "400px", overflowY: "auto" }}>
-              {currentList.length === 0 ? (
+              {!profile.isVerified ? (
+                <div
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Empty
+                    image={<SafetyCertificateOutlined style={{ fontSize: "48px", color: "#d9d9d9" }} />}
+                    description={
+                      <div style={{ marginTop: "8px" }}>
+                        <div style={{ fontSize: "16px", fontWeight: 500, color: "#333", marginBottom: "8px" }}>请您认证企业画像享受更多补贴服务</div>
+                        <Text type="secondary" style={{ fontSize: 13 }}>
+                          系统需要基于您的企业真实数据进行政策智能匹配
+                        </Text>
+                      </div>
+                    }
+                  >
+                    <Button type="primary" onClick={() => navigate("/onboarding/welcome")}>立即认证</Button>
+                  </Empty>
+                </div>
+              ) : currentList.length === 0 ? (
                 <div
                   style={{
                     height: "100%",

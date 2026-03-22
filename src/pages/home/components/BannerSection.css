@@ -12,13 +12,13 @@
   padding: 0;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .banner-carousel {
   position: relative;
   width: 100%;
-  height: 280px;
+  height: 280px; /* 恢复合适高度 */
   overflow: hidden;
   background-color: #f5f5f5;
 }
@@ -51,19 +51,20 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%);
   display: flex;
-  align-items: center;
-  padding: 0 24px;
+  align-items: flex-end;
+  padding: 32px 24px;
 }
 
 /* 内容区域 */
 .banner-content {
-  max-width: 650px;
+  width: 100%;
   color: #ffffff;
   text-align: left;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  padding-bottom: 24px; /* 为指示器留出空间 */
 }
 
 /* 标题样式 */
@@ -72,10 +73,15 @@
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 12px 0;
-  line-height: 1.3;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-right: 48px; /* 防止文字与右侧箭头重叠 */
 }
 
 /* 副标题样式 */
@@ -85,23 +91,28 @@
   color: rgba(255, 255, 255, 0.9);
   margin: 0 0 20px 0;
   line-height: 1.5;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-right: 48px; /* 防止文字与右侧箭头重叠 */
 }
 
 /* 按钮样式 */
 .banner-button {
   background-color: #1890ff !important;
   border-color: #1890ff !important;
-  border-radius: 8px !important;
-  padding: 12px 24px !important;
+  border-radius: 6px !important;
+  padding: 6px 16px !important;
   height: auto !important;
-  font-size: 16px !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 6px !important;
   transition: all 0.3s ease !important;
 }
 
@@ -214,29 +225,16 @@
   }
 }
 
-/* 平板端适配 (768px-1199px) */
-@media (max-width: 1199px) and (min-width: 768px) {
-  .banner-carousel {
-    height: 360px;
+/* 中等屏幕适配 (<1200px) */
+@media (max-width: 1199px) {
+  .banner-arrow {
+    width: 44px;
+    height: 44px;
   }
+}
 
-  .banner-overlay {
-    padding: 0 40px;
-  }
-
-  .banner-title {
-    font-size: 24px;
-  }
-
-  .banner-subtitle {
-    font-size: 16px;
-  }
-
-  .banner-button {
-    padding: 10px 20px !important;
-    font-size: 14px !important;
-  }
-
+/* 平板适配 (<992px) */
+@media (max-width: 991px) {
   .banner-arrow {
     width: 40px;
     height: 40px;
@@ -263,36 +261,14 @@
 
 /* 移动端适配 (<768px) */
 @media (max-width: 767px) {
-  .banner-carousel {
-    height: 300px;
-  }
-
   .banner-overlay {
-    padding: 0 24px;
     text-align: center;
     justify-content: center;
+    align-items: center;
   }
 
   .banner-content {
-    max-width: 100%;
     text-align: center;
-  }
-
-  .banner-title {
-    font-size: 20px;
-    margin-bottom: 12px;
-    line-height: 1.3;
-  }
-
-  .banner-subtitle {
-    font-size: 14px;
-    margin-bottom: 24px;
-    line-height: 1.5;
-  }
-
-  .banner-button {
-    padding: 8px 16px !important;
-    font-size: 14px !important;
   }
 
   .banner-button .button-text {
@@ -326,27 +302,8 @@
 
 /* 超小屏幕适配 (<480px) */
 @media (max-width: 479px) {
-  .banner-carousel {
-    height: 200px;
-  }
-
   .banner-overlay {
-    padding: 0 16px;
-  }
-
-  .banner-title {
-    font-size: 16px;
-    margin-bottom: 8px;
-  }
-
-  .banner-subtitle {
-    font-size: 11px;
-    margin-bottom: 16px;
-  }
-
-  .banner-button {
-    padding: 6px 12px !important;
-    font-size: 12px !important;
+    padding: 24px 16px;
   }
 
   .banner-arrow {
@@ -376,30 +333,7 @@
 
 /* 高分辨率屏幕优化 */
 @media (min-width: 1400px) {
-  .banner-carousel {
-    height: 450px;
-  }
-
-  .banner-overlay {
-    padding: 0 64px;
-  }
-
-  .banner-content {
-    max-width: 700px;
-  }
-
-  .banner-title {
-    font-size: 28px;
-  }
-
-  .banner-subtitle {
-    font-size: 18px;
-  }
-
-  .banner-button {
-    padding: 14px 28px !important;
-    font-size: 18px !important;
-  }
+  /* 当作为侧边栏组件时，不再设置超大尺寸 */
 }
 
 /* 无障碍访问优化 */

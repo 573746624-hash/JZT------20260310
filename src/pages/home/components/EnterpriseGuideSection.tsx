@@ -37,7 +37,7 @@ export const EnterpriseGuideSection: React.FC<EnterpriseGuideSectionProps> = ({
     <div
       className="hover-card"
       style={{
-        marginBottom: 24,
+        marginBottom: 0, // 由外层 Row gutter 控制间距
         display: "flex",
         gap: "16px",
         flexDirection: "column",
@@ -52,13 +52,13 @@ export const EnterpriseGuideSection: React.FC<EnterpriseGuideSectionProps> = ({
             backgroundColor: "#fff0f6",
             border: "1px solid #ffadd2",
             borderRadius: "8px",
-            padding: "16px 24px",
+            padding: "20px 24px",
             display: "flex",
             alignItems: "flex-start",
-            gap: "12px",
+            gap: "16px",
           }}
         >
-          <div style={{ color: "#eb2f96", fontSize: "24px", lineHeight: 1 }}>
+          <div style={{ color: "#eb2f96", fontSize: "28px", lineHeight: 1 }}>
             <SafetyCertificateOutlined />
           </div>
           <div style={{ flex: 1 }}>

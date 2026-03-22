@@ -19,6 +19,7 @@ import {
   QuickActionsSection,
   ImportantRemindersSection,
   QuickToolsSection,
+  SystemDynamicsSection,
 } from "./components/index";
 import { useHomeData } from "./hooks/useHomeData";
 import {
@@ -102,16 +103,18 @@ const Home: React.FC = () => {
   // }
 
   const gutter = settings.compactMode
-    ? [8, 8]
-    : [settings.cardSpacing, settings.cardSpacing];
+    ? [16, 16] // 基于8px网格: 16px
+    : [24, 24]; // 默认使用24px间距
 
   return (
     <ErrorBoundary>
       <div
         style={{
           background: "transparent",
-          padding: settings.compactMode ? "12px 0" : "0",
+          padding: settings.compactMode ? "16px" : "24px",
           minHeight: "100vh",
+          maxWidth: "1600px",
+          margin: "0 auto",
         }}
       >
         {/* 页面头部 */}
@@ -135,54 +138,25 @@ const Home: React.FC = () => {
           </Space>
         </div>
 
-        <Row gutter={gutter}>
-          {/* 左侧：核心任务驱动区 */}
-          <Col xs={24} lg={16}>
+        <Row gutter={gutter as [number, number]}>
+          {/* 左侧：核心工作台与数据区 */}
+          <Col xs={24} lg={16} xl={17}>
             {/* 1. 待办/重要提醒提至最高优位置 (P0) */}
-            <SimpleErrorBoundary>
-              <ImportantRemindersSection
-                importantReminders={homeData.importantReminders}
-                onNavigate={handleNavigate}
-                onMessage={handleMessage}
-                loading={loading}
-              />
-            </SimpleErrorBoundary>
-
-            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
-
-            {/* 2. 快捷工具紧随其后 */}
-            {settings.showQuickTools && (
+            {profile.isVerified && (
               <>
                 <SimpleErrorBoundary>
-                  <QuickToolsSection />
+                  <ImportantRemindersSection
+                    importantReminders={homeData.importantReminders}
+                    onNavigate={handleNavigate}
+                    onMessage={handleMessage}
+                    loading={loading}
+                  />
                 </SimpleErrorBoundary>
                 <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
               </>
             )}
 
-            {/* 3. 最近活动/政策申报动态轮播图 */}
-            <SimpleErrorBoundary>
-              <BannerSection loading={loading} onNavigate={handleNavigate} />
-            </SimpleErrorBoundary>
-
-            {/* 个性化推荐区域 (智能推荐) */}
-            <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
-              <SimpleErrorBoundary>
-                <PersonalizedRecommendationSection onNavigate={handleNavigate} />
-              </SimpleErrorBoundary>
-            </div>
-          </Col>
-
-          {/* 右侧：辅助信息与核心业务模块 */}
-          <Col xs={24} lg={8}>
-            {/* 企业画像与认证引导 (未认证时显示在最显眼位置) */}
-            <SimpleErrorBoundary>
-              <EnterpriseGuideSection loading={loading} />
-            </SimpleErrorBoundary>
-
-            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
-
-            {/* 核心业务模块 */}
+            {/* 2. 核心业务模块 (高频操作移至左侧核心区) */}
             <SimpleErrorBoundary>
               <QuickActionsSection
                 quickActions={homeData.quickActions}
@@ -191,15 +165,49 @@ const Home: React.FC = () => {
               />
             </SimpleErrorBoundary>
 
-            {/* 数据概览区域 - 移至侧边栏 */}
-            <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
+            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+
+            {/* 4. 个性化推荐区域 (智能推荐) - 包含未认证占位符 */}
+            <SimpleErrorBoundary>
+              <PersonalizedRecommendationSection onNavigate={handleNavigate} />
+            </SimpleErrorBoundary>
+          </Col>
+
+          {/* 右侧：辅助信息与推荐区 */}
+          <Col xs={24} lg={8} xl={7}>
+            {/* 1. 企业画像与认证引导 (身份信息锚点) */}
+            {!profile.isVerified && (
+              <>
+                <SimpleErrorBoundary>
+                  <EnterpriseGuideSection loading={loading} />
+                </SimpleErrorBoundary>
+                <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+              </>
+            )}
+
+            {/* 2. 快捷工具 */}
+            {settings.showQuickTools && profile.isVerified && (
+              <>
+                <SimpleErrorBoundary>
+                  <QuickToolsSection />
+                </SimpleErrorBoundary>
+                <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+              </>
+            )}
+
+            {/* 3. 最近活动/政策申报动态轮播图 (降级为辅助展示) */}
+            <SimpleErrorBoundary>
+              <BannerSection loading={loading} onNavigate={handleNavigate} />
+            </SimpleErrorBoundary>
+
+            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+
+            {/* 4. 实时动态 (填补右侧底部空白) */}
+            {profile.isVerified && (
               <SimpleErrorBoundary>
-                <DataOverviewSection
-                  dataOverview={homeData.dataOverview}
-                  loading={loading}
-                />
+                <SystemDynamicsSection />
               </SimpleErrorBoundary>
-            </div>
+            )}
           </Col>
         </Row>
 

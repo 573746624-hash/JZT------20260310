@@ -207,9 +207,9 @@ export const QuickToolsSection: React.FC = () => {
         headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 20px' }}
         bodyStyle={{ padding: '20px' }}
       >
-        <Row gutter={[12, 12]}>
+        <Row gutter={[16, 16]}>
           {tools.map((tool) => (
-            <Col xs={12} sm={8} md={6} lg={4} key={tool.id}>
+            <Col xs={8} sm={8} md={8} lg={8} xl={8} key={tool.id}>
               <Card
                 size="small"
                 className="hover-card"
@@ -217,12 +217,13 @@ export const QuickToolsSection: React.FC = () => {
                   cursor: "pointer",
                   backgroundColor: tool.bgColor,
                   border: `1px solid ${tool.color}30`,
-                  height: "100px",
+                  height: "100%",
+                  minHeight: "110px",
                 }}
                 onClick={() => setActiveModal(tool.id)}
                 styles={{
                   body: {
-                    padding: "12px",
+                    padding: "16px 8px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -232,15 +233,15 @@ export const QuickToolsSection: React.FC = () => {
                   },
                 }}
               >
-                <div style={{ color: tool.color, marginBottom: "8px" }}>
+                <div style={{ color: tool.color, marginBottom: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   {tool.icon}
                 </div>
-                <Text strong style={{ fontSize: "12px", color: tool.color }}>
+                <Text strong style={{ fontSize: "14px", color: tool.color, marginBottom: "4px", whiteSpace: "nowrap" }}>
                   {tool.title}
                 </Text>
                 <Text
                   type="secondary"
-                  style={{ fontSize: "10px", marginTop: "2px" }}
+                  style={{ fontSize: "12px", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", height: "34px" }}
                 >
                   {tool.description}
                 </Text>

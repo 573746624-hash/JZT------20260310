@@ -16,7 +16,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("username");
     localStorage.removeItem("userInfo");
     localStorage.removeItem("lastLoginTime");
-    message.error("登录已失效，请重新登录");
+    // setTimeout avoids triggering updates directly inside render
+    setTimeout(() => message.error("登录已失效，请重新登录"), 0);
     return <Navigate to="/login" replace />;
   }
 

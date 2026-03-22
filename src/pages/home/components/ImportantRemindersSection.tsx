@@ -65,7 +65,7 @@ export const ImportantRemindersSection: React.FC<
           进入工作台 <RightOutlined />
         </Button>
       }
-      headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 20px' }}
+      headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 24px', minHeight: '56px' }}
       bodyStyle={{ padding: '0' }}
     >
       <List
@@ -74,7 +74,7 @@ export const ImportantRemindersSection: React.FC<
         renderItem={(reminder) => (
           <List.Item
             style={{ 
-              padding: '16px 20px', 
+              padding: '16px 24px', 
               borderBottom: '1px solid #f0f0f0',
               backgroundColor: reminder.urgency === 'high' ? '#fff1f033' : '#ffffff',
               transition: 'background-color 0.3s'
