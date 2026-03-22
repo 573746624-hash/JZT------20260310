@@ -7,19 +7,20 @@
 
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Row, Col, message, Divider, FloatButton, Space } from "antd";
-import { SettingOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { Row, Col, message, Divider, FloatButton, Space, Modal } from "antd";
+import { SettingOutlined, QuestionCircleOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { useCompanyProfileContext } from "../../context/CompanyProfileContext";
 import {
   PageHeader,
   BannerSection,
   DataOverviewSection,
-  QuickActionsSection,
-  TrendChartSection,
-  ImportantRemindersSection,
   SmartDashboardSection,
+  ImportantRemindersSection,
   PersonalizedRecommendationSection,
   QuickToolsSection,
   EnterpriseGuideSection,
+  WeatherCalendarSection,
+  QuickActionsSection,
 } from "./components/index";
 import { useHomeData } from "./hooks/useHomeData";
 import {
@@ -47,6 +48,7 @@ const Home: React.FC = () => {
   const username = localStorage.getItem("username") || "Admin";
   const { homeData, loading, error, fetchHomeData } = useHomeData();
   const { settings, updateSettings } = usePersonalizationSettings();
+  const { profile } = useCompanyProfileContext();
   const [settingsPanelVisible, setSettingsPanelVisible] = useState(false);
 
   // 监听错误信息
@@ -57,10 +59,34 @@ const Home: React.FC = () => {
   }, [error]);
 
   /**
-   * 页面导航处理函数
-   * 函数创建时间: 2026-01-13
+   * 页面导航处理函数，包含认证拦截逻辑
    */
   const handleNavigate = (path: string) => {
+    // 拦截未认证用户访问核心功能
+    const corePaths = [
+      "/policy-center",
+      "/industry/service-match",
+      "/supply-chain-finance",
+      "/legal-support"
+    ];
+    
+    const isCorePath = corePaths.some(corePath => path.startsWith(corePath));
+    
+    if (isCorePath && !profile.isVerified) {
+      Modal.confirm({
+        title: "需要企业认证",
+        icon: <ExclamationCircleFilled style={{ color: '#faad14' }} />,
+        content: "完成企业认证后，可解锁全部功能，享受精准服务",
+        okText: "立即认证",
+        cancelText: "暂不",
+        onOk: () => {
+          // 这里可以唤起认证弹窗或跳转到认证页面
+          navigate("/system/company-management");
+        }
+      });
+      return;
+    }
+    
     navigate(path);
   };
 
@@ -155,41 +181,54 @@ const Home: React.FC = () => {
           </Space>
         </div>
 
-        {/* 企业画像与认证引导 */}
+        {/* 数据概览区域 - 恢复显示 */}
         <SimpleErrorBoundary>
-          <EnterpriseGuideSection loading={loading} />
+          <DataOverviewSection
+            dataOverview={homeData.dataOverview}
+            loading={loading}
+          />
         </SimpleErrorBoundary>
 
-        {/* 政策申报动态轮播图 */}
-        <SimpleErrorBoundary>
-          <BannerSection loading={loading} />
-        </SimpleErrorBoundary>
-
-        {/* 个性化推荐区域 */}
-        <SimpleErrorBoundary>
-          <PersonalizedRecommendationSection />
-        </SimpleErrorBoundary>
-
-        <Divider
-          style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }}
-        />
-
-        {/* 快捷工具区域 */}
-        {settings.showQuickTools && (
-          <>
-            <SimpleErrorBoundary>
-              <QuickToolsSection />
-            </SimpleErrorBoundary>
-            <Divider
-              style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }}
-            />
-          </>
-        )}
-
-        {/* 底部信息区域 */}
         <Row gutter={gutter}>
-          {/* 重要提醒模块 */}
-          <Col xs={24} lg={24}>
+          {/* 左侧主要内容区 */}
+          <Col xs={24} lg={16}>
+            {/* 政策申报动态轮播图 */}
+            <SimpleErrorBoundary>
+              <BannerSection loading={loading} onNavigate={handleNavigate} />
+            </SimpleErrorBoundary>
+
+            {/* 核心业务模块 */}
+            <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
+              <SimpleErrorBoundary>
+                <QuickActionsSection
+                  quickActions={homeData.quickActions}
+                  onNavigate={handleNavigate}
+                  loading={loading}
+                />
+              </SimpleErrorBoundary>
+            </div>
+
+            {/* 智能数据看板 - 恢复显示 */}
+            <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
+              <SimpleErrorBoundary>
+                <SmartDashboardSection loading={loading} />
+              </SimpleErrorBoundary>
+            </div>
+          </Col>
+
+          {/* 右侧辅助内容区 */}
+          <Col xs={24} lg={8}>
+            {/* 天气与日历组件 - 恢复显示 */}
+            <SimpleErrorBoundary>
+              <WeatherCalendarSection />
+            </SimpleErrorBoundary>
+
+            {/* 企业画像与认证引导 */}
+            <SimpleErrorBoundary>
+              <EnterpriseGuideSection loading={loading} />
+            </SimpleErrorBoundary>
+
+            {/* 重要提醒模块 */}
             <SimpleErrorBoundary>
               <ImportantRemindersSection
                 importantReminders={homeData.importantReminders}
@@ -200,6 +239,20 @@ const Home: React.FC = () => {
             </SimpleErrorBoundary>
           </Col>
         </Row>
+
+        {/* 个性化推荐区域 (保持全宽) */}
+        <SimpleErrorBoundary>
+          <PersonalizedRecommendationSection onNavigate={handleNavigate} />
+        </SimpleErrorBoundary>
+
+        {/* 快捷工具区域 (保持全宽) */}
+        {settings.showQuickTools && (
+          <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
+            <SimpleErrorBoundary>
+              <QuickToolsSection />
+            </SimpleErrorBoundary>
+          </div>
+        )}
 
         {/* 浮动按钮 */}
         <FloatButton.Group

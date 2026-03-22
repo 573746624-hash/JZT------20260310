@@ -73,9 +73,23 @@ interface PolicyRecommendation {
   };
 }
 
-export const PersonalizedRecommendationSection: React.FC = () => {
+interface PersonalizedRecommendationSectionProps {
+  onNavigate?: (path: string) => void;
+}
+
+export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendationSectionProps> = ({
+  onNavigate
+}) => {
   const navigate = useNavigate();
   const { profile } = useCompanyProfileContext();
+
+  const handleNavigate = (path: string) => {
+    if (onNavigate) {
+      onNavigate(path);
+    } else {
+      navigate(path);
+    }
+  };
   const [loading, setLoading] = useState(false);
 
   // 模拟全量推荐库数据 (基础数据，没有动态理由和动态分数)
@@ -639,13 +653,13 @@ export const PersonalizedRecommendationSection: React.FC = () => {
                                   size="small"
                                   status="in_progress"
                                   onApply={() =>
-                                    navigate(`/application/apply/${item.id}`)
+                                    handleNavigate(`/application/apply/${item.id}`)
                                   }
                                 />
                                 <Button
                                   size="small"
                                   onClick={() =>
-                                    navigate(`/application/detail/${item.id}`)
+                                    handleNavigate(`/application/detail/${item.id}`)
                                   }
                                 >
                                   查看详情

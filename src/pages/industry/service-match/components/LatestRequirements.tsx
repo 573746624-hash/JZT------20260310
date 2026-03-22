@@ -235,7 +235,6 @@ const LatestRequirements: React.FC<LatestRequirementsProps> = ({
                       type="secondary"
                       style={{
                         fontSize: "12px",
-                        display: "block",
                         marginBottom: "12px",
                         lineHeight: "1.4",
                         height: "32px",

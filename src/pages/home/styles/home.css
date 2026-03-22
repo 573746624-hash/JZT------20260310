@@ -1,13 +1,19 @@
 /* 首页样式 */
 
-/* 卡片悬停效果 */
+/* 卡片悬停效果 - 增强版微交互 */
 .hover-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 12px;
 }
 
 .hover-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 32px rgba(24, 144, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.hover-card:active {
+  transform: translateY(-2px) scale(0.99);
+  transition: all 0.1s;
 }
 
 /* 渐变背景卡片 */

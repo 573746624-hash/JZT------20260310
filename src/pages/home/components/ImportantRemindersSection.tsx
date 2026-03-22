@@ -34,6 +34,7 @@ export const ImportantRemindersSection: React.FC<
     <>
       <Card
         loading={loading}
+        className="hover-card"
         title={
           <div style={{ display: "flex", alignItems: "center" }}>
             <ExclamationCircleOutlined

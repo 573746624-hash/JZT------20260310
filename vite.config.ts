@@ -28,7 +28,7 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-antd': ['antd', '@ant-design/icons'],
           'vendor-echarts': ['echarts', 'echarts-for-react'],
-          'vendor-utils': ['dayjs', 'lucide-react'],
+          'vendor-utils': ['dayjs'],
         },
       },
     },

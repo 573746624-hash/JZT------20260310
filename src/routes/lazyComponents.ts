@@ -113,10 +113,10 @@ export const ServiceMatchWorkbench = lazy(
   () => import("../pages/industry/service-match/ServiceMatchHome"),
 );
 export const ProcurementHall = lazy(
-  () => import("../pages/ProcurementHallExactReplica"),
+  () => import("../pages/industry/service-match/ProcurementHall"),
 );
 export const BusinessHall = lazy(
-  () => import("../pages/BusinessHall"),
+  () => import("../pages/industry/service-match/SupplyBusinessHall"),
 );
 export const MyServices = lazy(
   () => import("../pages/industry/service-match/MyServices"),

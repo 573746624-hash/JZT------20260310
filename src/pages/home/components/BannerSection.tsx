@@ -57,10 +57,12 @@ const bannerData: BannerItem[] = [
 
 interface BannerSectionProps {
   loading?: boolean;
+  onNavigate?: (path: string) => void;
 }
 
 export const BannerSection: React.FC<BannerSectionProps> = ({
   loading = false,
+  onNavigate,
 }) => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -87,7 +89,11 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
       });
       return;
     }
-    navigate(item.link);
+    if (onNavigate) {
+      onNavigate(item.link);
+    } else {
+      navigate(item.link);
+    }
   };
 
   // 切换到下一张
@@ -174,7 +180,7 @@ export const BannerSection: React.FC<BannerSectionProps> = ({
 
   return (
     <div
-      className="banner-section-wrapper"
+      className="banner-section-wrapper hover-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
