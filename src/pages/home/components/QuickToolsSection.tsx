@@ -199,11 +199,13 @@ export const QuickToolsSection: React.FC = () => {
     <>
       <Card
         title={
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <ToolOutlined style={{ color: "#722ed1", marginRight: "8px" }} />
+          <div style={{ display: 'flex', alignItems: 'center', fontSize: "16px", fontWeight: 600 }}>
+            <ToolOutlined style={{ color: '#722ed1', marginRight: '8px' }} />
             快捷工具
           </div>
         }
+        headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 20px' }}
+        bodyStyle={{ padding: '20px' }}
       >
         <Row gutter={[12, 12]}>
           {tools.map((tool) => (

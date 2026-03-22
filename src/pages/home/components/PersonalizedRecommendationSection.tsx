@@ -325,7 +325,7 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
   return (
     <Row gutter={[16, 16]}>
       {/* 企业画像卡片 */}
-      <Col xs={24} lg={8}>
+      <Col span={24}>
         <Card
           className="hover-card"
           title={
@@ -398,7 +398,7 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
       </Col>
 
       {/* 智能推荐列表 */}
-      <Col xs={24} lg={16}>
+      <Col span={24}>
         <Card
           className="hover-card"
           title={

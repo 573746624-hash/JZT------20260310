@@ -17,6 +17,8 @@ import {
   PersonalizedRecommendationSection,
   EnterpriseGuideSection,
   QuickActionsSection,
+  ImportantRemindersSection,
+  QuickToolsSection,
 } from "./components/index";
 import { useHomeData } from "./hooks/useHomeData";
 import {
@@ -134,9 +136,31 @@ const Home: React.FC = () => {
         </div>
 
         <Row gutter={gutter}>
-          {/* 左侧主要内容区 */}
+          {/* 左侧：核心任务驱动区 */}
           <Col xs={24} lg={16}>
-            {/* 政策申报动态轮播图 */}
+            {/* 1. 待办/重要提醒提至最高优位置 (P0) */}
+            <SimpleErrorBoundary>
+              <ImportantRemindersSection
+                importantReminders={homeData.importantReminders}
+                onNavigate={handleNavigate}
+                onMessage={handleMessage}
+                loading={loading}
+              />
+            </SimpleErrorBoundary>
+
+            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+
+            {/* 2. 快捷工具紧随其后 */}
+            {settings.showQuickTools && (
+              <>
+                <SimpleErrorBoundary>
+                  <QuickToolsSection />
+                </SimpleErrorBoundary>
+                <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
+              </>
+            )}
+
+            {/* 3. 最近活动/政策申报动态轮播图 */}
             <SimpleErrorBoundary>
               <BannerSection loading={loading} onNavigate={handleNavigate} />
             </SimpleErrorBoundary>
@@ -149,12 +173,14 @@ const Home: React.FC = () => {
             </div>
           </Col>
 
-          {/* 右侧辅助内容区 */}
+          {/* 右侧：辅助信息与核心业务模块 */}
           <Col xs={24} lg={8}>
             {/* 企业画像与认证引导 (未认证时显示在最显眼位置) */}
             <SimpleErrorBoundary>
               <EnterpriseGuideSection loading={loading} />
             </SimpleErrorBoundary>
+
+            <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
 
             {/* 核心业务模块 */}
             <SimpleErrorBoundary>
