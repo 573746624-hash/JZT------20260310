@@ -35,9 +35,15 @@ const PURPOSE_OPTIONS = [
   { value: "other", label: "其他" },
 ];
 
-interface ApplyModalProps {
+/**
+ * 申请弹窗组件的属性接口
+ */
+export interface ApplyModalProps {
+  /** 控制弹窗的显示与隐藏 */
   visible: boolean;
+  /** 当前选中的融资选项，包含产品ID、名称等信息 */
   option: FinancingOption | null;
+  /** 弹窗关闭时的回调函数 */
   onClose: () => void;
 }
 

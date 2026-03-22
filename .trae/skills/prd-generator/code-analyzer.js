@@ -43,37 +43,93 @@ function extractMenuStructure(projectRoot) {
   // 解析模块结构
   const modules = [];
   
-  // 匹配一级菜单项（模块）- 改进的正则，支持任意顺序的属性和多行
-  const modulePattern = /\{\s*key:\s*["']([^"']+)["']\s*,[\s\S]*?label:\s*["']([^"']+)["'](?:[\s\S]*?children:\s*(\[[\s\S]*?\]))?[\s\S]*?\}(?=\s*,|\s*\])/g;
+  // 采用分段解析，避免复杂的正则嵌套导致性能问题或解析失败
+  const itemsText = menuItemsMatch[1];
   
-  let moduleMatch;
-  while ((moduleMatch = modulePattern.exec(menuContent)) !== null) {
-    const moduleKey = moduleMatch[1];
-    const moduleLabel = moduleMatch[2];
-    const childrenStr = moduleMatch[3];
+  // 1. 通过简单的括号匹配提取顶层模块块
+  const blocks = [];
+  let currentBlock = '';
+  let bracketCount = 0;
+  
+  for (let i = 0; i < itemsText.length; i++) {
+    const char = itemsText[i];
+    if (char === '{') bracketCount++;
+    else if (char === '}') bracketCount--;
     
-    const moduleItem = {
-      key: moduleKey,
-      label: moduleLabel,
-      isModule: true,
-      children: []
-    };
+    currentBlock += char;
     
-    // 如果有子菜单（功能），解析子菜单
-    if (childrenStr) {
-      // 匹配子菜单项 - 改进的正则，支持多行和任意属性顺序
-      const childPattern = /\{\s*key:\s*["']([^"']+)["'][\s\S]*?label:\s*["']([^"']+)["'][\s\S]*?\}(?=\s*,|\s*\])/g;
-      let childMatch;
-      while ((childMatch = childPattern.exec(childrenStr)) !== null) {
-        moduleItem.children.push({
-          key: childMatch[1],
-          label: childMatch[2],
-          isModule: false
-        });
+    if (bracketCount === 0 && currentBlock.trim().length > 0) {
+      if (currentBlock.trim().startsWith('{')) {
+        blocks.push(currentBlock);
       }
+      currentBlock = '';
     }
+  }
+
+  // 2. 解析每个模块块
+  for (const block of blocks) {
+    const keyMatch = block.match(/key:\s*["']([^"']+)["']/);
+    const labelMatch = block.match(/label:\s*["']([^"']+)["']/);
     
-    modules.push(moduleItem);
+    if (keyMatch && labelMatch) {
+      const moduleItem = {
+        key: keyMatch[1],
+        label: labelMatch[1],
+        isModule: true,
+        children: []
+      };
+      
+      const childrenMatch = block.match(/children:\s*\[([\s\S]*?)\]/);
+      if (childrenMatch) {
+        const childrenStr = childrenMatch[1];
+        
+        // 分块解析子菜单对象，以提取完整的属性
+        const childBlocks = [];
+        let currentChildBlock = '';
+        let childBracketCount = 0;
+        
+        for (let i = 0; i < childrenStr.length; i++) {
+          const char = childrenStr[i];
+          if (char === '{') childBracketCount++;
+          else if (char === '}') childBracketCount--;
+          
+          currentChildBlock += char;
+          
+          if (childBracketCount === 0 && currentChildBlock.trim().length > 0) {
+            if (currentChildBlock.trim().startsWith('{')) {
+              childBlocks.push(currentChildBlock);
+            }
+            currentChildBlock = '';
+          }
+        }
+        
+        for (const childBlock of childBlocks) {
+          const cKeyMatch = childBlock.match(/key:\s*["']([^"']+)["']/);
+          const cLabelMatch = childBlock.match(/label:\s*["']([^"']+)["']/);
+          const cIconMatch = childBlock.match(/icon:\s*(?:<([^>]+)>|([^,\s}]+))/);
+          const cPathMatch = childBlock.match(/path:\s*["']([^"']+)["']/);
+          
+          if (cKeyMatch && cLabelMatch) {
+            const childItem = {
+              key: cKeyMatch[1],
+              label: cLabelMatch[1],
+              isModule: false
+            };
+            
+            if (cIconMatch) {
+              childItem.icon = cIconMatch[1] || cIconMatch[2];
+            }
+            if (cPathMatch) {
+              childItem.path = cPathMatch[1];
+            }
+            
+            moduleItem.children.push(childItem);
+          }
+        }
+      }
+      
+      modules.push(moduleItem);
+    }
   }
   
   console.log(`  ✓ 解析到 ${modules.length} 个模块`);
