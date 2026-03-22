@@ -156,22 +156,20 @@ const Home: React.FC = () => {
               <EnterpriseGuideSection loading={loading} />
             </SimpleErrorBoundary>
 
+            {/* 核心业务模块 */}
+            <SimpleErrorBoundary>
+              <QuickActionsSection
+                quickActions={homeData.quickActions}
+                onNavigate={handleNavigate}
+                loading={loading}
+              />
+            </SimpleErrorBoundary>
+
             {/* 数据概览区域 - 移至侧边栏 */}
             <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
               <SimpleErrorBoundary>
                 <DataOverviewSection
                   dataOverview={homeData.dataOverview}
-                  loading={loading}
-                />
-              </SimpleErrorBoundary>
-            </div>
-
-            {/* 核心业务模块 */}
-            <div style={{ marginTop: settings.compactMode ? "16px" : "24px" }}>
-              <SimpleErrorBoundary>
-                <QuickActionsSection
-                  quickActions={homeData.quickActions}
-                  onNavigate={handleNavigate}
                   loading={loading}
                 />
               </SimpleErrorBoundary>
