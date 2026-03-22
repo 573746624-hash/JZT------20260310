@@ -6,6 +6,10 @@ import { lazy } from "react";
  * 嵌入操作完成日期：2026/1/13
  */
 
+// Onboarding
+export const WelcomeGuidePage = lazy(() => import("../pages/onboarding/WelcomeGuidePage").then(module => ({ default: module.WelcomeGuidePage })));
+export const OnboardingProfilePage = lazy(() => import("../pages/onboarding/OnboardingProfilePage").then(module => ({ default: module.OnboardingProfilePage })));
+
 // 认证相关页面
 export const Login = lazy(() => import("../pages/login/index"));
 export const Register = lazy(() => import("../pages/register/index"));

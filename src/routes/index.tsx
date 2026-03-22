@@ -3,14 +3,15 @@
  * 嵌入操作完成日期：2026/1/13
  */
 import React from "react";
-import { Route, Navigate } from "react-router-dom";
+import { Route, Navigate, Outlet } from "react-router-dom";
 import * as Pages from "./lazyComponents";
+import { CertificationGuard } from "../components/auth/CertificationGuard";
 /**
  * 政策中心路由配置
  * 更新时间: 2026-03-10 - 新增增强版政策搜索页面
  */
 export const policyRoutes = (
-  <>
+  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     <Route
       path="/policy-center"
       element={<Navigate to="/policy-center/main" replace />}
@@ -31,14 +32,14 @@ export const policyRoutes = (
       path="/policy-center/my-applications"
       element={<Pages.NewApplicationManagement />}
     />
-  </>
+  </Route>
 );
 
 /**
  * 新申报管理模块路由配置 - 2026-02-26
  */
 export const newApplicationRoutes = (
-  <>
+  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     <Route path="/application" element={<Pages.NewApplicationManagement />} />
     <Route
       path="/application/detail/:id"
@@ -52,14 +53,14 @@ export const newApplicationRoutes = (
       path="/application/success/:id"
       element={<Pages.ApplicationApplySuccess />}
     />
-  </>
+  </Route>
 );
 
 /**
  * 法律护航路由配置
  */
 export const legalRoutes = (
-  <>
+  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     <Route path="/legal-support" element={<Pages.LegalSupport />} />
     <Route
       path="/legal-support/regulation-query"
@@ -74,14 +75,14 @@ export const legalRoutes = (
       element={<Pages.RegulationDetail />}
     />
     <Route path="/legal-support/ai-lawyer" element={<Pages.AILawyer />} />
-  </>
+  </Route>
 );
 
 /**
  * 企服管理路由配置
  */
 export const industryRoutes = (
-  <>
+  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     <Route
       path="/industry/service-match/workbench"
       element={<Pages.ServiceMatchWorkbench />}
@@ -114,14 +115,14 @@ export const industryRoutes = (
       path="/industry/service-match/my-messages"
       element={<Pages.ServiceMatchMyMessages />}
     />
-  </>
+  </Route>
 );
 
 /**
  * 金融服务路由配置
  */
 export const financeRoutes = (
-  <>
+  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     <Route
       path="/supply-chain-finance"
       element={<Pages.SupplyChainFinance />}
@@ -150,7 +151,11 @@ export const financeRoutes = (
       path="/supply-chain-finance/diagnosis-analysis"
       element={<Pages.DiagnosisAnalysis />}
     />
-  </>
+    <Route
+      path="/supply-chain-finance/risk-assessment"
+      element={<Pages.RiskAssessment />}
+    />
+  </Route>
 );
 
 /**
@@ -177,6 +182,16 @@ export const publicRoutes = (
     <Route path="/login" element={<Pages.Login />} />
     <Route path="/register" element={<Pages.Register />} />
     <Route path="/reset-password" element={<Pages.ResetPassword />} />
+  </>
+);
+
+/**
+ * Onboarding 路由配置
+ */
+export const onboardingRoutes = (
+  <>
+    <Route path="/onboarding/welcome" element={<Pages.WelcomeGuidePage />} />
+    <Route path="/onboarding/profile" element={<Pages.OnboardingProfilePage />} />
   </>
 );
 

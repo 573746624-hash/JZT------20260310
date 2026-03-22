@@ -13,6 +13,7 @@ import React, {
 } from "react";
 import { message } from "antd";
 import dayjs from "dayjs";
+import { useCertification } from "./CertificationContext";
 
 // 定义统一的企业画像数据模型
 export interface CompanyProfile {
@@ -116,6 +117,18 @@ export const CompanyProfileProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [profile, setProfile] = useState<CompanyProfile>(defaultCompanyProfile);
   const [loading, setLoading] = useState(false);
+  const { certState } = useCertification();
+
+  // Sync certState to profile
+  useEffect(() => {
+    setProfile(prev => ({
+      ...prev,
+      isVerified: certState.status === "verified",
+      companyName: certState.companyName || prev.companyName,
+      creditCode: certState.certNumber || prev.creditCode,
+      legalPerson: certState.legalPerson || prev.legalPerson,
+    }));
+  }, [certState]);
 
   // 模拟从后端获取数据
   useEffect(() => {

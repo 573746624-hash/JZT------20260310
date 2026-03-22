@@ -19,6 +19,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { useCompanyProfileContext } from "../../../context/CompanyProfileContext";
+import { useCertification } from "../../../context/CertificationContext";
 import type { UploadFile, UploadProps } from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -34,11 +35,12 @@ export const EnterpriseCertificationModal: React.FC<
   EnterpriseCertificationModalProps
 > = ({ visible, onCancel, onSuccess }) => {
   const [form] = Form.useForm();
-  const { updateProfile } = useCompanyProfileContext();
+  const { submitCertification, loading: certLoading } = useCertification();
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"form" | "success">("form");
+  const [step, setStep] = useState<"form" | "face" | "success">("form");
   const [inviteCode, setInviteCode] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [formData, setFormData] = useState<any>(null);
 
   const handleUploadChange: UploadProps["onChange"] = ({
     fileList: newFileList,
@@ -52,29 +54,42 @@ export const EnterpriseCertificationModal: React.FC<
     </div>
   );
 
-  const handleFinish = (values: any) => {
-    setLoading(true);
-    // Simulate API call for certification
-    setTimeout(() => {
-      const generatedCode =
-        "JZT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-      setInviteCode(generatedCode);
-
-      // Update context profile to verified and set some basic info
-      updateProfile({
-        isVerified: true,
-        companyName: values.companyName,
-        creditCode: values.creditCode,
-        legalPerson: values.legalPerson,
-      } as any);
-
-      setLoading(false);
-      setStep("success");
-      message.success("企业实名认证成功！");
-      if (onSuccess) {
-        onSuccess();
+  const handleNext = async () => {
+    try {
+      const values = await form.validateFields();
+      if (fileList.length === 0) {
+        message.error("请上传营业执照");
+        return;
       }
-    }, 1500);
+      setFormData(values);
+      setStep("face");
+    } catch (error) {
+      console.log("Validation failed:", error);
+    }
+  };
+
+  const handleFaceRecognition = async () => {
+    setLoading(true);
+    // Simulate face recognition
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+    // Generate code
+    const generatedCode = "JZT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    setInviteCode(generatedCode);
+
+    // Submit to global certification context
+    await submitCertification({
+      companyName: formData.companyName,
+      certNumber: formData.creditCode,
+      legalPerson: formData.legalPerson,
+      certType: "business_license",
+    });
+
+    setLoading(false);
+    setStep("success");
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   const handleClose = () => {
@@ -121,12 +136,11 @@ export const EnterpriseCertificationModal: React.FC<
               </Text>
             </div>
 
-            <Form
+              <Form
               form={form}
               layout="horizontal"
               labelCol={{ span: 5 }}
               wrapperCol={{ span: 19 }}
-              onFinish={handleFinish}
             >
               <Form.Item
                 label={<span style={{ color: "#ff4d4f" }}>* 认证材料</span>}
@@ -301,15 +315,36 @@ export const EnterpriseCertificationModal: React.FC<
               >
                 <Button
                   type="primary"
-                  htmlType="submit"
+                  onClick={handleNext}
                   size="large"
                   block
                   style={{ height: "48px", fontSize: "16px" }}
                 >
-                  提交认证
+                  下一步：人脸识别
                 </Button>
               </Form.Item>
             </Form>
+          </div>
+        ) : step === "face" ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ width: 200, height: 200, borderRadius: "50%", border: "4px solid #1890ff", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 2, background: "rgba(24, 144, 255, 0.5)", animation: "scan 2s infinite linear" }} />
+                <img src="/api/placeholder/180/180" alt="face" style={{ borderRadius: "50%", opacity: 0.8 }} />
+              </div>
+            </div>
+            <Title level={4}>请正对摄像头</Title>
+            <Paragraph type="secondary">正在验证法定代表人身份信息...</Paragraph>
+            <Button type="primary" size="large" onClick={handleFaceRecognition} style={{ marginTop: 24, width: 200 }}>
+              模拟识别完成
+            </Button>
+            <style>{`
+              @keyframes scan {
+                0% { top: 10%; }
+                50% { top: 90%; }
+                100% { top: 10%; }
+              }
+            `}</style>
           </div>
         ) : (
           <Result

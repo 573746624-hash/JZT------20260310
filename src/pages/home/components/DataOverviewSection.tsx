@@ -25,9 +25,9 @@ export const DataOverviewSection: React.FC<DataOverviewSectionProps> = ({
   loading = false,
 }) => {
   return (
-    <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+    <Row gutter={[16, 16]}>
       {dataOverview.map((item, index) => (
-        <Col xs={24} sm={12} lg={6} key={index}>
+        <Col xs={12} sm={12} lg={12} key={index}>
           <Card
             loading={loading}
             className="hover-card"

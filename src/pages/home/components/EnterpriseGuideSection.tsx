@@ -7,16 +7,14 @@
  * 3. 基于画像提供智能推荐
  */
 
-import React, { useState } from "react";
-import { Button, Typography, message } from "antd";
+import React from "react";
+import { Button, Typography } from "antd";
 import {
   RightOutlined,
-  ExclamationCircleFilled,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCompanyProfileContext } from "../../../context/CompanyProfileContext";
-import { EnterpriseCertificationModal } from "./EnterpriseCertificationModal";
 
 const { Title, Text } = Typography;
 
@@ -28,35 +26,7 @@ export const EnterpriseGuideSection: React.FC<EnterpriseGuideSectionProps> = ({
   loading = false,
 }) => {
   const navigate = useNavigate();
-  const {
-    profile,
-    updateProfile,
-    loading: contextLoading,
-  } = useCompanyProfileContext();
-
-  // Modal state
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [editForm, setEditForm] = useState<Partial<CompanyProfile>>({});
-
-  // Certification Modal State
-  const [certifyModalVisible, setCertifyModalVisible] = useState(false);
-
-  const handleOpenEdit = () => {
-    // Cast context profile to component profile type if needed, or assume they are compatible
-    // Since we updated types/index.ts, they should be compatible.
-    setEditForm({ ...profile } as unknown as Partial<CompanyProfile>);
-    setEditMode(true);
-    setCurrentStep(0);
-    setModalVisible(true);
-  };
-
-  const handleSave = () => {
-    updateProfile(editForm as any); // Update context
-    setModalVisible(false);
-    message.success("企业画像已更新");
-  };
+  const { profile } = useCompanyProfileContext();
 
   // 如果已认证，整个引导模块隐藏
   if (profile.isVerified) {
@@ -112,7 +82,7 @@ export const EnterpriseGuideSection: React.FC<EnterpriseGuideSectionProps> = ({
               <Button
                 type="primary"
                 danger
-                onClick={() => setCertifyModalVisible(true)}
+                onClick={() => navigate("/onboarding/welcome")}
                 style={{ borderRadius: "4px", fontWeight: "bold" }}
               >
                 立即认证 <RightOutlined />
@@ -125,14 +95,6 @@ export const EnterpriseGuideSection: React.FC<EnterpriseGuideSectionProps> = ({
         </div>
       </div>
 
-      {/* 企业实名认证弹窗 */}
-      <EnterpriseCertificationModal
-        visible={certifyModalVisible}
-        onCancel={() => setCertifyModalVisible(false)}
-        onSuccess={() => {
-          // 可选的认证成功后的额外逻辑
-        }}
-      />
     </div>
   );
 };
