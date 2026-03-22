@@ -138,6 +138,15 @@ const Home: React.FC = () => {
           </Space>
         </div>
 
+        {/* 全局未认证横幅提醒 */}
+        {!profile?.isVerified && (
+          <div style={{ marginBottom: settings.compactMode ? "16px" : "24px" }}>
+            <SimpleErrorBoundary>
+              <EnterpriseGuideSection loading={loading} />
+            </SimpleErrorBoundary>
+          </div>
+        )}
+
         <Row gutter={gutter as [number, number]}>
           {/* 左侧：核心工作台与数据区 */}
           <Col xs={24} lg={16} xl={17}>
@@ -175,18 +184,8 @@ const Home: React.FC = () => {
 
           {/* 右侧：辅助信息与推荐区 */}
           <Col xs={24} lg={8} xl={7}>
-            {/* 1. 企业画像与认证引导 (身份信息锚点) */}
-            {!profile.isVerified && (
-              <>
-                <SimpleErrorBoundary>
-                  <EnterpriseGuideSection loading={loading} />
-                </SimpleErrorBoundary>
-                <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
-              </>
-            )}
-
-            {/* 2. 快捷工具 */}
-            {settings.showQuickTools && profile.isVerified && (
+            {/* 1. 快捷工具 (未认证也透出，展示平台工具价值) */}
+            {settings.showQuickTools && (
               <>
                 <SimpleErrorBoundary>
                   <QuickToolsSection />
@@ -195,19 +194,17 @@ const Home: React.FC = () => {
               </>
             )}
 
-            {/* 3. 最近活动/政策申报动态轮播图 (降级为辅助展示) */}
+            {/* 2. 最近活动/政策申报动态轮播图 (降级为辅助展示) */}
             <SimpleErrorBoundary>
               <BannerSection loading={loading} onNavigate={handleNavigate} />
             </SimpleErrorBoundary>
 
             <div style={{ margin: settings.compactMode ? "16px 0" : "24px 0" }} />
 
-            {/* 4. 实时动态 (填补右侧底部空白) */}
-            {profile.isVerified && (
-              <SimpleErrorBoundary>
-                <SystemDynamicsSection />
-              </SimpleErrorBoundary>
-            )}
+            {/* 3. 实时动态 (未认证也透出，展示平台活跃度) */}
+            <SimpleErrorBoundary>
+              <SystemDynamicsSection />
+            </SimpleErrorBoundary>
           </Col>
         </Row>
 

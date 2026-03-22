@@ -22,6 +22,8 @@ import {
   Space,
   Empty,
   Spin,
+  Modal,
+  message,
 } from "antd";
 import ApplyButton from "../../../components/common/ApplyButton";
 import {
@@ -90,6 +92,22 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
       navigate(path);
     }
   };
+
+  const handleAction = (path: string) => {
+    if (!profile?.isVerified) {
+      Modal.confirm({
+        title: "需要企业认证",
+        icon: <SafetyCertificateOutlined style={{ color: '#faad14' }} />,
+        content: "您需要完成企业认证后才能查看详情或进行申报。是否立即前往认证？",
+        okText: "立即去认证",
+        cancelText: "暂不",
+        onOk: () => navigate("/onboarding/welcome")
+      });
+      return;
+    }
+    handleNavigate(path);
+  };
+
   const [loading, setLoading] = useState(false);
 
   // 模拟全量推荐库数据 (基础数据，没有动态理由和动态分数)
@@ -211,8 +229,8 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
     // 模拟数据加载
     setLoading(true);
     const timer = setTimeout(() => {
-      // 只有当企业至少填写了名称或者行业时，才进行推荐
-      if (!profile.companyName && !profile.industry) {
+      // 如果未认证，直接返回空数组，触发下方的 Empty 占位组件
+      if (!profile?.isVerified) {
         setCurrentList([]);
         setLoading(false);
         return;
@@ -345,14 +363,16 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
             }
           }}
         >
-          {!profile.isVerified ? (
-            <div style={{ width: "100%", textAlign: "center", padding: "16px 0" }}>
-              <SafetyCertificateOutlined style={{ fontSize: "32px", color: "#ff4d4f", marginBottom: "12px" }} />
-              <Title level={5} style={{ margin: "0 0 8px 0" }}>请您认证企业画像享受更多补贴服务</Title>
-              <Text type="secondary">认证后即可解锁智能匹配与精准推荐</Text>
-              <div style={{ marginTop: "16px" }}>
-                <Button type="primary" onClick={() => navigate("/onboarding/welcome")}>立即去认证</Button>
+          {!profile?.isVerified ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <Avatar size={48} icon={<UserOutlined />} style={{ backgroundColor: "#d9d9d9" }} />
+                <div>
+                  <Title level={5} style={{ margin: "0 0 4px 0", color: "#8c8c8c" }}>未认证企业</Title>
+                  <Text type="secondary" style={{ fontSize: "13px" }}>认证后自动生成企业专属画像，解锁精准匹配</Text>
+                </div>
               </div>
+              <Button type="primary" onClick={() => navigate("/onboarding/welcome")}>立即认证</Button>
             </div>
           ) : (
             <>
@@ -367,11 +387,11 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
                     level={5}
                     style={{ margin: "0 0 8px 0" }}
                   >
-                    {profile.companyName || "未认证企业"}
+                    {profile?.companyName || "未认证企业"}
                   </Title>
                   <Space>
-                    <Tag color="blue">{profile.industry || "行业未填"}</Tag>
-                    <Tag color="green">{profile.size || "规模未填"}</Tag>
+                    <Tag color="blue">{profile?.industry || "行业未填"}</Tag>
+                    <Tag color="green">{profile?.size || "规模未填"}</Tag>
                   </Space>
                 </div>
               </div>
@@ -385,9 +405,9 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
                     content: { fontWeight: 500 }
                   }}
                 >
-                  <Descriptions.Item label="法定代表人">{profile.legalPerson || "--"}</Descriptions.Item>
-                  <Descriptions.Item label="成立日期">{profile.establishDate || "--"}</Descriptions.Item>
-                  <Descriptions.Item label="注册资本">{profile.registeredCapital || "--"}</Descriptions.Item>
+                  <Descriptions.Item label="法定代表人">{profile?.legalPerson || "--"}</Descriptions.Item>
+                  <Descriptions.Item label="成立日期">{profile?.establishDate || "--"}</Descriptions.Item>
+                  <Descriptions.Item label="注册资本">{profile?.registeredCapital || "--"}</Descriptions.Item>
                 </Descriptions>
               </div>
               
@@ -406,7 +426,7 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
           title={
             <div style={{ display: "flex", alignItems: "center", fontSize: "16px", fontWeight: 600 }}>
               <StarOutlined style={{ color: "#fa8c16", marginRight: "8px" }} />
-              智能推荐 ({profile.isVerified ? currentList.length : 0})
+              智能推荐 ({profile?.isVerified ? currentList.length : 0})
             </div>
           }
           style={{ height: "100%", minHeight: "480px" }}
@@ -415,7 +435,7 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
         >
           <Spin spinning={loading}>
             <div style={{ height: "400px", overflowY: "auto" }}>
-              {!profile.isVerified ? (
+              {!profile?.isVerified ? (
                 <div
                   style={{
                     height: "100%",
@@ -680,13 +700,13 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
                                   size="small"
                                   status="in_progress"
                                   onApply={() =>
-                                    handleNavigate(`/application/apply/${item.id}`)
+                                    handleAction(`/application/apply/${item.id}`)
                                   }
                                 />
                                 <Button
                                   size="small"
                                   onClick={() =>
-                                    handleNavigate(`/application/detail/${item.id}`)
+                                    handleAction(`/application/detail/${item.id}`)
                                   }
                                 >
                                   查看详情
@@ -696,9 +716,13 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
                               <Button
                                 type="primary"
                                 size="small"
-                                onClick={() =>
+                                onClick={() => {
+                                  if (!profile?.isVerified) {
+                                    handleAction('');
+                                    return;
+                                  }
                                   message.success("已发起对接请求")
-                                }
+                                }}
                               >
                                 立即对接
                               </Button>

@@ -8,15 +8,13 @@
  */
 
 import React from "react";
-import { Button, Typography } from "antd";
+import { Button, Alert } from "antd";
 import {
   RightOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCompanyProfileContext } from "../../../context/CompanyProfileContext";
-
-const { Title, Text } = Typography;
 
 interface EnterpriseGuideSectionProps {
   loading?: boolean;
@@ -29,72 +27,29 @@ export const EnterpriseGuideSection: React.FC<EnterpriseGuideSectionProps> = ({
   const { profile } = useCompanyProfileContext();
 
   // 如果已认证，整个引导模块隐藏
-  if (profile.isVerified) {
+  if (profile?.isVerified) {
     return null;
   }
 
   return (
-    <div
-      className="hover-card"
+    <Alert
+      message={<span style={{ fontSize: "16px", fontWeight: 600 }}>您尚未完成企业实名认证</span>}
+      description="完成企业认证后，可解锁智能政策匹配、一键申报与精准推荐服务。您将成为企业超级管理员，并可生成专属邀请码。"
+      type="warning"
+      showIcon
+      icon={<SafetyCertificateOutlined style={{ fontSize: "24px", marginTop: "4px" }} />}
+      action={
+        <Button type="primary" danger onClick={() => navigate("/onboarding/welcome")} style={{ marginTop: "8px", fontWeight: "bold" }}>
+          立即去认证 <RightOutlined />
+        </Button>
+      }
       style={{
-        marginBottom: 0, // 由外层 Row gutter 控制间距
-        display: "flex",
-        gap: "16px",
-        flexDirection: "column",
+        borderRadius: "8px",
+        border: "1px solid #ffadd2",
+        backgroundColor: "#fff0f6",
+        padding: "16px 24px",
+        boxShadow: "0 2px 8px rgba(255, 77, 79, 0.15)"
       }}
-    >
-      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-        {/* 仅在未认证时显示认证引导 */}
-        <div
-          style={{
-            flex: 1,
-            minWidth: "300px",
-            backgroundColor: "#fff0f6",
-            border: "1px solid #ffadd2",
-            borderRadius: "8px",
-            padding: "20px 24px",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "16px",
-          }}
-        >
-          <div style={{ color: "#eb2f96", fontSize: "28px", lineHeight: 1 }}>
-            <SafetyCertificateOutlined />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "8px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#a8071a",
-                }}
-              >
-                您尚未完成企业实名认证，请尽快完成认证
-              </span>
-              <Button
-                type="primary"
-                danger
-                onClick={() => navigate("/onboarding/welcome")}
-                style={{ borderRadius: "4px", fontWeight: "bold" }}
-              >
-                立即认证 <RightOutlined />
-              </Button>
-            </div>
-            <div style={{ fontSize: "14px", color: "rgba(0, 0, 0, 0.65)" }}>
-              完成企业认证后，可解锁全部功能，享受精准服务。您将成为企业<strong>超级管理员</strong>，并可生成专属<strong>邀请码</strong>。
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    />
   );
 };
