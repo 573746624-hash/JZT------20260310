@@ -94,6 +94,7 @@ export const legalRoutes = (
       element={<Pages.RegulationDetail />}
     />
     <Route path="/legal-support/ai-lawyer" element={<Pages.AILawyer />} />
+    <Route path="/legal-support/regulation-integrated" element={<Pages.RegulationIntegrated />} />
   </Route>
 );
 

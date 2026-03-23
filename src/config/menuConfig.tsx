@@ -195,6 +195,11 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
           icon: <ReadOutlined />,
           label: "法规详情",
         },
+        {
+          key: "/legal-support/regulation-integrated",
+          icon: <FileTextOutlined />,
+          label: "法规整合查询",
+        },
       ],
     },
     {
@@ -297,6 +302,7 @@ export const routeMenuMap: Record<string, string> = {
   "/legal-support/regulation-detail":
     "/legal-support/regulation-detail/civil-code-2020", // 法规详情页面
   "/legal-support/ai-lawyer": "/legal-support/ai-lawyer", // AI律师页面
+  "/legal-support/regulation-integrated": "/legal-support/regulation-integrated", // 法规整合查询页面
 
   // 产业管理模块路由映射
   "/industry/service-match": "/industry/service-match/workbench",

@@ -66,6 +66,9 @@ export const AILawyer = lazy(() => import("../pages/legal-support/AILawyer/index
 export const TimelinessManagement = lazy(
   () => import("../pages/legal/TimelinessManagement/index"),
 );
+export const RegulationIntegrated = lazy(
+  () => import("../pages/legal/RegulationIntegrated"),
+);
 
 // 申报管理页面
 // 路由配置更新时间: 2026-01-13 16:50:00
