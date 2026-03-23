@@ -33,6 +33,11 @@ import {
 import ServiceMatchCard from "./components/ServiceMatchCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
+import {
+  maskCompanyNameSimple as maskCompanyName,
+  maskPhone,
+  maskBudget,
+} from "../../../utils/maskUtils";
 import { getPublications } from "../../../services/industryService";
 
 const { Text, Title } = Typography;
@@ -51,35 +56,6 @@ const ENTERPRISE_THEME = {
   success: "#27AE60",
   warning: "#E67E22",
   error: "#C0392B",
-};
-
-// 数据打码工具函数
-const maskCompanyName = (name: string): string => {
-  if (!name || name.length <= 2) return name;
-  const firstChar = name.charAt(0);
-  const lastChar = name.charAt(name.length - 1);
-  const middle = "*".repeat(Math.min(name.length - 2, 4));
-  return `${firstChar}${middle}${lastChar}`;
-};
-
-const maskPhone = (phone: string): string => {
-  if (!phone) return "***";
-  if (phone.length === 11) {
-    return `${phone.substring(0, 3)}****${phone.substring(7)}`;
-  }
-  return "***";
-};
-
-const maskBudget = (budget: string): string => {
-  if (!budget || budget === "面议") return budget;
-  // 将具体金额转换为区间
-  const num = parseFloat(budget);
-  if (isNaN(num)) return budget;
-  if (num < 1) return "1万以下";
-  if (num < 5) return "1-5万";
-  if (num < 10) return "5-10万";
-  if (num < 50) return "10-50万";
-  return "50万以上";
 };
 
 const ProcurementHall: React.FC = () => {

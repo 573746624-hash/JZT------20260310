@@ -28,89 +28,15 @@ import ServiceMatchCard from "./components/ServiceMatchCard";
 import SupplyServiceCard from "./components/SupplyServiceCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
-
 import ServiceCategoryNav from "./components/ServiceCategoryNav";
 import LatestRequirements from "./components/LatestRequirements";
 import PrivacyControlPanel from "./components/PrivacyControlPanel";
-// 内联数据遮挡函数，避免导入问题
-const maskCompanyName = (companyName: string, showLength: number = 2): string => {
-  if (!companyName || companyName.length <= showLength) {
-    return companyName;
-  }
-  
-  const visiblePart = companyName.substring(0, showLength);
-  const maskedLength = Math.min(companyName.length - showLength, 6);
-  const maskedPart = '*'.repeat(maskedLength);
-  
-  if (companyName.length > 8) {
-    const suffix = companyName.includes('有限公司') ? '有限公司' : 
-                  companyName.includes('股份') ? '股份公司' :
-                  companyName.includes('集团') ? '集团' : '';
-    if (suffix) {
-      return `${visiblePart}${maskedPart}${suffix}`;
-    }
-  }
-  
-  return `${visiblePart}${maskedPart}`;
-};
-
-const maskPhone = (phone: string): string => {
-  if (!phone) return phone;
-  
-  if (phone.length === 11 && /^1[3-9]\d{9}$/.test(phone)) {
-    return `${phone.substring(0, 3)}****${phone.substring(7)}`;
-  }
-  
-  if (phone.includes('400')) {
-    const parts = phone.split('-');
-    if (parts.length === 3) {
-      return `${parts[0]}-***-${parts[2]}`;
-    }
-  }
-  
-  if (phone.length > 6) {
-    const start = phone.substring(0, 3);
-    const end = phone.substring(phone.length - 4);
-    const middle = '*'.repeat(Math.min(phone.length - 7, 4));
-    return `${start}${middle}${end}`;
-  }
-  
-  return phone;
-};
-
-const maskPrice = (price: string): string => {
-  if (!price || price === '面议' || price === '待定') {
-    return price;
-  }
-  return '面议';
-};
-
-const shouldMaskData = (userLevel: string, dataType: string): boolean => {
-  const maskingRules = {
-    guest: ['companyName', 'phone', 'email', 'address', 'price'],
-    member: ['phone', 'email', 'address', 'price'],
-    vip: ['phone', 'email'],
-    admin: []
-  };
-  
-  const rulesToMask = maskingRules[userLevel as keyof typeof maskingRules] || maskingRules.guest;
-  return rulesToMask.includes(dataType);
-};
-
-const maskSensitiveData = (data: any, userLevel: string = 'guest') => {
-  return {
-    ...data,
-    companyName: shouldMaskData(userLevel, 'companyName') ? 
-      maskCompanyName(data.companyName) : data.companyName,
-    contactInfo: {
-      ...data.contactInfo,
-      phone: shouldMaskData(userLevel, 'phone') ? 
-        maskPhone(data.contactInfo?.phone) : data.contactInfo?.phone,
-    },
-    priceRange: shouldMaskData(userLevel, 'price') ? 
-      maskPrice(data.priceRange) : data.priceRange,
-  };
-};
+import {
+  maskCompanyName,
+  maskPhone,
+  maskPrice,
+  maskSensitiveData,
+} from "../../../utils/maskUtils";
 import {
   getPublications,
   getRecommendedPublications,
