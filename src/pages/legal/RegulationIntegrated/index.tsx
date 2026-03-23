@@ -39,6 +39,8 @@ import { useNavigate } from "react-router-dom";
 import PageWrapper from "../../../components/PageWrapper";
 import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import { useDebounce } from "../../../hooks/useDebounce";
+import { RegulationCard } from "../../../components/legal/RegulationCard";
+import { Pagination } from "../../../components/legal/Pagination";
 import {
   SearchOutlined,
   DownloadOutlined,
@@ -76,6 +78,7 @@ import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
+import { mockRegulations100 } from "./mockData";
 
 // 启用dayjs插件
 dayjs.extend(relativeTime);
@@ -197,90 +200,8 @@ interface FilterTemplate {
   criteria: Partial<FilterCriteria>;
 }
 
-// 模拟法规数据
-const mockRegulations: RegulationItem[] = [
-  {
-    id: "1",
-    title: "中华人民共和国公司法（2023修订）",
-    level: "法律",
-    field: "公司法",
-    scenario: "公司治理",
-    publishOrg: "全国人大常委会",
-    publishDate: "2023-12-29",
-    effectiveDate: "2024-07-01",
-    status: "effective",
-    tags: ["注册资本", "股东权益", "董事会", "监事会"],
-    summary: "规范公司的组织和行为，保护公司、股东、职工和债权人的合法权益。",
-    keyArticles: [
-      "第四十七条：有限责任公司的注册资本为在公司登记机关登记的全体股东认缴的出资额。",
-      "第五十一条：有限责任公司设监事会，本法第六十九条、第八十三条另有规定的除外。",
-    ],
-    viewCount: 125680,
-    downloadCount: 45600,
-    isNew: true,
-    isHot: true,
-  },
-  {
-    id: "2",
-    title: "中华人民共和国劳动合同法",
-    level: "法律",
-    field: "劳动法",
-    scenario: "用工合规",
-    publishOrg: "全国人大常委会",
-    publishDate: "2012-12-28",
-    effectiveDate: "2013-07-01",
-    status: "effective",
-    tags: ["劳动合同", "试用期", "离职补偿", "社保"],
-    summary: "规范劳动合同制度，保护劳动者合法权益，构建和谐劳动关系。",
-    keyArticles: [
-      "第十条：建立劳动关系，应当订立书面劳动合同。",
-      "第十九条：劳动合同期限三个月以上不满一年的，试用期不得超过一个月。",
-    ],
-    viewCount: 98750,
-    downloadCount: 32100,
-    isHot: true,
-  },
-  {
-    id: "3",
-    title: "中华人民共和国数据安全法",
-    level: "法律",
-    field: "网络安全",
-    scenario: "数据合规",
-    publishOrg: "全国人大常委会",
-    publishDate: "2021-06-10",
-    effectiveDate: "2021-09-01",
-    status: "effective",
-    tags: ["数据安全", "数据分类", "风险评估", "应急处置"],
-    summary: "规范数据处理活动，保障数据安全，促进数据开发利用。",
-    keyArticles: [
-      "第二十一条：国家建立数据分类分级保护制度。",
-      "第三十条：重要数据的处理者应当按照规定对其数据处理活动定期开展风险评估。",
-    ],
-    viewCount: 76500,
-    downloadCount: 28900,
-    isNew: true,
-  },
-  {
-    id: "4",
-    title: "中华人民共和国个人信息保护法",
-    level: "法律",
-    field: "网络安全",
-    scenario: "数据合规",
-    publishOrg: "全国人大常委会",
-    publishDate: "2021-08-20",
-    effectiveDate: "2021-11-01",
-    status: "effective",
-    tags: ["个人信息", "隐私保护", "数据处理", "用户权益"],
-    summary: "保护个人信息权益，规范个人信息处理活动，促进个人信息合理利用。",
-    keyArticles: [
-      "第十三条：符合下列情形之一的，个人信息处理者方可处理个人信息。",
-      "第五十一条：个人信息处理者应当根据个人信息的处理目的、处理方式、个人信息的种类以及对个人权益的影响、可能存在的安全风险等，采取措施确保个人信息处理活动符合法律、行政法规的规定。",
-    ],
-    viewCount: 82300,
-    downloadCount: 31200,
-    isHot: true,
-  },
-];
+// 使用100条法规模拟数据
+const mockRegulations: RegulationItem[] = mockRegulations100;
 
 // 模拟法规详情数据
 const mockRegulationDetails: Record<string, RegulationDetail> = {
@@ -625,6 +546,13 @@ const RegulationIntegrated: React.FC = () => {
   const [highlightModalVisible, setHighlightModalVisible] = useState(false);
   const [highlightNote, setHighlightNote] = useState("");
 
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+
+  // 收藏列表（用于卡片收藏状态）
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
   // 根据筛选条件过滤数据
   const filteredData = useMemo(() => {
     let result = [...mockRegulations];
@@ -694,6 +622,44 @@ const RegulationIntegrated: React.FC = () => {
     return result;
   }, [filterCriteria, sortBy]);
 
+  // 分页数据
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return filteredData.slice(start, end);
+  }, [filteredData, currentPage, pageSize]);
+
+  // 处理分页变化
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+    // 滚动到结果区域顶部
+    const resultsElement = document.getElementById("regulation-results");
+    if (resultsElement) {
+      resultsElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // 处理收藏
+  const handleFavorite = (id: string) => {
+    setFavorites((prev) => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(id)) {
+        newFavorites.delete(id);
+        message.success("已取消收藏");
+      } else {
+        newFavorites.add(id);
+        message.success("收藏成功");
+      }
+      return newFavorites;
+    });
+  };
+
+  // 当筛选条件变化时，重置到第一页
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterCriteria, sortBy]);
+
   // 应用筛选模板
   const applyTemplate = (template: FilterTemplate) => {
     setActiveTemplate(template.id);
@@ -737,12 +703,6 @@ const RegulationIntegrated: React.FC = () => {
   const backToQuery = () => {
     setSelectedRegulationId(null);
     setRegulationDetail(null);
-  };
-
-  // 处理收藏
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
-    message.success(isFavorited ? "已取消收藏" : "收藏成功");
   };
 
   // 处理添加笔记
@@ -795,6 +755,14 @@ const RegulationIntegrated: React.FC = () => {
       large: { fontSize: 18, lineHeight: 2 },
     };
     return sizes[fontSize];
+  };
+
+  // 处理详情页收藏
+  const handleDetailFavorite = () => {
+    if (selectedRegulationId) {
+      handleFavorite(selectedRegulationId);
+      setIsFavorited(!isFavorited);
+    }
   };
 
   // 渲染法条
@@ -1019,147 +987,56 @@ const RegulationIntegrated: React.FC = () => {
     },
   ];
 
-  // 渲染卡片视图 - 政务简约风格
+  // 渲染卡片视图 - 使用 RegulationCard 组件
   const renderCardView = () => (
     <Row gutter={[16, 16]}>
-      {filteredData.map((item) => (
-        <Col xs={24} sm={12} lg={8} key={item.id}>
-          <Card
-            hoverable
-            className="regulation-card"
-            onClick={() => selectRegulation(item.id)}
-            style={{ height: 220, display: "flex", flexDirection: "column" }}
-            bodyStyle={{ flex: 1, display: "flex", flexDirection: "column", padding: "16px" }}
-          >
-            {/* 头部：法规名称 + 效力层级 */}
-            <div style={{ marginBottom: 12 }}>
-              <Space style={{ width: "100%", justifyContent: "space-between", marginBottom: 8 }}>
-                <Text strong style={{ fontSize: 15, lineHeight: 1.4, flex: 1 }}>
-                  {item.title}
-                </Text>
-                <Tag 
-                  color={item.level === "法律" ? "blue" : "default"}
-                  style={{ fontSize: 12, marginLeft: 8 }}
-                >
-                  {item.level}
-                </Tag>
-              </Space>
-            </div>
-            
-            {/* 发布信息 */}
-            <div style={{ marginBottom: 12 }}>
-              <Space size={16}>
-                <Text type="secondary" style={{ fontSize: 13 }}>
-                  发布单位：{item.publishOrg}
-                </Text>
-                <Text type="secondary" style={{ fontSize: 13 }}>
-                  发布日期：{item.publishDate}
-                </Text>
-              </Space>
-            </div>
-            
-            {/* 核心要点 - 一句话概括 */}
-            <Paragraph
-              ellipsis={{ rows: 1 }}
-              type="secondary"
-              style={{ fontSize: 13, marginBottom: 12, color: "#666" }}
-            >
-              {item.summary}
-            </Paragraph>
-            
-            {/* 底部信息 */}
-            <div style={{ marginTop: "auto", paddingTop: 12, borderTop: "1px solid #f0f0f0" }}>
-              <Space style={{ width: "100%", justifyContent: "space-between" }}>
-                <Space size={16}>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    <EyeOutlined style={{ marginRight: 4 }} />
-                    {item.viewCount.toLocaleString()}次浏览
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    <DownloadOutlined style={{ marginRight: 4 }} />
-                    {item.downloadCount.toLocaleString()}次下载
-                  </Text>
-                </Space>
-                <Button type="link" size="small" style={{ padding: 0 }}>
-                  查看详情 →
-                </Button>
-              </Space>
-            </div>
-          </Card>
+      {paginatedData.map((item) => (
+        <Col xs={24} sm={12} lg={8} xl={6} key={item.id}>
+          <RegulationCard
+            data={item}
+            layout="vertical"
+            isFavorited={favorites.has(item.id)}
+            onClick={selectRegulation}
+            onFavorite={handleFavorite}
+          />
         </Col>
       ))}
     </Row>
   );
 
-  // 渲染列表视图 - 政务简约风格
+  // 渲染列表视图 - 使用 RegulationCard 组件
   const renderListView = () => (
-    <List
-      itemLayout="horizontal"
-      dataSource={filteredData}
-      renderItem={(item) => (
-        <List.Item
+    <Space direction="vertical" style={{ width: "100%" }} size={16}>
+      {paginatedData.map((item) => (
+        <RegulationCard
           key={item.id}
-          style={{ padding: "16px 0", borderBottom: "1px solid #f0f0f0" }}
-          actions={[
-            <Button
-              type="primary"
-              size="small"
-              onClick={() => selectRegulation(item.id)}
-            >
-              查看详情
-            </Button>,
-          ]}
-        >
-          <List.Item.Meta
-            title={
-              <Space style={{ width: "100%", justifyContent: "space-between" }}>
-                <Text strong style={{ fontSize: 15 }}>
-                  {item.title}
-                </Text>
-                <Tag 
-                  color={item.level === "法律" ? "blue" : "default"}
-                  style={{ fontSize: 12 }}
-                >
-                  {item.level}
-                </Tag>
-              </Space>
-            }
-            description={
-              <Space direction="vertical" style={{ width: "100%", marginTop: 8 }}>
-                <Space size={24}>
-                  <Text type="secondary" style={{ fontSize: 13 }}>
-                    发布单位：{item.publishOrg}
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 13 }}>
-                    发布日期：{item.publishDate}
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: 13 }}>
-                    实施日期：{item.effectiveDate}
-                  </Text>
-                </Space>
-                <Paragraph ellipsis={{ rows: 1 }} style={{ fontSize: 13, color: "#666", margin: 0 }}>
-                  {item.summary}
-                </Paragraph>
-              </Space>
-            }
-          />
-        </List.Item>
-      )}
-    />
+          data={item}
+          layout="horizontal"
+          isFavorited={favorites.has(item.id)}
+          onClick={selectRegulation}
+          onFavorite={handleFavorite}
+        />
+      ))}
+    </Space>
   );
 
   // 渲染表格视图
   const renderTableView = () => (
-    <Table
-      columns={tableColumns}
-      dataSource={filteredData}
-      rowKey="id"
-      pagination={{
-        pageSize: 10,
-        showSizeChanger: true,
-        showTotal: (total) => `共 ${total} 条`,
-      }}
-    />
+    <>
+      <Table
+        columns={tableColumns}
+        dataSource={paginatedData}
+        rowKey="id"
+        pagination={false}
+      />
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={filteredData.length}
+        onChange={handlePageChange}
+        onShowSizeChange={handlePageChange}
+      />
+    </>
   );
 
   // 渲染查询页面
@@ -1167,66 +1044,38 @@ const RegulationIntegrated: React.FC = () => {
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px" }}>
       <BreadcrumbNav />
       
-      {/* 页面标题 - 政务简约风格 */}
-      <Card style={{ marginBottom: 24, background: "#fafafa" }}>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <Title level={3} style={{ marginBottom: 8, fontWeight: 500 }}>
-            法规查询
-          </Title>
-          <Text type="secondary">为中小微企业和企事业单位提供权威法规检索服务</Text>
-        </div>
-        
-        {/* 搜索框 */}
-        <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <Input.Search
-            placeholder="请输入法规名称、关键词进行搜索..."
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            onSearch={handleSearch}
-            enterButton={<Button type="primary">搜索</Button>}
-            size="large"
-            style={{ marginBottom: 16 }}
-          />
-        </div>
-        
-        {/* 快速筛选模板 - 简化样式 */}
-        <div style={{ textAlign: "center" }}>
-          <Space wrap>
-            <Text type="secondary">快速筛选：</Text>
-            {filterTemplates.map((template) => (
-              <Button
-                key={template.id}
-                type={activeTemplate === template.id ? "primary" : "default"}
-                size="small"
-                onClick={() => applyTemplate(template)}
-              >
-                {template.name}
-              </Button>
-            ))}
-            {activeTemplate && (
-              <Button size="small" onClick={resetFilters}>
-                清除筛选
-              </Button>
-            )}
-          </Space>
-        </div>
-      </Card>
+      {/* 页面标题 */}
+      <div style={{ marginBottom: 24 }}>
+        <Title level={4} style={{ marginBottom: 16 }}>
+          法规查询
+        </Title>
+        <Input.Search
+          placeholder="请输入法规名称、关键词进行搜索..."
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          onSearch={handleSearch}
+          enterButton={<Button type="primary">搜索</Button>}
+          size="large"
+          style={{ maxWidth: 600 }}
+        />
+      </div>
 
-      {/* 筛选器和工具栏 - 政务简约风格 */}
-      <Card style={{ marginBottom: 24 }}>
+      {/* 筛选器和工具栏 */}
+      <div style={{ marginBottom: 16, padding: "12px 0", borderBottom: "1px solid #f0f0f0" }}>
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} lg={16}>
             <Space wrap>
               <Select
                 mode="multiple"
                 placeholder="法规级别"
-                style={{ minWidth: 180 }}
+                style={{ minWidth: 140 }}
                 value={filterCriteria.level}
                 onChange={(value) =>
                   setFilterCriteria((prev) => ({ ...prev, level: value }))
                 }
                 maxTagCount={1}
                 size="small"
+                allowClear
               >
                 {filterOptions.levels.map((level) => (
                   <Option key={level} value={level}>
@@ -1238,13 +1087,14 @@ const RegulationIntegrated: React.FC = () => {
               <Select
                 mode="multiple"
                 placeholder="业务领域"
-                style={{ minWidth: 180 }}
+                style={{ minWidth: 140 }}
                 value={filterCriteria.field}
                 onChange={(value) =>
                   setFilterCriteria((prev) => ({ ...prev, field: value }))
                 }
                 maxTagCount={1}
                 size="small"
+                allowClear
               >
                 {filterOptions.fields.map((field) => (
                   <Option key={field} value={field}>
@@ -1255,12 +1105,13 @@ const RegulationIntegrated: React.FC = () => {
               
               <Select
                 placeholder="法规状态"
-                style={{ width: 120 }}
+                style={{ width: 100 }}
                 value={filterCriteria.status}
                 onChange={(value) =>
                   setFilterCriteria((prev) => ({ ...prev, status: value }))
                 }
                 size="small"
+                allowClear
               >
                 {filterOptions.statuses.map((status) => (
                   <Option key={status.value} value={status.value}>
@@ -1270,7 +1121,7 @@ const RegulationIntegrated: React.FC = () => {
               </Select>
               
               <RangePicker
-                placeholder={["开始日期", "结束日期"]}
+                placeholder={["开始", "结束"]}
                 value={filterCriteria.dateRange}
                 onChange={(dates) =>
                   setFilterCriteria((prev) => ({
@@ -1284,60 +1135,55 @@ const RegulationIntegrated: React.FC = () => {
           </Col>
           
           <Col xs={24} lg={8} style={{ textAlign: "right" }}>
-            <Space>
-              <Radio.Group
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                size="small"
-              >
-                <Radio.Button value="relevance">相关度</Radio.Button>
-                <Radio.Button value="date_desc">最新发布</Radio.Button>
-                <Radio.Button value="views">浏览最多</Radio.Button>
-              </Radio.Group>
-              
-              <Radio.Group
-                value={viewType}
-                onChange={(e) => setViewType(e.target.value)}
-                size="small"
-              >
-                <Radio.Button value="card">卡片</Radio.Button>
-                <Radio.Button value="list">列表</Radio.Button>
-                <Radio.Button value="table">表格</Radio.Button>
-              </Radio.Group>
-            </Space>
+            <Radio.Group
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              size="small"
+            >
+              <Radio.Button value="relevance">相关度</Radio.Button>
+              <Radio.Button value="date_desc">最新发布</Radio.Button>
+              <Radio.Button value="views">浏览最多</Radio.Button>
+            </Radio.Group>
           </Col>
         </Row>
-      </Card>
+      </div>
 
-      {/* 结果统计 - 政务简约风格 */}
-      <div style={{ marginBottom: 16, padding: "12px 16px", background: "#f6ffed", borderRadius: "4px", borderLeft: "3px solid #52c41a" }}>
-        <Text>
-          共找到 <Text strong style={{ color: "#52c41a" }}>{filteredData.length}</Text> 条法规
+      {/* 结果统计 */}
+      <div style={{ marginBottom: 16 }}>
+        <Text type="secondary">
+          共找到 <Text strong>{filteredData.length}</Text> 条法规
           {filterCriteria.keyword && (
             <span>，搜索关键词："{filterCriteria.keyword}"</span>
           )}
         </Text>
       </div>
 
-      {/* 结果展示 */}
-      <Card>
+      {/* 结果展示 - 纯列表形式 */}
+      <div id="regulation-results">
         {filteredData.length > 0 ? (
           <>
-            {viewType === "card" && renderCardView()}
-            {viewType === "list" && renderListView()}
-            {viewType === "table" && renderTableView()}
+            {renderListView()}
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={filteredData.length}
+              onChange={handlePageChange}
+              onShowSizeChange={handlePageChange}
+            />
           </>
         ) : (
-          <Empty
-            description="未找到符合条件的法规"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          >
-            <Button type="primary" onClick={resetFilters}>
-              重置筛选条件
-            </Button>
-          </Empty>
+          <Card>
+            <Empty
+              description="未找到符合条件的法规"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            >
+              <Button type="primary" onClick={resetFilters}>
+                重置筛选条件
+              </Button>
+            </Empty>
+          </Card>
         )}
-      </Card>
+      </div>
     </div>
   );
 
@@ -1416,7 +1262,7 @@ const RegulationIntegrated: React.FC = () => {
                   type={isFavorited ? "primary" : "default"}
                   icon={isFavorited ? <StarFilled /> : <StarOutlined />}
                   block
-                  onClick={handleFavorite}
+                  onClick={handleDetailFavorite}
                 >
                   {isFavorited ? "已收藏" : "收藏法规"}
                 </Button>
