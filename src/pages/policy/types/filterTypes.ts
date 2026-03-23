@@ -130,11 +130,6 @@ export interface FilterFacet {
   values: FacetValue[];
 }
 
-export interface FilterFacet {
-  field: string;
-  values: FacetValue[];
-}
-
 export interface FacetValue {
   value: string;
   count: number;

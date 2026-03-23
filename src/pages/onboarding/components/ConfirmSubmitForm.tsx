@@ -1,5 +1,5 @@
 import React from "react";
-import { Descriptions, Button, Divider, Tag, Checkbox } from "antd";
+import { Descriptions, Button, Divider, Checkbox } from "antd";
 
 export const ConfirmSubmitForm: React.FC<{
   formData: any;
@@ -35,9 +35,6 @@ export const ConfirmSubmitForm: React.FC<{
         <Descriptions.Item label="身份证号">{formData.idNo?.replace(/^(.{4})(.*)(.{4})$/, "$1**********$3") || '-'}</Descriptions.Item>
         <Descriptions.Item label="预留手机号">{formData.mobile?.replace(/^(\d{3})\d{4}(\d{4})$/, "$1****$2") || '-'}</Descriptions.Item>
         <Descriptions.Item label="对公银行卡号" span={2}>{formData.bankCardNo?.replace(/^(.{4})(.*)(.{4})$/, "$1********$3") || '-'}</Descriptions.Item>
-        <Descriptions.Item label="活体核验状态" span={2}>
-          {formData.faceVerified ? <Tag color="success">已通过公安接口核验</Tag> : <Tag color="error">未核验</Tag>}
-        </Descriptions.Item>
       </Descriptions>
 
       <div style={{ marginTop: 32, textAlign: "center", padding: "16px", background: "#f5f5f5", borderRadius: 8 }}>
@@ -48,7 +45,7 @@ export const ConfirmSubmitForm: React.FC<{
 
       <div className="onboarding-footer">
         <Button onClick={onPrev} disabled={loading}>返回修改</Button>
-        <Button type="primary" onClick={onSubmit} loading={loading} disabled={!agreement || !formData.faceVerified}>
+        <Button type="primary" onClick={onSubmit} loading={loading} disabled={!agreement}>
           确认提交审核
         </Button>
       </div>

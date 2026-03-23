@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Upload, Space, Divider, message, Modal, Typography, Row, Col } from "antd";
-import { IdcardOutlined, BankOutlined, PlusOutlined, ScanOutlined } from "@ant-design/icons";
+import React, { useEffect } from "react";
+import { Form, Input, Button, Upload, Space, Divider, message, Typography, Row, Col } from "antd";
+import { IdcardOutlined, BankOutlined } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export const RealNameVerifyForm: React.FC<{
   initialData: any;
@@ -11,26 +11,12 @@ export const RealNameVerifyForm: React.FC<{
   onSaveDraft: (data: any) => void;
 }> = ({ initialData, onNext, onPrev, onSaveDraft }) => {
   const [form] = Form.useForm();
-  const [faceModalVisible, setFaceModalVisible] = useState(false);
-  const [faceVerified, setFaceVerified] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       form.setFieldsValue(initialData);
-      setFaceVerified(!!initialData.faceVerified);
     }
   }, [initialData, form]);
-
-  const handleFaceScan = () => {
-    setFaceModalVisible(true);
-    // 模拟人脸活体检测
-    setTimeout(() => {
-      setFaceVerified(true);
-      setFaceModalVisible(false);
-      message.success("活体检测与人脸比对成功");
-      onSaveDraft({ ...form.getFieldsValue(), faceVerified: true });
-    }, 3000);
-  };
 
   const handleBankVerify = () => {
     const values = form.getFieldsValue(['bankCardNo', 'mobile', 'legalPersonName', 'idNo']);
@@ -46,15 +32,11 @@ export const RealNameVerifyForm: React.FC<{
   };
 
   const handleValuesChange = (_: any, allValues: any) => {
-    onSaveDraft({ ...allValues, faceVerified });
+    onSaveDraft(allValues);
   };
 
   const onFinish = (values: any) => {
-    if (!faceVerified) {
-      message.error("请先完成人脸识别核验");
-      return;
-    }
-    onNext({ ...values, faceVerified });
+    onNext(values);
   };
 
   return (
@@ -94,22 +76,6 @@ export const RealNameVerifyForm: React.FC<{
           </Col>
         </Row>
 
-        <Divider orientation="left">活体人脸核验</Divider>
-        <div style={{ marginBottom: 24, padding: 16, background: '#f5f5f5', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontWeight: 500 }}>法定代表人本人核验</div>
-            <Text type="secondary" style={{ fontSize: 12 }}>需授权调用设备摄像头进行活体检测</Text>
-          </div>
-          <Button 
-            type={faceVerified ? "default" : "primary"} 
-            icon={<ScanOutlined />} 
-            onClick={handleFaceScan}
-            disabled={faceVerified}
-          >
-            {faceVerified ? "已完成核验" : "开始人脸识别"}
-          </Button>
-        </div>
-
         <Divider orientation="left">对公账户/个人银行卡四要素核验</Divider>
         <Row gutter={16}>
           <Col span={12}>
@@ -135,22 +101,6 @@ export const RealNameVerifyForm: React.FC<{
         </div>
       </Form>
 
-      <Modal
-        title="人脸识别核验"
-        open={faceModalVisible}
-        footer={null}
-        closable={false}
-        centered
-      >
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div className="face-scan-wrapper">
-            <div className="face-scan-line" />
-            <img src="/api/placeholder/240/240" alt="face scan" style={{ opacity: 0.5 }} />
-          </div>
-          <Title level={4}>请正对摄像头</Title>
-          <Text type="secondary">正在调用公安权威接口比对...</Text>
-        </div>
-      </Modal>
     </div>
   );
 };
