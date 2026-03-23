@@ -10,8 +10,7 @@ import {
   ExclamationCircleOutlined,
   ClockCircleOutlined,
   WarningOutlined,
-  InfoCircleOutlined,
-  RightOutlined
+  InfoCircleOutlined
 } from "@ant-design/icons";
 import { ImportantReminderItem } from "../types/index.ts";
 
@@ -60,11 +59,7 @@ export const ImportantRemindersSection: React.FC<
           </Tag>
         </div>
       }
-      extra={
-        <Button type="link" onClick={() => onNavigate("/policy-center/application-management")}>
-          进入工作台 <RightOutlined />
-        </Button>
-      }
+
       headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '0 24px', minHeight: '56px' }}
       bodyStyle={{ padding: '0' }}
     >

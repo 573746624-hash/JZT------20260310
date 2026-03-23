@@ -37,6 +37,7 @@ import {
   financeRoutes,
   systemRoutes,
   newApplicationRoutes,
+  applicationNewRoutes,
 } from "../routes";
 
 const { Header, Sider, Content } = Layout;
@@ -395,6 +396,7 @@ const MainLayout: React.FC = () => {
               {homeRoute}
               {policyRoutes}
               {newApplicationRoutes}
+              {applicationNewRoutes}
               {legalRoutes}
               {industryRoutes}
               {financeRoutes}

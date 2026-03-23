@@ -223,7 +223,10 @@ interface FilterState {
   projectType: string[];
 }
 
-type ViewType = "list" | "status" | "statistics";
+type ViewType = "management" | "list" | "status" | "statistics";
+
+// 导入管理仪表盘组件
+import ApplicationManagementDashboard from "./ApplicationManagementDashboard";
 
 const OptimizedApplicationManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -232,7 +235,7 @@ const OptimizedApplicationManagement: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentView, setCurrentView] = useState<ViewType>(() => {
     const view = searchParams.get("view");
-    return (view as ViewType) || "list";
+    return (view as ViewType) || "management";
   });
 
   useEffect(() => {
@@ -1042,6 +1045,8 @@ const OptimizedApplicationManagement: React.FC = () => {
   // 渲染当前视图内容
   const renderCurrentView = () => {
     switch (currentView) {
+      case "management":
+        return <ApplicationManagementDashboard />;
       case "list":
         return renderProjectList();
       case "status":
@@ -1049,7 +1054,7 @@ const OptimizedApplicationManagement: React.FC = () => {
       case "statistics":
         return renderStatistics();
       default:
-        return renderProjectList();
+        return <ApplicationManagementDashboard />;
     }
   };
 

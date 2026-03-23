@@ -132,14 +132,46 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
           label: "智慧政策",
         },
         {
+          key: "/application?view=management",
+          icon: <PieChartOutlined />,
+          label: "申报管理",
+        },
+        {
           key: "/application?view=list",
           icon: <FormOutlined />,
-          label: "申报管理",
+          label: "项目列表",
         },
         {
           key: "/application?view=status",
           icon: <ContainerOutlined />,
           label: "我的申报",
+        },
+      ],
+    },
+    {
+      key: "/application-new",
+      icon: <FormOutlined />,
+      label: "申报管理(新)",
+      children: [
+        {
+          key: "/application-new/management",
+          icon: <PieChartOutlined />,
+          label: "管理仪表盘",
+        },
+        {
+          key: "/application-new/management/list",
+          icon: <FormOutlined />,
+          label: "申报列表",
+        },
+        {
+          key: "/application-new/my",
+          icon: <ContainerOutlined />,
+          label: "我的申报",
+        },
+        {
+          key: "/application-new/wizard",
+          icon: <AuditOutlined />,
+          label: "申报向导",
         },
       ],
     },
@@ -241,14 +273,23 @@ export const routeMenuMap: Record<string, string> = {
   "/policy-center/approved-list": "/policy-center/main", // 已通过政策列表
   "/policy-center/my-applications": "/application?view=status", // 我的申请
 
-  // 申报管理模块路由映射（已迁移至政策中心下）- 2026-03-03
-  "/application": "/application?view=status", // 我的申报页面 - 默认显示状态视图
-  "/application?view=list": "/application?view=list", // 申报管理列表视图
+  // 申报管理模块路由映射（已迁移至政策中心下）- 2026-03-23
+  "/application": "/application?view=management", // 申报管理页面 - 默认显示管理仪表盘
+  "/application?view=management": "/application?view=management", // 管理仪表盘视图
+  "/application?view=list": "/application?view=list", // 项目列表视图
   "/application?view=status": "/application?view=status", // 我的申报状态视图
   "/application?view=statistics": "/application?view=statistics", // 统计分析视图
-  "/application/detail": "/application?view=status", // 申报详情页面
-  "/application/apply": "/application?view=status", // 申报申请页面
-  "/application/success": "/application?view=status", // 申报成功页面
+  "/application/detail": "/application?view=management", // 申报详情页面
+  "/application/apply": "/application?view=management", // 申报申请页面
+  "/application/success": "/application?view=management", // 申报成功页面
+
+  // 重构版申报管理模块路由映射 - 2026-03-23
+  "/application-new": "/application-new/management",
+  "/application-new/management": "/application-new/management", // 管理仪表盘
+  "/application-new/management/list": "/application-new/management/list", // 申报列表
+  "/application-new/my": "/application-new/my", // 我的申报
+  "/application-new/wizard": "/application-new/wizard", // 申报向导
+  "/application-new/wizard/:id": "/application-new/wizard", // 编辑向导
 
   // 法律护航模块路由映射
   "/legal-support": "/legal-support/ai-lawyer",
@@ -302,6 +343,7 @@ export const routeMenuMap: Record<string, string> = {
 export const parentMenuPaths = [
   "/enterprise",
   "/policy-center",
+  "/application-new",
   "/legal-support",
   "/industry/service-match",
   "/supply-chain-finance",
@@ -391,6 +433,8 @@ export function getSelectedKeys(pathname: string): string[] {
     const view = searchParams.get("view");
 
     switch (view) {
+      case "management":
+        return ["/application?view=management"];
       case "list":
         return ["/application?view=list"];
       case "status":
@@ -398,13 +442,14 @@ export function getSelectedKeys(pathname: string): string[] {
       case "statistics":
         return ["/application?view=statistics"];
       default:
-        // 默认选中"我的申报"
-        return ["/application?view=status"];
+        // 默认选中"申报管理"
+        return ["/application?view=management"];
     }
   }
 
   // 模块级别的回退匹配
   const moduleMatches = [
+    { prefix: "/application-new", defaultKey: "/application-new/management" }, // 重构版申报管理模块
     { prefix: "/application", defaultKey: "/application?view=status" }, // 申报管理已迁移至政策中心，默认选中"我的申报"
     { prefix: "/policy-center", defaultKey: "/policy-center/main" },
     { prefix: "/legal-support", defaultKey: "/legal-support/ai-lawyer" },
