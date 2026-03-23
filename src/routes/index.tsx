@@ -175,6 +175,18 @@ export const systemRoutes = (
 );
 
 /**
+ * 企业认证后信息展示系统路由配置 - 2026-03-23
+ */
+export const enterprisePortalRoutes = (
+  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
+    <Route path="/enterprise" element={<Pages.CertifiedHome />} />
+    <Route path="/enterprise/home" element={<Pages.CertifiedHome />} />
+    <Route path="/enterprise/profile" element={<Pages.EnterpriseProfilePage />} />
+    <Route path="/enterprise/audit-logs" element={<Pages.AuditLogsPage />} />
+  </Route>
+);
+
+/**
  * 公开路由配置（无需登录）
  */
 export const publicRoutes = (

@@ -1,0 +1,186 @@
+/**
+ * 企业认证后首页样式
+ * 创建时间: 2026-03-23
+ */
+
+.certified-home-container {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: 100vh;
+}
+
+/* 页面头部 */
+.page-header {
+  background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  color: #fff;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content h4 {
+  color: #fff !important;
+}
+
+/* 区块卡片 */
+.section-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.section-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
+}
+
+/* 快捷操作卡片 */
+.quick-action-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.quick-action-name {
+  font-size: 14px;
+  color: #262626;
+  margin-top: 8px;
+}
+
+/* 通知项 */
+.notification-item {
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.notification-item:hover {
+  background-color: #f5f5f5;
+}
+
+.notification-item.unread {
+  background-color: #e6f7ff;
+}
+
+.notification-item.unread:hover {
+  background-color: #bae7ff;
+}
+
+/* 推荐卡片 */
+.recommendation-card {
+  border-radius: 12px;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recommendation-tags {
+  margin-top: 8px;
+}
+
+.recommendation-tags .ant-tag {
+  margin-bottom: 4px;
+}
+
+.recommendation-reason {
+  margin-top: 8px;
+  padding: 8px;
+  background: #fff7e6;
+  border-radius: 4px;
+}
+
+.recommendation-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 推荐分类 */
+.recommendation-category {
+  margin-bottom: 24px;
+}
+
+.recommendation-category:last-child {
+  margin-bottom: 0;
+}
+
+.category-header {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 企业画像项 */
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.profile-item:last-child {
+  border-bottom: none;
+}
+
+/* 统计卡片 */
+.ant-statistic-title {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.ant-statistic-content {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .certified-home-container {
+    padding: 16px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .page-header {
+    padding: 16px;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.certified-home-container > * {
+  animation: fadeIn 0.5s ease-out;
+}

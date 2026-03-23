@@ -17,6 +17,9 @@ import {
   PieChartOutlined,
   ExperimentOutlined,
   FileTextOutlined,
+  IdcardOutlined,
+  AuditOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 
@@ -87,11 +90,36 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
     },
   ];
 
+  // 企业门户子菜单 - 2026-03-23
+  const enterprisePortalChildren: MenuProps["items"] = [
+    {
+      key: "/enterprise/home",
+      icon: <HomeOutlined />,
+      label: "企业首页",
+    },
+    {
+      key: "/enterprise/profile",
+      icon: <IdcardOutlined />,
+      label: "企业画像",
+    },
+    {
+      key: "/enterprise/audit-logs",
+      icon: <AuditOutlined />,
+      label: "审核记录",
+    },
+  ];
+
   return [
     {
       key: "/",
       icon: <HomeOutlined />,
       label: "首页",
+    },
+    {
+      key: "/enterprise",
+      icon: <StarOutlined />,
+      label: "企业门户",
+      children: enterprisePortalChildren,
     },
     {
       key: "/policy-center",
@@ -200,6 +228,12 @@ export const routeMenuMap: Record<string, string> = {
   // 首页路由映射
   "/": "/",
 
+  // 企业门户模块路由映射 - 2026-03-23
+  "/enterprise": "/enterprise/home",
+  "/enterprise/home": "/enterprise/home",
+  "/enterprise/profile": "/enterprise/profile",
+  "/enterprise/audit-logs": "/enterprise/audit-logs",
+
   // 政策中心模块路由映射（包含迁移后的申报管理子模块）
   "/policy-center": "/policy-center/main",
   "/policy-center/main": "/policy-center/main", // 政策查询主页面
@@ -266,6 +300,7 @@ export const routeMenuMap: Record<string, string> = {
  * @note 添加新的多级菜单时需在此数组中添加对应的父路径
  */
 export const parentMenuPaths = [
+  "/enterprise",
   "/policy-center",
   "/legal-support",
   "/industry/service-match",

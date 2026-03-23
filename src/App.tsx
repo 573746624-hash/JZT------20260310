@@ -6,10 +6,11 @@ import { PolicyProvider } from "./context/PolicyContext";
 import { AuthProvider } from "./context/AuthContext";
 import { CompanyProfileProvider } from "./context/CompanyProfileContext";
 import { CertificationProvider } from "./context/CertificationContext";
+import { EnterprisePortalProvider } from "./context/EnterprisePortalContext";
 import LoadingFallback from "./components/common/LoadingFallback";
 import { ProtectedRoute } from "./components/auth";
 import MainLayout from "./layouts/MainLayout";
-import { publicRoutes, onboardingRoutes } from "./routes";
+import { publicRoutes, onboardingRoutes, enterprisePortalRoutes } from "./routes";
 import "./styles/common.css";
 
 const App = () => {
@@ -19,28 +20,31 @@ const App = () => {
         <CertificationProvider>
           <CompanyProfileProvider>
             <PolicyProvider>
-              <Router
-                future={{
-                  v7_startTransition: true,
-                  v7_relativeSplatPath: true,
-                }}
-              >
-                <ScrollToTop />
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    {publicRoutes}
-                    {onboardingRoutes}
-                    <Route
-                      path="/*"
-                      element={
-                        <ProtectedRoute>
-                          <MainLayout />
-                        </ProtectedRoute>
-                      }
-                    />
-                  </Routes>
-                </Suspense>
-              </Router>
+              <EnterprisePortalProvider>
+                <Router
+                  future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true,
+                  }}
+                >
+                  <ScrollToTop />
+                  <Suspense fallback={<LoadingFallback />}>
+                    <Routes>
+                      {publicRoutes}
+                      {onboardingRoutes}
+                      {enterprisePortalRoutes}
+                      <Route
+                        path="/*"
+                        element={
+                          <ProtectedRoute>
+                            <MainLayout />
+                          </ProtectedRoute>
+                        }
+                      />
+                    </Routes>
+                  </Suspense>
+                </Router>
+              </EnterprisePortalProvider>
             </PolicyProvider>
           </CompanyProfileProvider>
         </CertificationProvider>
