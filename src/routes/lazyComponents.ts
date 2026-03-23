@@ -147,9 +147,3 @@ export const ServiceMatchMyMessages = lazy(
 export const CertifiedHome = lazy(
   () => import("../pages/enterprise/CertifiedHome/index"),
 );
-export const EnterpriseProfilePage = lazy(
-  () => import("../pages/enterprise/EnterpriseProfile/index"),
-);
-export const AuditLogsPage = lazy(
-  () => import("../pages/enterprise/AuditLogs/index"),
-);

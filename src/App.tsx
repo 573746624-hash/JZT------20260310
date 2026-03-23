@@ -10,7 +10,7 @@ import { EnterprisePortalProvider } from "./context/EnterprisePortalContext";
 import LoadingFallback from "./components/common/LoadingFallback";
 import { ProtectedRoute } from "./components/auth";
 import MainLayout from "./layouts/MainLayout";
-import { publicRoutes, onboardingRoutes, enterprisePortalRoutes } from "./routes";
+import { publicRoutes, onboardingRoutes } from "./routes";
 import "./styles/common.css";
 
 const App = () => {
@@ -32,7 +32,6 @@ const App = () => {
                     <Routes>
                       {publicRoutes}
                       {onboardingRoutes}
-                      {enterprisePortalRoutes}
                       <Route
                         path="/*"
                         element={
