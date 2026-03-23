@@ -37,7 +37,6 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import PageWrapper from "../../../components/PageWrapper";
-import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { RegulationCard } from "../../../components/legal/RegulationCard";
 import { Pagination } from "../../../components/legal/Pagination";
@@ -656,10 +655,11 @@ const RegulationIntegrated: React.FC = () => {
       case "views":
         result.sort((a, b) => b.viewCount - a.viewCount);
         break;
-      case "level":
+      case "level": {
         const levelOrder = ["法律", "行政法规", "部门规章", "地方性法规", "规范性文件"];
         result.sort((a, b) => levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level));
         break;
+      }
       default:
         // 相关性排序（默认）
         break;
@@ -1155,8 +1155,6 @@ const RegulationIntegrated: React.FC = () => {
   // 渲染查询页面
   const renderQueryPage = () => (
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px" }}>
-      <BreadcrumbNav />
-      
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
         <Title level={4} style={{ marginBottom: 16 }}>

@@ -14,7 +14,6 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import BreadcrumbNav from "../../components/common/BreadcrumbNav";
 
 const { Title, Text } = Typography;
 
@@ -95,8 +94,6 @@ const PolicyApprovedList: React.FC = () => {
         <div
           style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}
         >
-          <BreadcrumbNav />
-
           <div
             style={{
               display: "flex",

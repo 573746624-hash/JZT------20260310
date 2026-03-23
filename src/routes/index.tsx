@@ -185,6 +185,7 @@ export const systemRoutes = (
   <>
     <Route path="/system" element={<Pages.SystemManagement />} />
     <Route path="/system/users" element={<Pages.UserManagement />} />
+    <Route path="/system/roles" element={<Pages.RoleManagement />} />
     <Route path="/system/personal-center" element={<Pages.PersonalCenter />} />
     <Route path="/system/my-favorites" element={<Pages.MyFavorites />} />
     <Route

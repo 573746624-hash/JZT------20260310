@@ -302,23 +302,25 @@ const SupplyBusinessHall: React.FC = () => {
                   <Option value="hangzhou">杭州</Option>
                 </Select>
                 <Select
-                  placeholder="价格区间"
+                  placeholder="预算区间"
                   style={{ width: 140 }}
                   allowClear
                 >
                   <Option value="0-1">1万以下</Option>
                   <Option value="1-5">1-5万</Option>
                   <Option value="5-10">5-10万</Option>
-                  <Option value="10+">10万以上</Option>
-                  <Option value="negotiable">面议</Option>
+                  <Option value="10-50">10-50万</Option>
+                  <Option value="50+">50万以上</Option>
                 </Select>
                 <Select
-                  placeholder="认证状态"
+                  placeholder="服务类型"
                   style={{ width: 140 }}
                   allowClear
                 >
-                  <Option value="verified">已认证</Option>
-                  <Option value="unverified">未认证</Option>
+                  <Option value="tech">技术服务</Option>
+                  <Option value="product">产品采购</Option>
+                  <Option value="cooperation">商务合作</Option>
+                  <Option value="consulting">咨询顾问</Option>
                 </Select>
               </Space>
             </Col>

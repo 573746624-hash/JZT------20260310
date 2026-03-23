@@ -90,20 +90,6 @@ const MatchDetail: React.FC = () => {
                 ))}
               </Space>
             </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "12px", color: THEME.textHint }}>
-                匹配度
-              </div>
-              <div
-                style={{
-                  fontSize: "32px",
-                  fontWeight: "bold",
-                  color: THEME.danger,
-                }}
-              >
-                {detail.matchScore}%
-              </div>
-            </div>
           </div>
 
           <Descriptions column={2}>

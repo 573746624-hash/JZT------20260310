@@ -25,7 +25,6 @@ import {
 } from "antd";
 import { useNavigate, useLocation, Link as RouterLink } from "react-router-dom";
 import PageWrapper from "../../components/PageWrapper";
-import BreadcrumbNav from "../../components/common/BreadcrumbNav";
 import { useDebounce } from "../../hooks/useDebounce";
 import {
   DownloadOutlined,
@@ -787,7 +786,6 @@ const RegulationQuery: React.FC = () => {
   return (
     <PageWrapper module="legal">
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <BreadcrumbNav />
         {/* 1. 智能法规场景化查询区 */}
         <Card
           style={{

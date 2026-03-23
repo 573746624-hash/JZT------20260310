@@ -399,51 +399,11 @@ const ServicePublish: React.FC = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
             marginBottom: 16,
           }}
         >
-          <div
-            style={{
-              background: "#f0f0f0",
-              borderRadius: "30px",
-              padding: "4px",
-              display: "inline-flex",
-            }}
-          >
-            <div
-              onClick={() => onScenarioChange({ target: { value: "supply" } })}
-              style={{
-                padding: "6px 24px",
-                borderRadius: "24px",
-                cursor: "pointer",
-                background:
-                  scenarioType === "supply" ? THEME.primary : "transparent",
-                color: scenarioType === "supply" ? "#fff" : "#666",
-                fontWeight: scenarioType === "supply" ? 500 : 400,
-                transition: "all 0.3s",
-              }}
-            >
-              业务供给
-            </div>
-            <div
-              onClick={() => onScenarioChange({ target: { value: "demand" } })}
-              style={{
-                padding: "6px 24px",
-                borderRadius: "24px",
-                cursor: "pointer",
-                background:
-                  scenarioType === "demand" ? THEME.primary : "transparent",
-                color: scenarioType === "demand" ? "#fff" : "#666",
-                fontWeight: scenarioType === "demand" ? 500 : 400,
-                transition: "all 0.3s",
-              }}
-            >
-              采购需求
-            </div>
-          </div>
-
           <Select
             placeholder="+ 新增发布事项"
             style={{ width: 160 }}

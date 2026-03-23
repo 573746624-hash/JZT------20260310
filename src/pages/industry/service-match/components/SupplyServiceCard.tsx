@@ -315,14 +315,6 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
               >
                 收藏
               </Button>
-              <Button
-                size="small"
-                style={{ flex: 1, borderRadius: 2 }}
-                type={isComparing ? "primary" : "default"}
-                onClick={() => onCompare(service)}
-              >
-                {isComparing ? "已对比" : "对比"}
-              </Button>
             </Space>
           </Space>
         </div>

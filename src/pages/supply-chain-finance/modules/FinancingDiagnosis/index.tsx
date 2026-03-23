@@ -21,7 +21,6 @@ import {
   Checkbox,
   Collapse,
 } from "antd";
-import BreadcrumbNav from "../../../../components/common/BreadcrumbNav";
 import {
   SaveOutlined,
   ArrowRightOutlined,
@@ -48,9 +47,6 @@ const FinancingDiagnosis: React.FC = () => {
 
   return (
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
-      {/* 面包屑导航 */}
-      <BreadcrumbNav />
-
       {/* 页面标题 */}
       <div style={{ textAlign: "center", marginBottom: "32px" }}>
         <Title level={2} style={{ marginBottom: "8px" }}>

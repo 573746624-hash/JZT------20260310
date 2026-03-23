@@ -243,11 +243,6 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
               <StarFilled style={{ marginRight: 4, color: "#FAAD14" }} />
               {item.score}
             </span>
-            {item.matchDegree && (
-              <span>
-                匹配度：<Text strong style={{ color: ENTERPRISE_THEME.primary }}>{item.matchDegree}%</Text>
-              </span>
-            )}
           </Space>
         </div>
 
@@ -294,14 +289,6 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
                 icon={<HeartOutlined />}
               >
                 收藏
-              </Button>
-              <Button
-                size="small"
-                style={{ flex: 1, borderRadius: 2 }}
-                type={isComparing ? "primary" : "default"}
-                onClick={() => onCompare(item)}
-              >
-                {isComparing ? "已对比" : "对比"}
               </Button>
             </Space>
           </Space>

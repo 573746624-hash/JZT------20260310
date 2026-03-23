@@ -20,6 +20,8 @@ import {
   IdcardOutlined,
   AuditOutlined,
   StarOutlined,
+  TeamOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 
@@ -63,16 +65,24 @@ import type { MenuProps } from "antd";
 export function getMenuItems(roleType?: string): MenuProps["items"] {
   const isAdmin = roleType === "0";
 
+  // 系统管理子菜单 - 管理员专用
+  const systemAdminChildren: MenuProps["items"] = isAdmin
+    ? [
+        {
+          key: "/system/users",
+          icon: <UserOutlined />,
+          label: "用户管理",
+        },
+        {
+          key: "/system/roles",
+          icon: <TeamOutlined />,
+          label: "角色管理",
+        },
+      ]
+    : [];
+
   const systemChildren: MenuProps["items"] = [
-    ...(isAdmin
-      ? [
-          {
-            key: "/system/users",
-            icon: <UserOutlined />,
-            label: "用户管理",
-          },
-        ]
-      : []),
+    ...systemAdminChildren,
     {
       key: "/system/personal-center",
       icon: <UserOutlined />,
@@ -309,9 +319,11 @@ export const routeMenuMap: Record<string, string> = {
   "/industry/service-match/workbench": "/industry/service-match/workbench", // 业务大厅
   "/industry/service-match/procurement-hall":
     "/industry/service-match/procurement-hall", // 采购大厅
+  "/industry/service-match/requirement-hall":
+    "/industry/service-match/requirement-hall", // 需求大厅
   "/industry/service-match/my-services": "/industry/service-match/my-services", // 我的业务管理
   "/industry/service-match/publish": "/industry/service-match/my-services", // 发布业务
-  "/industry/service-match/detail": "/industry/service-match/procurement-hall", // 业务详情
+  "/industry/service-match/detail": "/industry/service-match/workbench", // 业务详情
   "/industry/service-match/my-matches": "/industry/service-match/my-services", // 我的匹配
   "/industry/service-match/my-messages": "/industry/service-match/my-services", // 我的消息
 

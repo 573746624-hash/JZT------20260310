@@ -90,37 +90,42 @@ export const breadcrumbConfig: BreadcrumbConfig = {
     { title: "AI问答" },
   ],
 
-  // 企服管理模块
+  // 产业管理模块
+  "/industry/service-match": [{ title: "产业管理" }],
   "/industry/service-match/workbench": [
-    { title: "企服管理" },
-    { title: "工作台" },
+    { title: "产业管理", path: "/industry/service-match" },
+    { title: "业务大厅" },
   ],
   "/industry/service-match/business-hall": [
-    { title: "企服管理" },
+    { title: "产业管理", path: "/industry/service-match" },
     { title: "业务大厅" },
   ],
   "/industry/service-match/procurement-hall": [
-    { title: "企服管理" },
+    { title: "产业管理", path: "/industry/service-match" },
     { title: "采购大厅" },
   ],
+  "/industry/service-match/requirement-hall": [
+    { title: "产业管理", path: "/industry/service-match" },
+    { title: "需求大厅" },
+  ],
   "/industry/service-match/my-services": [
-    { title: "企服管理" },
-    { title: "我的服务" },
+    { title: "产业管理", path: "/industry/service-match" },
+    { title: "我的业务管理" },
   ],
   "/industry/service-match/publish": [
-    { title: "企服管理" },
+    { title: "产业管理", path: "/industry/service-match" },
     { title: "发布服务" },
   ],
   "/industry/service-match/detail": [
-    { title: "企服管理" },
+    { title: "产业管理", path: "/industry/service-match" },
     { title: "服务详情" },
   ],
   "/industry/service-match/my-matches": [
-    { title: "企服管理" },
+    { title: "产业管理", path: "/industry/service-match" },
     { title: "我的匹配" },
   ],
   "/industry/service-match/my-messages": [
-    { title: "企服管理" },
+    { title: "产业管理", path: "/industry/service-match" },
     { title: "消息中心" },
   ],
 
@@ -163,10 +168,6 @@ export const breadcrumbConfig: BreadcrumbConfig = {
     { title: "系统管理", path: "/system" },
     { title: "角色管理" },
   ],
-  "/system/permissions": [
-    { title: "系统管理", path: "/system" },
-    { title: "权限管理" },
-  ],
   "/system/personal-center": [
     { title: "系统管理", path: "/system" },
     { title: "个人中心" },
@@ -178,6 +179,33 @@ export const breadcrumbConfig: BreadcrumbConfig = {
   "/system/my-favorites": [
     { title: "系统管理", path: "/system" },
     { title: "我的收藏" },
+  ],
+
+  // 企业门户
+  "/enterprise": [{ title: "企业门户" }],
+  "/enterprise/home": [
+    { title: "企业门户", path: "/enterprise" },
+    { title: "企业首页" },
+  ],
+  "/enterprise/profile": [
+    { title: "企业门户", path: "/enterprise" },
+    { title: "企业画像" },
+  ],
+  "/enterprise/audit-logs": [
+    { title: "企业门户", path: "/enterprise" },
+    { title: "审核记录" },
+  ],
+
+  // 新增法律护航页面
+  "/legal-support/regulation-integrated": [
+    { title: "法律护航", path: "/legal-support" },
+    { title: "法规集成" },
+  ],
+
+  // 新增金融服务页面
+  "/supply-chain-finance/risk-assessment": [
+    { title: "金融服务", path: "/supply-chain-finance" },
+    { title: "风险评估" },
   ],
 };
 
@@ -220,16 +248,50 @@ export const getBreadcrumbItems = (pathname: string): BreadcrumbItem[] => {
       key: "/legal-support/regulation-query/detail",
     },
 
-    // 企服管理
+    // 产业管理
     {
       pattern: /\/industry\/service-match\/detail\/[^/]+$/,
       key: "/industry/service-match/detail",
+    },
+    {
+      pattern: /\/industry\/service-match\/publish/,
+      key: "/industry/service-match/publish",
+    },
+    {
+      pattern: /\/industry\/service-match\/my-matches/,
+      key: "/industry/service-match/my-matches",
+    },
+    {
+      pattern: /\/industry\/service-match\/my-messages/,
+      key: "/industry/service-match/my-messages",
+    },
+    {
+      pattern: /\/industry\/service-match\/procurement-hall/,
+      key: "/industry/service-match/procurement-hall",
+    },
+    {
+      pattern: /\/industry\/service-match\/requirement-hall/,
+      key: "/industry/service-match/requirement-hall",
     },
 
     // 金融服务
     {
       pattern: /\/supply-chain-finance\/financing-option-detail\/[^/]+$/,
       key: "/supply-chain-finance/financing-option-detail",
+    },
+    {
+      pattern: /\/supply-chain-finance\/diagnosis-report/,
+      key: "/supply-chain-finance/diagnosis-report",
+    },
+    {
+      pattern: /\/supply-chain-finance\/application-success/,
+      key: "/supply-chain-finance/application-success",
+    },
+
+    // 企业门户
+    {
+      pattern: /\/enterprise\/home/,
+      key: "/enterprise/home",
     },
   ];
 

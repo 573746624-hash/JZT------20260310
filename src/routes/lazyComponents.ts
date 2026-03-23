@@ -27,6 +27,9 @@ export const SystemManagement = lazy(
 export const UserManagement = lazy(
   () => import("../pages/system/UserManagement/index"),
 );
+export const RoleManagement = lazy(
+  () => import("../pages/system/role-management/index"),
+);
 export const PersonalCenter = lazy(
   () => import("../pages/system/PersonalCenter/index"),
 );

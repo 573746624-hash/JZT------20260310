@@ -15,22 +15,26 @@ import {
   Row,
   Col,
   Divider,
+  Input,
+  Select,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   StarFilled,
   ReloadOutlined,
   BarChartOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  PlusOutlined,
+  MessageOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import { COMMON_STYLES } from "./styles";
-import HallHeader from "./components/HallHeader";
 import ServiceMatchCard from "./components/ServiceMatchCard";
 import SupplyServiceCard from "./components/SupplyServiceCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
-import ServiceCategoryNav from "./components/ServiceCategoryNav";
 import LatestRequirements from "./components/LatestRequirements";
-import PrivacyControlPanel from "./components/PrivacyControlPanel";
 import {
   maskCompanyName,
   maskPhone,
@@ -41,6 +45,21 @@ import {
   getPublications,
   getRecommendedPublications,
 } from "../../../services/industryService";
+
+const { Option } = Select;
+
+// 企业级配色 - 与 ProcurementHall 保持一致
+const ENTERPRISE_THEME = {
+  primary: "#1A5FB4",
+  white: "#FFFFFF",
+  textPrimary: "#1A1A1A",
+  textSecondary: "#333333",
+  textTertiary: "#666666",
+  textMuted: "#999999",
+  border: "#D9D9D9",
+  borderLight: "#E8E8E8",
+  background: "#F5F5F5",
+};
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -296,31 +315,125 @@ const ServiceMatchHome: React.FC = () => {
     }
   };
 
+  const handleMessagesClick = () => {
+    navigate("/industry/service-match/messages");
+  };
+
+  const handleMyServicesClick = () => {
+    navigate("/industry/service-match/my-services");
+  };
+
   return (
-    <div style={{ background: "#f5f7fa", minHeight: "100%", paddingBottom: 60 }}>
-      {/* Search Header */}
-      <div style={{ padding: "0 20px", background: "#fff", margin: "0 20px", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-        <HallHeader
-          onSearch={handleSearch}
-          onFilterChange={handleFilterChange}
-          onCreateClick={handleCreateClick}
-          isProcurement={false}
-        />
+    <div style={{ background: ENTERPRISE_THEME.background, minHeight: "100%", paddingBottom: 60 }}>
+      {/* 顶部操作栏 - 与 ProcurementHall 保持一致 */}
+      <div
+        style={{
+          background: ENTERPRISE_THEME.white,
+          borderBottom: `1px solid ${ENTERPRISE_THEME.border}`,
+          padding: "16px 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary, fontWeight: 600 }}>
+            企服大厅
+          </Title>
+          <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
+            企业需求信息发布与对接平台
+          </Text>
+        </div>
+        <Space>
+          <Button 
+            icon={<MessageOutlined />} 
+            onClick={handleMessagesClick}
+            style={{ borderRadius: 2 }}
+          >
+            消息中心
+          </Button>
+          <Button 
+            icon={<ShopOutlined />} 
+            onClick={handleMyServicesClick}
+            style={{ borderRadius: 2 }}
+          >
+            我的服务
+          </Button>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            onClick={handleCreateClick}
+            style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+          >
+            发布业务
+          </Button>
+        </Space>
       </div>
 
-      <div style={{ padding: "20px" }}>
-        {/* Privacy Control Panel */}
-        <PrivacyControlPanel
-          showMaskedData={showMaskedData}
-          onMaskingToggle={setShowMaskedData}
-          compact={true}
-        />
-
-        {/* Service Category Navigation */}
-        <ServiceCategoryNav
-          onCategoryClick={handleCategoryClick}
-          selectedCategory={selectedCategory}
-        />
+      <div style={{ padding: "24px" }}>
+        {/* 搜索和筛选区域 - 与 ProcurementHall 保持一致 */}
+        <Card
+          style={{
+            borderRadius: 4,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            marginBottom: 24,
+            boxShadow: "none",
+          }}
+          bodyStyle={{ padding: "20px 24px" }}
+        >
+          <Row gutter={[16, 16]} align="middle">
+            <Col flex="1">
+              <Input.Search
+                placeholder="搜索企业名称 / 业务类型 / 产品名称"
+                allowClear
+                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}>搜索</Button>}
+                size="large"
+                onSearch={handleSearch}
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col>
+              <Space>
+                <Select
+                  placeholder="所在地区"
+                  style={{ width: 140 }}
+                  allowClear
+                  suffixIcon={<FilterOutlined />}
+                  onChange={(val) => handleFilterChange({ region: val })}
+                >
+                  <Option value="beijing">北京</Option>
+                  <Option value="shanghai">上海</Option>
+                  <Option value="guangzhou">广州</Option>
+                  <Option value="shenzhen">深圳</Option>
+                  <Option value="hangzhou">杭州</Option>
+                </Select>
+                <Select
+                  placeholder="预算区间"
+                  style={{ width: 140 }}
+                  allowClear
+                  onChange={(val) => handleFilterChange({ budget: val })}
+                >
+                  <Option value="0-1">1万以下</Option>
+                  <Option value="1-5">1-5万</Option>
+                  <Option value="5-10">5-10万</Option>
+                  <Option value="10-50">10-50万</Option>
+                  <Option value="50+">50万以上</Option>
+                </Select>
+                <Select
+                  placeholder="服务类型"
+                  style={{ width: 140 }}
+                  allowClear
+                  onChange={(val) => handleFilterChange({ category: val })}
+                >
+                  <Option value="tech">技术服务</Option>
+                  <Option value="product">产品采购</Option>
+                  <Option value="cooperation">商务合作</Option>
+                  <Option value="consulting">咨询顾问</Option>
+                </Select>
+              </Space>
+            </Col>
+          </Row>
+        </Card>
         {/* Sorting & Batch Bar */}
         <div
           style={{

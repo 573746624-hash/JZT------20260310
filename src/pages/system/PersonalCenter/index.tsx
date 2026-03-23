@@ -6,7 +6,6 @@
 
 import React from "react";
 import { Card, Tabs, Spin, Alert, Button } from "antd";
-import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import {
   UserOutlined,
   HistoryOutlined,
@@ -84,168 +83,163 @@ const PersonalCenter: React.FC = () => {
   } = usePersonalCenter();
 
   return (
-    <div>
-      {/* 面包屑导航 */}
-      <BreadcrumbNav />
+    <div
+      style={{
+        padding: "24px",
+        background: "#f0f2f5",
+        minHeight: "calc(100vh - 180px)",
+      }}
+    >
+      {/* 加载中状态 */}
+      {apiLoading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            padding: "50px",
+          }}
+        >
+          <Spin
+            indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+          />
+        </div>
+      )}
 
-      <div
-        style={{
-          padding: "24px",
-          background: "#f0f2f5",
-          minHeight: "calc(100vh - 180px)",
-        }}
-      >
-        {/* 加载中状态 */}
-        {apiLoading && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: "50px",
-            }}
-          >
-            <Spin
-              indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+      {/* 错误状态 */}
+      {apiError && !apiLoading && (
+        <div style={{ padding: "50px" }}>
+          <Alert
+            message="获取用户信息失败"
+            description={apiError}
+            type="error"
+            showIcon
+            action={
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => window.location.reload()}
+              >
+                重试
+              </Button>
+            }
+          />
+        </div>
+      )}
+
+      {/* 正常状态 */}
+      {userInfo && !apiLoading && !apiError && (
+        <>
+          {/* 用户头像卡片 */}
+          <UserProfileCard
+            userInfo={userInfo}
+            avatarUrl={avatarUrl}
+            onAvatarUpload={handleAvatarUpload}
+            onLogout={handleLogout}
+          />
+
+          {/* 主要内容标签页 */}
+          <Card>
+            <Tabs
+              activeKey={activeTab}
+              onChange={(key) => {
+                // 切换离开"个人信息"标签时，清空密码表单（安全考虑）
+                if (activeTab === "1" && key !== "1") {
+                  passwordForm.resetFields();
+                }
+                setActiveTab(key);
+              }}
+              items={[
+                {
+                  key: "1",
+                  label: (
+                    <span>
+                      <UserOutlined /> 个人信息
+                    </span>
+                  ),
+                  children: (
+                    <PersonalInfoTab
+                      userInfo={userInfo}
+                      passwordForm={passwordForm}
+                      loading={loading}
+                      onEditPhone={handleEditPhone}
+                      onEditNickname={handleEditNickname}
+                      onChangePassword={handleChangePassword}
+                    />
+                  ),
+                },
+                {
+                  key: "2",
+                  label: (
+                    <span>
+                      <HistoryOutlined /> 操作日志
+                    </span>
+                  ),
+                  children: (
+                    <OperationLogTab
+                      operationLogs={operationLogs}
+                      logFilter={logFilter}
+                      onFilterChange={setLogFilter}
+                      onViewDetail={viewLogDetail}
+                      onDeleteLog={handleDeleteLog}
+                    />
+                  ),
+                },
+                // {
+                //   key: "3",
+                //   label: (
+                //     <span>
+                //       <SettingOutlined /> 个性化设置
+                //     </span>
+                //   ),
+                //   children: (
+                //     <SettingsTab
+                //       modulePreferences={modulePreferences}
+                //       defaultHomePage={defaultHomePage}
+                //       notificationSettings={notificationSettings}
+                //       quietHours={quietHours}
+                //       loading={loading}
+                //       onModulePreferencesChange={setModulePreferences}
+                //       onDefaultHomePageChange={setDefaultHomePage}
+                //       onNotificationSettingsChange={setNotificationSettings}
+                //       onQuietHoursChange={setQuietHours}
+                //       onSaveModulePreferences={handleSaveModulePreferences}
+                //       onSaveNotificationSettings={handleSaveNotificationSettings}
+                //     />
+                //   ),
+                // },
+              ]}
             />
-          </div>
-        )}
+          </Card>
+        </>
+      )}
 
-        {/* 错误状态 */}
-        {apiError && !apiLoading && (
-          <div style={{ padding: "50px" }}>
-            <Alert
-              message="获取用户信息失败"
-              description={apiError}
-              type="error"
-              showIcon
-              action={
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => window.location.reload()}
-                >
-                  重试
-                </Button>
-              }
-            />
-          </div>
-        )}
+      {/* 操作日志详情弹窗 */}
+      <LogDetailModal
+        visible={logDetailVisible}
+        log={selectedLog}
+        onClose={() => setLogDetailVisible(false)}
+      />
 
-        {/* 正常状态 */}
-        {userInfo && !apiLoading && !apiError && (
-          <>
-            {/* 用户头像卡片 */}
-            <UserProfileCard
-              userInfo={userInfo}
-              avatarUrl={avatarUrl}
-              onAvatarUpload={handleAvatarUpload}
-              onLogout={handleLogout}
-            />
+      {/* 修改手机号弹窗 */}
+      <PhoneEditModal
+        visible={phoneModalVisible}
+        form={phoneForm}
+        loading={loading}
+        sendingCode={sendingCode}
+        countdown={countdown}
+        onClose={() => setPhoneModalVisible(false)}
+        onSendCode={handleSendPhoneCode}
+        onSubmit={handleSubmitPhone}
+      />
 
-            {/* 主要内容标签页 */}
-            <Card>
-              <Tabs
-                activeKey={activeTab}
-                onChange={(key) => {
-                  // 切换离开"个人信息"标签时，清空密码表单（安全考虑）
-                  if (activeTab === "1" && key !== "1") {
-                    passwordForm.resetFields();
-                  }
-                  setActiveTab(key);
-                }}
-                items={[
-                  {
-                    key: "1",
-                    label: (
-                      <span>
-                        <UserOutlined /> 个人信息
-                      </span>
-                    ),
-                    children: (
-                      <PersonalInfoTab
-                        userInfo={userInfo}
-                        passwordForm={passwordForm}
-                        loading={loading}
-                        onEditPhone={handleEditPhone}
-                        onEditNickname={handleEditNickname}
-                        onChangePassword={handleChangePassword}
-                      />
-                    ),
-                  },
-                  {
-                    key: "2",
-                    label: (
-                      <span>
-                        <HistoryOutlined /> 操作日志
-                      </span>
-                    ),
-                    children: (
-                      <OperationLogTab
-                        operationLogs={operationLogs}
-                        logFilter={logFilter}
-                        onFilterChange={setLogFilter}
-                        onViewDetail={viewLogDetail}
-                        onDeleteLog={handleDeleteLog}
-                      />
-                    ),
-                  },
-                  // {
-                  //   key: "3",
-                  //   label: (
-                  //     <span>
-                  //       <SettingOutlined /> 个性化设置
-                  //     </span>
-                  //   ),
-                  //   children: (
-                  //     <SettingsTab
-                  //       modulePreferences={modulePreferences}
-                  //       defaultHomePage={defaultHomePage}
-                  //       notificationSettings={notificationSettings}
-                  //       quietHours={quietHours}
-                  //       loading={loading}
-                  //       onModulePreferencesChange={setModulePreferences}
-                  //       onDefaultHomePageChange={setDefaultHomePage}
-                  //       onNotificationSettingsChange={setNotificationSettings}
-                  //       onQuietHoursChange={setQuietHours}
-                  //       onSaveModulePreferences={handleSaveModulePreferences}
-                  //       onSaveNotificationSettings={handleSaveNotificationSettings}
-                  //     />
-                  //   ),
-                  // },
-                ]}
-              />
-            </Card>
-          </>
-        )}
-
-        {/* 操作日志详情弹窗 */}
-        <LogDetailModal
-          visible={logDetailVisible}
-          log={selectedLog}
-          onClose={() => setLogDetailVisible(false)}
-        />
-
-        {/* 修改手机号弹窗 */}
-        <PhoneEditModal
-          visible={phoneModalVisible}
-          form={phoneForm}
-          loading={loading}
-          sendingCode={sendingCode}
-          countdown={countdown}
-          onClose={() => setPhoneModalVisible(false)}
-          onSendCode={handleSendPhoneCode}
-          onSubmit={handleSubmitPhone}
-        />
-
-        {/* 修改昵称弹窗 */}
-        <NicknameEditModal
-          visible={nicknameModalVisible}
-          form={nicknameForm}
-          loading={loading}
-          onClose={() => setNicknameModalVisible(false)}
-          onSubmit={handleSubmitNickname}
-        />
-      </div>
+      {/* 修改昵称弹窗 */}
+      <NicknameEditModal
+        visible={nicknameModalVisible}
+        form={nicknameForm}
+        loading={loading}
+        onClose={() => setNicknameModalVisible(false)}
+        onSubmit={handleSubmitNickname}
+      />
     </div>
   );
 };

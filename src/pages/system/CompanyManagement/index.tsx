@@ -6,9 +6,8 @@
 
 import React, { useState } from "react";
 import { Row, Col, Typography, Button, Card, Descriptions, Tag, Space, Modal } from "antd";
-import BreadcrumbNav from "../../../components/common/BreadcrumbNav";
 import { EditOutlined, BankOutlined, SafetyCertificateOutlined, AlertOutlined } from "@ant-design/icons";
-import { ProfileOverviewCard, ProfileEditModal } from "./components/index.ts";
+import { ProfileOverviewCard, ProfileEditModal, DataConsistencyReport } from "./components/index.ts";
 import {
   useCompanyProfile,
   UICompanyProfile,
@@ -22,6 +21,7 @@ const { Title, Text } = Typography;
 /**
  * 企业管理页面组件
  * 组件创建时间: 2026-01-13
+ * 更新时间: 2026-03-24 - 集成数据一致性校验功能
  */
 const CompanyManagement: React.FC = () => {
   const {
@@ -31,6 +31,8 @@ const CompanyManagement: React.FC = () => {
     editMode,
     editForm,
     currentStep,
+    consistencyReport,
+    reportModalVisible,
     setEditForm,
     setCurrentStep,
     setEditMode,
@@ -39,6 +41,9 @@ const CompanyManagement: React.FC = () => {
     handleCancelEdit,
     handleCloseModal,
     handleRetrySync,
+    handleAutoFix,
+    handleCloseReportModal,
+    handleConfirmSave,
   } = useCompanyProfile();
 
   const { certState, upgradeLevel, checkExpiry } = useCertification();
@@ -50,9 +55,6 @@ const CompanyManagement: React.FC = () => {
 
   return (
     <div style={{ background: "#f5f5f5", minHeight: "100vh", padding: "24px" }}>
-      {/* 面包屑导航 */}
-      <BreadcrumbNav />
-
       {/* 页面头部 */}
       <Row
         justify="space-between"
@@ -179,6 +181,15 @@ const CompanyManagement: React.FC = () => {
         visible={certModalVisible}
         onCancel={() => setCertModalVisible(false)}
         onSuccess={() => setCertModalVisible(false)}
+      />
+
+      {/* 数据一致性校验报告弹窗 */}
+      <DataConsistencyReport
+        visible={reportModalVisible}
+        report={consistencyReport}
+        onClose={handleCloseReportModal}
+        onAutoFix={handleAutoFix}
+        onContinue={handleConfirmSave}
       />
     </div>
   );
