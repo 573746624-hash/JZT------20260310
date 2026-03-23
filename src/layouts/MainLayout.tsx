@@ -300,28 +300,28 @@ const MainLayout: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: "8px",
+            gap: "12px",
           }}
         >
-          {/* 品牌标识 */}
+          {/* 品牌标识 - 企业级风格 */}
           <div
             style={{
               width: 32,
               height: 32,
-              background: "#1890ff",
-              borderRadius: 4,
+              background: "#fff",
+              borderRadius: 2,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#fff",
-              fontWeight: "bold",
-              fontSize: 18,
+              color: "#1A5FB4",
+              fontWeight: 600,
+              fontSize: 16,
             }}
           >
             璟
           </div>
           {!collapsed && (
-            <span style={{ fontSize: 18, fontWeight: 600, color: "#fff" }}>
+            <span style={{ fontSize: 18, fontWeight: 600, color: "#fff", letterSpacing: "1px" }}>
               璟智通
             </span>
           )}

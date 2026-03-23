@@ -1,10 +1,10 @@
-/* MainLayout 样式模块 */
+/* MainLayout 样式模块 - 企业级风格 */
 
 .sidebar {
   background: #fff;
-  border-right: 1px solid #f0f0f0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-right: 1px solid #E8E8E8;
+  box-shadow: none;
+  transition: all 0.2s ease;
   position: relative;
 }
 
@@ -20,13 +20,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #f0f0f0;
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border-bottom: 1px solid #E8E8E8;
+  background: #1A5FB4;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 18px;
-  letter-spacing: 1px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   overflow: hidden;
 }
 
@@ -42,238 +41,166 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   z-index: 10;
 }
 
 .collapseIcon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(24, 144, 255, 0.1);
-  border-radius: 50%;
-  color: #1890ff;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #F5F5F5;
+  border-radius: 4px;
+  color: #666666;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .collapseButton:hover .collapseIcon {
-  background: rgba(24, 144, 255, 0.2);
-  transform: scale(1.1);
+  background: #E8E8E8;
+  color: #1A5FB4;
 }
 
 .menu {
   border-right: none;
   background: transparent;
+  padding: 8px 0;
 }
 
-/* 菜单项样式 */
+/* 菜单项样式 - 企业级 */
 .menu :global(.ant-menu-item) {
-  margin: 4px 8px;
-  border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 2px 12px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   height: 40px;
   line-height: 40px;
+  color: #333333;
 }
 
 .menu :global(.ant-menu-item .anticon) {
   margin-right: 12px !important;
   font-size: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #666666;
+  transition: all 0.2s ease;
 }
 
 .menu :global(.ant-menu-item:hover) {
-  background: rgba(24, 144, 255, 0.08);
-  color: #1890ff;
+  background: #F5F5F5;
+  color: #1A5FB4;
+}
+
+.menu :global(.ant-menu-item:hover .anticon) {
+  color: #1A5FB4;
 }
 
 .menu :global(.ant-menu-item-selected) {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
-  color: #fff !important;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+  background: #F0F5FF !important;
+  color: #1A5FB4 !important;
+  font-weight: 500;
+  box-shadow: none;
 }
 
 .menu :global(.ant-menu-item-selected .anticon) {
-  color: #fff !important;
-  transform: scale(1.1);
+  color: #1A5FB4 !important;
 }
 
 .menu :global(.ant-menu-item-selected::after) {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: #fff;
-  opacity: 0.8;
+  display: none;
 }
 
 /* 子菜单样式 */
 .menu :global(.ant-menu-submenu) {
-  margin: 4px 8px;
-  border-radius: 8px;
+  margin: 2px 12px;
+  border-radius: 2px;
 }
 
 .menu :global(.ant-menu-submenu-title) {
-  border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+  transition: all 0.2s ease;
   margin: 0;
   padding: 0 16px;
   height: 40px;
   line-height: 40px;
+  color: #333333;
 }
 
 .menu :global(.ant-menu-submenu-title .anticon) {
   margin-right: 12px !important;
   font-size: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #666666;
+  transition: all 0.2s ease;
 }
 
 .menu :global(.ant-menu-submenu-title:hover) {
-  background: rgba(24, 144, 255, 0.08);
-  color: #1890ff;
+  background: #F5F5F5;
+  color: #1A5FB4;
+}
+
+.menu :global(.ant-menu-submenu-title:hover .anticon) {
+  color: #1A5FB4;
 }
 
 .menu :global(.ant-menu-submenu-open > .ant-menu-submenu-title) {
-  background: rgba(24, 144, 255, 0.12);
-  color: #1890ff;
-  font-weight: 600;
+  background: #F0F5FF;
+  color: #1A5FB4;
+  font-weight: 500;
 }
 
 .menu :global(.ant-menu-submenu-open > .ant-menu-submenu-title .anticon) {
-  color: #1890ff;
-  transform: rotate(0deg);
+  color: #1A5FB4;
 }
 
-/* 子菜单内容 - 添加平滑高度过渡动画 */
-.menu :global(.ant-menu-submenu-inline > .ant-menu) {
-  background: rgba(24, 144, 255, 0.02);
-  border-radius: 0 0 8px 8px;
-  margin-top: 4px;
-  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* 子菜单展开内容 */
+.menu :global(.ant-menu-sub) {
+  background: transparent !important;
 }
 
-/* 二级菜单项 - 缩进16px */
-.menu :global(.ant-menu-submenu .ant-menu-item) {
-  margin: 2px 8px 2px 8px;
-  padding-left: 16px !important;
-  position: relative;
-  height: 36px;
-  line-height: 36px;
-  color: #8c8c8c;
-}
-
-.menu :global(.ant-menu-submenu .ant-menu-item .anticon) {
-  margin-right: 12px !important;
-  font-size: 14px;
-  color: #8c8c8c;
-}
-
-/* 二级菜单选中态 - 品牌蓝背景+白色文字 */
-.menu :global(.ant-menu-submenu .ant-menu-item-selected) {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
-  color: #fff !important;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.25);
-}
-
-.menu :global(.ant-menu-submenu .ant-menu-item-selected .anticon) {
-  color: #fff !important;
-}
-
-.menu :global(.ant-menu-submenu .ant-menu-item:hover) {
-  background: rgba(24, 144, 255, 0.08);
-  color: #1890ff;
-}
-
-/* 三级菜单项 - 缩进32px */
-.menu :global(.ant-menu-submenu .ant-menu-submenu .ant-menu-item) {
-  padding-left: 32px !important;
-}
-
-/* 图标样式 - 统一线性风格 */
-.menu :global(.anticon) {
-  font-size: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  vertical-align: middle;
-}
-
-/* 展开/收起箭头动画 */
-.menu :global(.ant-menu-submenu-arrow) {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.menu :global(.ant-menu-submenu-open .ant-menu-submenu-arrow) {
-  transform: rotate(180deg);
+.menu :global(.ant-menu-sub .ant-menu-item) {
+  padding-left: 48px !important;
 }
 
 /* 头部样式 */
 .header {
   background: #fff;
+  border-bottom: 1px solid #E8E8E8;
+  box-shadow: none;
   padding: 0 24px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* 用户下拉 */
 .userDropdown {
-  cursor: pointer;
   padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .userDropdown:hover {
-  background: rgba(99, 102, 241, 0.08);
+  background: #F5F5F5;
 }
 
 .userAvatar {
-  margin-right: 8px;
-  border: 2px solid #e5e7eb;
-  transition: all 0.3s ease;
+  border-radius: 4px;
+  background: #F5F5F5;
+  color: #666666;
 }
 
-.userDropdown:hover .userAvatar {
-  border-color: #6366F1;
+/* 面包屑导航 */
+.breadcrumb {
+  padding: 12px 24px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E8E8E8;
 }
 
 /* 内容区域 */
 .content {
+  background: #F5F5F5;
   padding: 24px;
-  margin: 0;
-  min-height: 280px;
-  background: #fafbfc;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    z-index: 1000;
-    height: 100vh;
-    transform: translateX(-100%);
-  }
-  
-  .sidebar.open {
-    transform: translateX(0);
-  }
-  
-  .menu :global(.ant-menu-item:hover) {
-    transform: none;
-  }
-  
-  .menu :global(.ant-menu-submenu-title:hover) {
-    transform: none;
-  }
+  min-height: calc(100vh - 64px);
 }
 
 /* 滚动条样式 */
@@ -286,63 +213,10 @@
 }
 
 .sidebar ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.2);
+  background: #D9D9D9;
   border-radius: 2px;
 }
 
 .sidebar ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.4);
-}
-
-/* 动画效果 */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.menu :global(.ant-menu-item),
-.menu :global(.ant-menu-submenu) {
-  animation: slideIn 0.3s ease-out;
-}
-
-/* 活动指示器 */
-.activeIndicator {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  border-radius: 2px 0 0 2px;
-}
-
-/* 菜单折叠状态 - 保持图标一致性 */
-.menu :global(.ant-menu-inline-collapsed .ant-menu-item) {
-  padding: 0 calc(50% - 16px / 2);
-  text-align: center;
-}
-
-.menu :global(.ant-menu-inline-collapsed .ant-menu-submenu-title) {
-  padding: 0 calc(50% - 16px / 2);
-  text-align: center;
-}
-
-.menu :global(.ant-menu-inline-collapsed .anticon) {
-  font-size: 18px;
-  margin: 0 !important;
-}
-
-/* 折叠状态下的选中态 */
-.menu :global(.ant-menu-inline-collapsed .ant-menu-item-selected) {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
-}
-
-.menu :global(.ant-menu-inline-collapsed .ant-menu-item-selected .anticon) {
-  color: #fff !important;
+  background: #BFBFBF;
 }

@@ -1,16 +1,12 @@
 import React from "react";
 import { Row, Col, Card, Typography, Badge } from "antd";
 import {
-  ToolOutlined,
-  SafetyOutlined,
-  DollarOutlined,
-  TeamOutlined,
-  BookOutlined,
-  SoundOutlined,
+  FileTextOutlined,
   BankOutlined,
-  FundOutlined,
+  ShareAltOutlined,
+  CloudOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
-import { THEME } from "../styles";
 
 const { Text } = Typography;
 
@@ -34,168 +30,123 @@ const ServiceCategoryNav: React.FC<ServiceCategoryNavProps> = ({
 }) => {
   const categories: ServiceCategory[] = [
     {
-      id: "tech",
-      name: "技术服务",
-      icon: <ToolOutlined />,
+      id: "policy",
+      name: "政策申报服务",
+      icon: <FileTextOutlined />,
       count: 1250,
-      description: "技术开发、技术咨询、技术转让",
-      color: "#1890ff",
+      description: "高企认定、专精特新、科技项目申报、资质认证",
+      color: "#165DFF",
     },
     {
-      id: "legal",
-      name: "法律服务",
-      icon: <SafetyOutlined />,
-      count: 890,
-      description: "法律咨询、合同审核、诉讼代理",
-      color: "#722ed1",
-    },
-    {
-      id: "finance",
-      name: "财税服务",
-      icon: <DollarOutlined />,
-      count: 1120,
-      description: "财务代理、税务筹划、审计服务",
-      color: "#52c41a",
-    },
-    {
-      id: "hr",
-      name: "人力资源",
-      icon: <TeamOutlined />,
-      count: 760,
-      description: "招聘服务、培训服务、劳务派遣",
-      color: "#fa8c16",
-    },
-    {
-      id: "ip",
-      name: "知识产权",
-      icon: <BookOutlined />,
-      count: 650,
-      description: "专利申请、商标注册、版权登记",
-      color: "#eb2f96",
-    },
-    {
-      id: "marketing",
-      name: "市场推广",
-      icon: <SoundOutlined />,
-      count: 980,
-      description: "品牌推广、营销策划、广告投放",
-      color: "#13c2c2",
-    },
-    {
-      id: "office",
-      name: "办公服务",
+      id: "enterprise",
+      name: "企业基础服务",
       icon: <BankOutlined />,
-      count: 540,
-      description: "办公租赁、设备采购、物业服务",
-      color: "#faad14",
+      count: 2890,
+      description: "工商注册、财税代理、知识产权、法律咨询",
+      color: "#2F7A3E",
     },
     {
-      id: "financial",
-      name: "金融服务",
-      icon: <FundOutlined />,
-      count: 420,
-      description: "融资服务、贷款咨询、保险服务",
-      color: "#f5222d",
+      id: "industry",
+      name: "产业对接服务",
+      icon: <ShareAltOutlined />,
+      count: 760,
+      description: "供应链配套、技术合作、产学研对接、投融资",
+      color: "#D46B08",
+    },
+    {
+      id: "digital",
+      name: "数字化转型服务",
+      icon: <CloudOutlined />,
+      count: 650,
+      description: "信息化系统、智能制造、数据安全、云服务",
+      color: "#0958D9",
+    },
+    {
+      id: "talent",
+      name: "人才服务",
+      icon: <TeamOutlined />,
+      count: 980,
+      description: "招聘猎头、培训认证、劳务派遣、股权激励",
+      color: "#531DAB",
     },
   ];
 
   return (
-    <div style={{ marginBottom: "32px" }}>
-      <div
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Text
-          strong
-          style={{
-            fontSize: "18px",
-            color: THEME.textTitle,
-            borderLeft: `4px solid ${THEME.primary}`,
-            paddingLeft: "12px",
-          }}
-        >
-          服务分类
-        </Text>
-        <Text
-          type="secondary"
-          style={{ fontSize: "14px", cursor: "pointer" }}
-          onClick={() => onCategoryClick("")}
-        >
-          查看全部 →
-        </Text>
-      </div>
-
+    <div style={{ marginBottom: 24 }}>
       <Row gutter={[16, 16]}>
         {categories.map((category) => (
-          <Col xs={12} sm={8} md={6} lg={3} key={category.id}>
+          <Col xs={24} sm={12} lg={8} xl={6} key={category.id}>
             <Card
               hoverable
               onClick={() => onCategoryClick(category.id)}
               style={{
-                borderRadius: "12px",
+                borderRadius: 4,
                 border:
                   selectedCategory === category.id
                     ? `2px solid ${category.color}`
-                    : "1px solid #f0f0f0",
-                boxShadow:
-                  selectedCategory === category.id
-                    ? `0 4px 12px ${category.color}20`
-                    : "0 2px 8px rgba(0,0,0,0.06)",
-                transition: "all 0.3s ease",
+                    : "1px solid #E4E7ED",
+                background: selectedCategory === category.id ? "#F5F7FA" : "#fff",
                 cursor: "pointer",
+                transition: "all 0.3s",
+                height: "100%",
               }}
-              styles={{
-                body: {
-                  padding: "20px 16px",
-                  textAlign: "center",
-                },
-              }}
+              bodyStyle={{ padding: "20px" }}
             >
-              <div
-                style={{
-                  fontSize: "32px",
-                  color: category.color,
-                  marginBottom: "12px",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                {category.icon}
-              </div>
-              <div
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  marginBottom: "8px",
-                  color: THEME.textTitle,
-                }}
-              >
-                {category.name}
-              </div>
-              <Badge
-                count={category.count}
-                style={{
-                  backgroundColor: category.color,
-                  marginBottom: "8px",
-                }}
-              />
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: THEME.textBody,
-                  lineHeight: "1.4",
-                  height: "32px",
-                  overflow: "hidden",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                {category.description}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 4,
+                    background: category.color,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontSize: 24,
+                    flexShrink: 0,
+                  }}
+                >
+                  {category.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 16,
+                        color: "#1A1A1A",
+                      }}
+                    >
+                      {category.name}
+                    </Text>
+                    <Badge
+                      count={category.count}
+                      style={{
+                        backgroundColor: "#F2F3F5",
+                        color: "#666",
+                        fontSize: 12,
+                      }}
+                    />
+                  </div>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: "#666",
+                      lineHeight: "1.5",
+                      display: "block",
+                    }}
+                  >
+                    {category.description}
+                  </Text>
+                </div>
               </div>
             </Card>
           </Col>

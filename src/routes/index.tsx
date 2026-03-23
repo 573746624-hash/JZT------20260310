@@ -112,7 +112,7 @@ export const industryRoutes = (
       element={<Pages.BusinessHall />}
     />
     <Route
-      path="/industry/service-match/procurement-hall"
+      path="/industry/service-match/requirement-hall"
       element={<Pages.ProcurementHall />}
     />
     <Route

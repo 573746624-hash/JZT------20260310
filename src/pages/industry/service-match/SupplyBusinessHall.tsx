@@ -13,7 +13,9 @@ import {
   Row,
   Col,
   Statistic,
-  Divider,
+  Input,
+  Select,
+  Tag,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,18 +25,35 @@ import {
   TrophyOutlined,
   TeamOutlined,
   CheckCircleOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  PlusOutlined,
+  MessageOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
-import { THEME, COMMON_STYLES } from "./styles";
 import HallHeader from "./components/HallHeader";
 import SupplyServiceCard from "./components/SupplyServiceCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
-import BusinessHallBanner from "./components/BusinessHallBanner";
-import ProfessionalServiceCategories from "./components/ProfessionalServiceCategories";
-import LatestRequirements from "./components/LatestRequirements";
+import ServiceCategoryNav from "./components/ServiceCategoryNav";
 import { mockSupplyServices, SupplyService } from "./data/supplyServiceData";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
+
+// 专业企业级配色方案
+const ENTERPRISE_THEME = {
+  primary: "#165DFF",
+  secondary: "#1A1A1A",
+  textPrimary: "#1A1A1A",
+  textSecondary: "#666666",
+  textMuted: "#999999",
+  border: "#E4E7ED",
+  background: "#F5F7FA",
+  white: "#FFFFFF",
+  success: "#2F7A3E",
+  warning: "#D46B08",
+};
 
 const SupplyBusinessHall: React.FC = () => {
   const navigate = useNavigate();
@@ -44,24 +63,23 @@ const SupplyBusinessHall: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<any>({});
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [sortField, setSortField] = useState("featured"); // featured | rating | projects | response
+  const [sortField, setSortField] = useState("featured");
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [compareList, setCompareList] = useState<SupplyService[]>([]);
   const [connectModalOpen, setConnectModalOpen] = useState(false);
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
   const [connectTarget, setConnectTarget] = useState<any>(null);
-  const [userLevel, setUserLevel] = useState<string>("guest"); // 用户等级
-  const [showMaskedData, setShowMaskedData] = useState<boolean>(true); // 是否显示遮挡数据
+  const [userLevel, setUserLevel] = useState<string>("guest");
 
   // 统计数据
-  const [statistics, setStatistics] = useState({
+  const statistics = {
     totalCompanies: 12580,
     totalServices: 8960,
     successfulMatches: 3420,
     featuredServices: 156,
     verifiedCompanies: 8945,
     averageRating: 4.7,
-  });
+  };
 
   // 模拟数据加载
   useEffect(() => {
@@ -71,8 +89,7 @@ const SupplyBusinessHall: React.FC = () => {
       setCompareList([]);
 
       try {
-        // 模拟API调用延迟
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 800));
 
         let filteredData = [...mockSupplyServices];
 
@@ -83,7 +100,7 @@ const SupplyBusinessHall: React.FC = () => {
               service.companyName.toLowerCase().includes(searchText.toLowerCase()) ||
               service.serviceName.toLowerCase().includes(searchText.toLowerCase()) ||
               service.serviceDescription.toLowerCase().includes(searchText.toLowerCase()) ||
-              service.professionalTags.some(tag => 
+              service.professionalTags.some((tag) =>
                 tag.toLowerCase().includes(searchText.toLowerCase())
               )
           );
@@ -91,50 +108,20 @@ const SupplyBusinessHall: React.FC = () => {
 
         // 应用分类过滤
         if (selectedCategory) {
-          filteredData = filteredData.filter(
-            (service) => service.serviceCategories.includes(selectedCategory)
+          filteredData = filteredData.filter((service) =>
+            service.serviceCategories.includes(selectedCategory)
           );
         }
 
-        // 应用其他筛选条件
-        if (filters.region) {
-          filteredData = filteredData.filter(
-            (service) => service.region.includes(filters.region)
-          );
-        }
-
-        // 排序
-        switch (sortField) {
-          case "featured":
-            filteredData.sort((a, b) => {
-              if (a.isFeatured && !b.isFeatured) return -1;
-              if (!a.isFeatured && b.isFeatured) return 1;
-              return b.rating - a.rating;
-            });
-            break;
-          case "rating":
-            filteredData.sort((a, b) => b.rating - a.rating);
-            break;
-          case "projects":
-            filteredData.sort((a, b) => b.completedProjects - a.completedProjects);
-            break;
-          case "response":
-            filteredData.sort((a, b) => {
-              const aTime = parseInt(a.responseTime);
-              const bTime = parseInt(b.responseTime);
-              return aTime - bTime;
-            });
-            break;
+        // 应用排序
+        if (sortField === "rating") {
+          filteredData.sort((a, b) => b.rating - a.rating);
+        } else if (sortField === "projects") {
+          filteredData.sort((a, b) => b.completedProjects - a.completedProjects);
         }
 
         setData(filteredData);
-
-        // 设置精选服务
-        const featured = mockSupplyServices
-          .filter(service => service.isFeatured)
-          .slice(0, 3);
-        setFeaturedServices(featured);
-
+        setFeaturedServices(filteredData.slice(0, 3));
       } catch (error) {
         console.error("Fetch failed:", error);
         message.error("获取数据失败");
@@ -167,30 +154,11 @@ const SupplyBusinessHall: React.FC = () => {
   };
 
   const handleCategoryClick = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-  };
-
-  const handleRequirementClick = (requirementId: string) => {
-    navigate(`/industry/service-match/requirement/${requirementId}`);
-  };
-
-  const handleViewAllRequirements = () => {
-    navigate("/industry/service-match/procurement-hall");
+    setSelectedCategory(categoryId === selectedCategory ? "" : categoryId);
   };
 
   const handleSortChange = (e: any) => {
     setSortField(e.target.value);
-    message.loading("正在重新排序...", 0.5);
-  };
-
-  const handleRefreshFeatured = () => {
-    message.success("已刷新精选服务");
-    // 重新获取精选服务
-    const featured = mockSupplyServices
-      .filter(service => service.isFeatured)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
-    setFeaturedServices(featured);
   };
 
   const handleSelectAll = (e: any) => {
@@ -237,150 +205,199 @@ const SupplyBusinessHall: React.FC = () => {
     message.success(`已收藏 ${service.serviceName}`);
   };
 
+  const handleRefreshFeatured = () => {
+    message.success("已刷新推荐列表");
+  };
+
   return (
-    <div style={{ background: "#f5f7fa", minHeight: "100%", paddingBottom: 60 }}>
-      {/* 增强的头部Banner */}
-      <div style={{ padding: "20px 20px 0" }}>
-        <BusinessHallBanner
-          onPublishClick={handleCreateClick}
-          onMyServicesClick={handleMyServicesClick}
-          onMessagesClick={handleMessagesClick}
-          statistics={statistics}
-        />
+    <div
+      style={{
+        background: ENTERPRISE_THEME.background,
+        minHeight: "100%",
+        paddingBottom: 60,
+      }}
+    >
+      {/* 顶部操作栏 */}
+      <div
+        style={{
+          background: ENTERPRISE_THEME.white,
+          borderBottom: `1px solid ${ENTERPRISE_THEME.border}`,
+          padding: "16px 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary }}>
+            <ShopOutlined style={{ marginRight: 8, color: ENTERPRISE_THEME.primary }} />
+            业务大厅
+          </Title>
+          <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+            为企业提供专业服务对接
+          </Text>
+        </div>
+        <Space>
+          <Button icon={<MessageOutlined />} onClick={handleMessagesClick}>
+            消息中心
+          </Button>
+          <Button icon={<ShopOutlined />} onClick={handleMyServicesClick}>
+            我的服务
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateClick}>
+            发布服务
+          </Button>
+        </Space>
       </div>
 
-      {/* 搜索头部 */}
-      <div style={{ 
-        padding: "0 20px", 
-        background: "#fff", 
-        margin: "0 20px", 
-        borderRadius: "12px", 
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)" 
-      }}>
-        <HallHeader
-          onSearch={handleSearch}
-          onFilterChange={handleFilterChange}
-          onCreateClick={handleCreateClick}
-          isProcurement={false}
-        />
-      </div>
+      <div style={{ padding: "24px" }}>
+        {/* 搜索和筛选区域 */}
+        <Card
+          style={{
+            borderRadius: 4,
+            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            marginBottom: 24,
+          }}
+          bodyStyle={{ padding: "24px" }}
+        >
+          <Row gutter={[16, 16]} align="middle">
+            <Col flex="1">
+              <Input.Search
+                placeholder="搜索服务名称、企业名称或关键词"
+                allowClear
+                enterButton={<Button type="primary" icon={<SearchOutlined />}>搜索</Button>}
+                size="large"
+                onSearch={handleSearch}
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col>
+              <Space>
+                <Select
+                  placeholder="所在地区"
+                  style={{ width: 140 }}
+                  allowClear
+                  suffixIcon={<FilterOutlined />}
+                >
+                  <Option value="beijing">北京</Option>
+                  <Option value="shanghai">上海</Option>
+                  <Option value="guangzhou">广州</Option>
+                  <Option value="shenzhen">深圳</Option>
+                  <Option value="hangzhou">杭州</Option>
+                </Select>
+                <Select
+                  placeholder="价格区间"
+                  style={{ width: 140 }}
+                  allowClear
+                >
+                  <Option value="0-1">1万以下</Option>
+                  <Option value="1-5">1-5万</Option>
+                  <Option value="5-10">5-10万</Option>
+                  <Option value="10+">10万以上</Option>
+                  <Option value="negotiable">面议</Option>
+                </Select>
+                <Select
+                  placeholder="认证状态"
+                  style={{ width: 140 }}
+                  allowClear
+                >
+                  <Option value="verified">已认证</Option>
+                  <Option value="unverified">未认证</Option>
+                </Select>
+              </Space>
+            </Col>
+          </Row>
+        </Card>
 
-      <div style={{ padding: "20px" }}>
-        {/* 专业服务分类导航 */}
-        <ProfessionalServiceCategories
+        {/* 服务分类导航 */}
+        <ServiceCategoryNav
           onCategoryClick={handleCategoryClick}
           selectedCategory={selectedCategory}
         />
 
-        {/* 数据统计展示 */}
+        {/* 平台数据统计 */}
         <Card
           style={{
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            border: "none",
-            marginBottom: "24px",
+            borderRadius: 4,
+            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            marginBottom: 24,
           }}
-          styles={{ body: { padding: "20px" } }}
+          bodyStyle={{ padding: "20px 24px" }}
         >
-          <Row gutter={[24, 16]}>
-            <Col xs={12} sm={8} md={4}>
+          <Row gutter={[48, 16]}>
+            <Col>
               <Statistic
-                title="精选服务"
-                value={statistics.featuredServices}
-                prefix={<TrophyOutlined style={{ color: "#faad14" }} />}
-                valueStyle={{ color: "#faad14" }}
+                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>入驻企业</Text>}
+                value={statistics.totalCompanies}
+                valueStyle={{ color: ENTERPRISE_THEME.primary, fontSize: 24, fontWeight: 600 }}
               />
             </Col>
-            <Col xs={12} sm={8} md={4}>
+            <Col>
               <Statistic
-                title="认证企业"
+                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>服务数量</Text>}
+                value={statistics.totalServices}
+                valueStyle={{ color: ENTERPRISE_THEME.primary, fontSize: 24, fontWeight: 600 }}
+              />
+            </Col>
+            <Col>
+              <Statistic
+                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>认证企业</Text>}
                 value={statistics.verifiedCompanies}
-                prefix={<CheckCircleOutlined style={{ color: "#52c41a" }} />}
-                valueStyle={{ color: "#52c41a" }}
+                valueStyle={{ color: ENTERPRISE_THEME.success, fontSize: 24, fontWeight: 600 }}
+                prefix={<CheckCircleOutlined />}
               />
             </Col>
-            <Col xs={12} sm={8} md={4}>
+            <Col>
               <Statistic
-                title="平均评分"
-                value={statistics.averageRating}
-                precision={1}
-                prefix={<StarFilled style={{ color: "#faad14" }} />}
-                valueStyle={{ color: "#faad14" }}
-              />
-            </Col>
-            <Col xs={12} sm={8} md={4}>
-              <Statistic
-                title="成功对接"
+                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>成功对接</Text>}
                 value={statistics.successfulMatches}
-                prefix={<TeamOutlined style={{ color: "#1890ff" }} />}
-                valueStyle={{ color: "#1890ff" }}
+                valueStyle={{ color: ENTERPRISE_THEME.warning, fontSize: 24, fontWeight: 600 }}
               />
             </Col>
           </Row>
         </Card>
 
-        {/* 排序和批量操作栏 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 16,
-          }}
-        >
-          <Space>
-            <Checkbox
-              checked={data.length > 0 && selectedRowKeys.length === data.length}
-              indeterminate={
-                selectedRowKeys.length > 0 && selectedRowKeys.length < data.length
-              }
-              onChange={handleSelectAll}
-            >
-              全选
-            </Checkbox>
-            <Text type="secondary">共找到 {data.length} 个专业服务</Text>
-          </Space>
-
-          <Radio.Group
-            value={sortField}
-            onChange={handleSortChange}
-            buttonStyle="solid"
-          >
-            <Radio.Button value="featured">精选推荐</Radio.Button>
-            <Radio.Button value="rating">评分最高</Radio.Button>
-            <Radio.Button value="projects">项目最多</Radio.Button>
-            <Radio.Button value="response">响应最快</Radio.Button>
-          </Radio.Group>
-        </div>
-
         {/* 服务列表区域 */}
         <Card
           style={{
-            borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            border: "none",
+            borderRadius: 4,
+            border: `1px solid ${ENTERPRISE_THEME.border}`,
           }}
-          styles={{ body: { padding: "24px" } }}
+          bodyStyle={{ padding: "24px" }}
+          title={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Space>
+                <Checkbox
+                  checked={data.length > 0 && selectedRowKeys.length === data.length}
+                  indeterminate={
+                    selectedRowKeys.length > 0 && selectedRowKeys.length < data.length
+                  }
+                  onChange={handleSelectAll}
+                >
+                  全选
+                </Checkbox>
+                <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+                  共找到 {data.length} 个服务
+                </Text>
+              </Space>
+              <Radio.Group value={sortField} onChange={handleSortChange}>
+                <Radio.Button value="featured">综合排序</Radio.Button>
+                <Radio.Button value="rating">评分最高</Radio.Button>
+                <Radio.Button value="projects">项目最多</Radio.Button>
+              </Radio.Group>
+            </div>
+          }
         >
-          <div
-            style={{
-              marginBottom: "20px",
-              borderLeft: "4px solid #165DFF",
-              paddingLeft: "12px",
-            }}
-          >
-            <Text strong style={{ fontSize: "18px" }}>
-              专业服务供给列表
-            </Text>
-          </div>
-
           <div style={{ minHeight: "400px" }}>
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <Card
-                  key={i}
-                  style={{ marginBottom: "20px" }}
-                >
+                <Card key={i} style={{ marginBottom: 16, border: `1px solid ${ENTERPRISE_THEME.border}` }}>
                   <Skeleton active avatar paragraph={{ rows: 3 }} />
                 </Card>
               ))
@@ -398,7 +415,6 @@ const SupplyBusinessHall: React.FC = () => {
                     onFavorite={handleFavoriteClick}
                     navigate={navigate}
                     userLevel={userLevel}
-                    showMaskedData={showMaskedData}
                   />
                 )}
                 split={false}
@@ -408,13 +424,15 @@ const SupplyBusinessHall: React.FC = () => {
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
                   <div style={{ textAlign: "center" }}>
-                    <Text type="secondary">暂无相关专业服务</Text>
+                    <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+                      暂无相关服务
+                    </Text>
                     <Text
-                      type="secondary"
                       style={{
                         display: "block",
-                        fontSize: "12px",
-                        marginTop: "4px",
+                        fontSize: 12,
+                        marginTop: 8,
+                        color: ENTERPRISE_THEME.textMuted,
                       }}
                     >
                       建议放宽筛选条件或尝试其他关键词
@@ -425,107 +443,9 @@ const SupplyBusinessHall: React.FC = () => {
             )}
           </div>
         </Card>
-
-        {/* 最新需求区域 */}
-        <LatestRequirements
-          onRequirementClick={handleRequirementClick}
-          onViewAllClick={handleViewAllRequirements}
-        />
-
-        {/* 精选服务推荐 */}
-        <div style={{ marginTop: 40, marginBottom: 24 }}>
-          <Card
-            style={{
-              borderRadius: "12px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              border: "none",
-            }}
-            styles={{ body: { padding: "24px" } }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <Title level={5} style={{ margin: 0, fontSize: "18px" }}>
-                <TrophyOutlined style={{ color: "#faad14", marginRight: 8 }} />
-                精选服务推荐
-              </Title>
-              <Button
-                type="text"
-                icon={<ReloadOutlined />}
-                onClick={handleRefreshFeatured}
-              >
-                换一批
-              </Button>
-            </div>
-            <Row gutter={16}>
-              {featuredServices.map((service) => (
-                <Col span={8} key={service.id}>
-                  <Card
-                    hoverable
-                    size="small"
-                    style={{
-                      border: "1px solid #faad14",
-                      borderRadius: "8px",
-                      boxShadow: "0 2px 8px rgba(250, 173, 20, 0.15)",
-                    }}
-                    onClick={() =>
-                      navigate(`/industry/service-match/detail/${service.id}`)
-                    }
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <Text strong style={{ fontSize: 14 }}>
-                        {service.companyName}
-                      </Text>
-                      <TrophyOutlined style={{ color: "#faad14" }} />
-                    </div>
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        color: THEME.primary,
-                        fontWeight: "600",
-                        display: "block",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      {service.serviceName}
-                    </Text>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <Space>
-                        <Text type="secondary">{service.region}</Text>
-                        <Text type="secondary">{service.completedProjects}个项目</Text>
-                      </Space>
-                      <Text style={{ color: "#52c41a", fontWeight: "bold" }}>
-                        {service.successRate}%成功率
-                      </Text>
-                    </div>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Card>
-        </div>
       </div>
 
-      {/* 批量操作浮动栏 */}
+      {/* 批量操作栏 */}
       {selectedRowKeys.length > 0 && (
         <div
           style={{
@@ -533,9 +453,9 @@ const SupplyBusinessHall: React.FC = () => {
             bottom: 20,
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: "#333",
+            backgroundColor: ENTERPRISE_THEME.secondary,
             padding: "12px 24px",
-            borderRadius: 30,
+            borderRadius: 4,
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             zIndex: 1000,
             display: "flex",
@@ -545,20 +465,16 @@ const SupplyBusinessHall: React.FC = () => {
           }}
         >
           <span>已选择 {selectedRowKeys.length} 个服务</span>
-          <Button type="primary" shape="round" onClick={handleBatchConnect}>
+          <Button type="primary" onClick={handleBatchConnect}>
             批量对接
           </Button>
-          <Button
-            type="text"
-            style={{ color: "#fff" }}
-            onClick={() => setSelectedRowKeys([])}
-          >
+          <Button type="text" style={{ color: "#fff" }} onClick={() => setSelectedRowKeys([])}>
             取消
           </Button>
         </div>
       )}
 
-      {/* 对比浮动按钮 */}
+      {/* 对比按钮 */}
       {compareList.length > 0 && (
         <div
           style={{
@@ -573,24 +489,18 @@ const SupplyBusinessHall: React.FC = () => {
             size="large"
             icon={<BarChartOutlined />}
             onClick={() => setComparisonModalOpen(true)}
-            style={{
-              backgroundColor: "#faad14",
-              borderColor: "#faad14",
-            }}
           >
             服务对比 ({compareList.length})
           </Button>
         </div>
       )}
 
-      {/* 对比弹窗 */}
+      {/* 弹窗组件 */}
       <ComparisonModal
         open={comparisonModalOpen}
         items={compareList}
         onCancel={() => setComparisonModalOpen(false)}
       />
-
-      {/* 对接弹窗 */}
       <ConnectModal
         open={connectModalOpen}
         target={connectTarget}

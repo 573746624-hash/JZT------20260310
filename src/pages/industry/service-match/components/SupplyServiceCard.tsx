@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   Tag,
@@ -8,9 +8,7 @@ import {
   Rate,
   Checkbox,
   Avatar,
-  Tooltip,
-  Badge,
-  Progress,
+  Divider,
 } from "antd";
 import {
   ThunderboltOutlined,
@@ -20,14 +18,24 @@ import {
   EnvironmentOutlined,
   ClockCircleOutlined,
   TeamOutlined,
-  TrophyOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
+  CheckCircleOutlined,
+  PhoneOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
-import { THEME, COMMON_STYLES } from "../styles";
-// 移除导入，使用父组件传递的遮挡数据
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
+
+// 企业级配色
+const ENTERPRISE_THEME = {
+  primary: "#165DFF",
+  textPrimary: "#1A1A1A",
+  textSecondary: "#666666",
+  textMuted: "#999999",
+  border: "#E4E7ED",
+  background: "#F5F7FA",
+  success: "#2F7A3E",
+  warning: "#D46B08",
+};
 
 interface SupplyService {
   id: string;
@@ -49,6 +57,10 @@ interface SupplyService {
   isFeatured: boolean;
   viewCount: number;
   successRate: number;
+  contactInfo?: {
+    phone: string;
+    email: string;
+  };
 }
 
 interface SupplyServiceCardProps {
@@ -60,9 +72,7 @@ interface SupplyServiceCardProps {
   onConnect: (service: SupplyService) => void;
   onFavorite: (service: SupplyService) => void;
   navigate: any;
-  userLevel?: string; // 用户等级，决定遮挡程度
-  showMaskedData?: boolean; // 是否显示遮挡数据
-  maskedData?: SupplyService; // 预处理的遮挡数据
+  userLevel?: string;
 }
 
 const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
@@ -74,352 +84,225 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
   onConnect,
   onFavorite,
   navigate,
-  userLevel = "guest",
-  showMaskedData = true,
-  maskedData,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [showFullData, setShowFullData] = useState(false);
-
-  // 使用预处理的遮挡数据或原始数据
-  const displayData = showMaskedData && !showFullData && maskedData ? 
-    maskedData : service;
-
   return (
     <Card
-      hoverable
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       style={{
-        marginBottom: "20px",
-        borderRadius: "12px",
-        border: service.isFeatured ? "2px solid #faad14" : "1px solid #f0f0f0",
-        boxShadow: service.isFeatured 
-          ? "0 4px 16px rgba(250, 173, 20, 0.15)" 
-          : "0 2px 8px rgba(0,0,0,0.06)",
-        position: "relative",
-        overflow: "hidden",
+        marginBottom: 16,
+        borderRadius: 4,
+        border: `1px solid ${ENTERPRISE_THEME.border}`,
+        cursor: "pointer",
+        transition: "all 0.3s",
       }}
-      styles={{ body: { padding: "24px" } }}
+      bodyStyle={{ padding: "20px 24px" }}
       onClick={() => navigate(`/industry/service-match/detail/${service.id}`)}
     >
-      {/* 精选标识 */}
-      {service.isFeatured && (
-        <div
-          style={{
-            position: "absolute",
-            top: "0",
-            right: "0",
-            background: "linear-gradient(135deg, #faad14, #ffc53d)",
-            color: "#fff",
-            padding: "4px 12px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            borderBottomLeftRadius: "8px",
-          }}
-        >
-          <TrophyOutlined style={{ marginRight: "4px" }} />
-          精选服务
-        </div>
-      )}
-
-      {/* 选择框 */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20px",
-          left: "20px",
-          zIndex: 2,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Checkbox
-          checked={isSelected}
-          onChange={(e) => onSelect(service.id, e.target.checked)}
-        />
-      </div>
-
-      {/* 主要内容区域 */}
-      <div style={{ marginLeft: "30px" }}>
-        {/* 头部信息 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: "16px",
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            {/* 企业信息 */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "8px",
-              }}
-            >
-              <Avatar
-                src={service.companyLogo}
-                icon={<TeamOutlined />}
-                size={40}
-                style={{ marginRight: "12px" }}
-              />
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "4px",
-                  }}
-                >
-                  <Title
-                    level={5}
-                    style={{
-                      margin: 0,
-                      fontSize: "16px",
-                      color: THEME.textTitle,
-                      marginRight: "8px",
-                    }}
-                  >
-                    {displayData.companyName}
-                  </Title>
-                  {service.isVerified && (
-                    <Tooltip title="已认证企业">
-                      <SafetyCertificateFilled
-                        style={{ color: "#52c41a", fontSize: "16px" }}
-                      />
-                    </Tooltip>
-                  )}
-                  {showMaskedData && (
-                    <Tooltip title={showFullData ? "隐藏详细信息" : "显示详细信息"}>
-                      <Button
-                        type="text"
-                        size="small"
-                        icon={showFullData ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowFullData(!showFullData);
-                        }}
-                        style={{
-                          marginLeft: "8px",
-                          fontSize: "12px",
-                          color: THEME.textBody,
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                </div>
-                <Space size={8} style={{ fontSize: "12px", color: THEME.textBody }}>
-                  <span>
-                    <EnvironmentOutlined style={{ marginRight: "2px" }} />
-                    {service.region}
-                  </span>
-                  <span>
-                    <ClockCircleOutlined style={{ marginRight: "2px" }} />
-                    {service.publishTime}
-                  </span>
-                  <span>
-                    <EyeOutlined style={{ marginRight: "2px" }} />
-                    {service.viewCount}次浏览
-                  </span>
-                </Space>
-              </div>
-            </div>
-
-            {/* 服务标题 */}
-            <Title
-              level={4}
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "18px",
-                color: THEME.primary,
-                fontWeight: "600",
-              }}
-            >
-              {service.serviceName}
-            </Title>
-
-            {/* 专业标签 */}
-            <div style={{ marginBottom: "12px" }}>
-              <Space size={[8, 8]} wrap>
-                {service.professionalTags.map((tag, index) => (
-                  <Tag
-                    key={index}
-                    color="blue"
-                    style={{
-                      borderRadius: "12px",
-                      padding: "2px 8px",
-                      fontSize: "11px",
-                    }}
-                  >
-                    {tag}
-                  </Tag>
-                ))}
-              </Space>
-            </div>
-          </div>
-
+      <div style={{ display: "flex", gap: 20 }}>
+        {/* 左侧：选择框和企业头像 */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <Checkbox
+            checked={isSelected}
+            onChange={(e) => {
+              e.stopPropagation();
+              onSelect(service.id, e.target.checked);
+            }}
+          />
+          <Avatar
+            src={service.companyLogo}
+            icon={<TeamOutlined />}
+            size={64}
+            style={{
+              backgroundColor: ENTERPRISE_THEME.background,
+              color: ENTERPRISE_THEME.textSecondary,
+            }}
+          />
         </div>
 
-        {/* 业务供给描述 */}
-        <div
-          style={{
-            backgroundColor: "#f8f9fa",
-            padding: "16px",
-            borderRadius: "8px",
-            marginBottom: "16px",
-            border: "1px solid #e9ecef",
-          }}
-        >
+        {/* 中间：主要内容 */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* 第一行：企业名称和认证状态 */}
           <div
             style={{
-              fontSize: "14px",
-              fontWeight: "600",
-              color: THEME.primary,
-              marginBottom: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginBottom: 8,
             }}
           >
-            业务供给：
-          </div>
-          <Paragraph
-            ellipsis={{ rows: 2, expandable: true, symbol: "展开" }}
-            style={{
-              margin: 0,
-              fontSize: "14px",
-              color: THEME.textBody,
-              lineHeight: "1.6",
-            }}
-          >
-            {service.serviceDescription}
-          </Paragraph>
-        </div>
-
-        {/* 企业能力展示 */}
-        <div style={{ marginBottom: "16px" }}>
-          <Text
-            strong
-            style={{
-              fontSize: "13px",
-              color: THEME.textTitle,
-              marginBottom: "8px",
-              display: "block",
-            }}
-          >
-            核心能力：
-          </Text>
-          <Space size={[6, 6]} wrap>
-            {service.capabilities.map((capability, index) => (
-              <Tag
-                key={index}
-                style={{
-                  backgroundColor: "#e6f7ff",
-                  border: "1px solid #91d5ff",
-                  color: "#1890ff",
-                  borderRadius: "4px",
-                  fontSize: "11px",
-                }}
-              >
-                {capability}
-              </Tag>
-            ))}
-          </Space>
-        </div>
-
-        {/* 资质认证 */}
-        {service.certifications.length > 0 && (
-          <div style={{ marginBottom: "16px" }}>
             <Text
               strong
               style={{
-                fontSize: "13px",
-                color: THEME.textTitle,
-                marginBottom: "8px",
-                display: "block",
+                fontSize: 16,
+                color: ENTERPRISE_THEME.textPrimary,
               }}
             >
-              资质认证：
+              {service.companyName}
             </Text>
-            <Space size={[6, 6]} wrap>
-              {service.certifications.map((cert, index) => (
-                <Badge
+            {service.isVerified && (
+              <Tag
+                icon={<SafetyCertificateFilled />}
+                color="success"
+                style={{ margin: 0, fontSize: 12 }}
+              >
+                已认证
+              </Tag>
+            )}
+            {service.isFeatured && (
+              <Tag
+                icon={<StarFilled />}
+                color="warning"
+                style={{ margin: 0, fontSize: 12 }}
+              >
+                精选
+              </Tag>
+            )}
+          </div>
+
+          {/* 第二行：服务名称 */}
+          <Title
+            level={5}
+            style={{
+              margin: "0 0 12px 0",
+              fontSize: 18,
+              color: ENTERPRISE_THEME.primary,
+              fontWeight: 600,
+            }}
+          >
+            {service.serviceName}
+          </Title>
+
+          {/* 第三行：服务描述 */}
+          <Text
+            style={{
+              color: ENTERPRISE_THEME.textSecondary,
+              fontSize: 14,
+              lineHeight: "1.6",
+              display: "block",
+              marginBottom: 12,
+            }}
+            ellipsis={{ rows: 2 }}
+          >
+            {service.serviceDescription}
+          </Text>
+
+          {/* 第四行：专业标签 */}
+          <div style={{ marginBottom: 12 }}>
+            <Space size={[8, 8]} wrap>
+              {service.professionalTags.slice(0, 4).map((tag, index) => (
+                <Tag
                   key={index}
-                  count={<SafetyCertificateFilled style={{ color: "#52c41a" }} />}
-                  offset={[-2, 2]}
+                  style={{
+                    backgroundColor: "#F0F5FF",
+                    border: `1px solid ${ENTERPRISE_THEME.primary}`,
+                    color: ENTERPRISE_THEME.primary,
+                    borderRadius: 4,
+                    fontSize: 12,
+                    padding: "2px 8px",
+                  }}
                 >
+                  {tag}
+                </Tag>
+              ))}
+            </Space>
+          </div>
+
+          {/* 第五行：资质认证 */}
+          {service.certifications.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <Space size={[8, 8]} wrap>
+                {service.certifications.slice(0, 3).map((cert, index) => (
                   <Tag
+                    key={index}
+                    icon={<CheckCircleOutlined />}
                     style={{
-                      backgroundColor: "#f6ffed",
-                      border: "1px solid #b7eb8f",
-                      color: "#52c41a",
-                      borderRadius: "4px",
-                      fontSize: "11px",
-                      paddingRight: "12px",
+                      backgroundColor: "#F6FFED",
+                      border: `1px solid ${ENTERPRISE_THEME.success}`,
+                      color: ENTERPRISE_THEME.success,
+                      borderRadius: 4,
+                      fontSize: 12,
                     }}
                   >
                     {cert}
                   </Tag>
-                </Badge>
-              ))}
-            </Space>
-          </div>
-        )}
+                ))}
+              </Space>
+            </div>
+          )}
 
-        {/* 底部操作区 */}
+          {/* 第六行：基础信息 */}
+          <Space size={24} style={{ fontSize: 13, color: ENTERPRISE_THEME.textMuted }}>
+            <span>
+              <EnvironmentOutlined style={{ marginRight: 4 }} />
+              {service.region}
+            </span>
+            <span>
+              <ClockCircleOutlined style={{ marginRight: 4 }} />
+              {service.publishTime}
+            </span>
+            <span>
+              <TeamOutlined style={{ marginRight: 4 }} />
+              {service.completedProjects} 个成功案例
+            </span>
+            <span>
+              <StarFilled style={{ marginRight: 4, color: "#FAAD14" }} />
+              {service.rating} 分
+            </span>
+          </Space>
+        </div>
+
+        {/* 右侧：操作区域 */}
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             justifyContent: "space-between",
-            alignItems: "center",
-            paddingTop: "16px",
-            borderTop: "1px solid #f0f0f0",
+            alignItems: "flex-end",
+            minWidth: 140,
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <Space size={16}>
-            <div style={{ fontSize: "12px", color: THEME.textBody }}>
-              <Text strong style={{ color: THEME.textTitle }}>
-                {service.completedProjects}
-              </Text>{" "}
-              个成功项目
+          {/* 价格 */}
+          <div style={{ textAlign: "right", marginBottom: 16 }}>
+            <Text style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted }}>
+              价格区间
+            </Text>
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 600,
+                color: ENTERPRISE_THEME.warning,
+              }}
+            >
+              {service.priceRange || "面议"}
             </div>
-            <div style={{ fontSize: "12px", color: THEME.textBody }}>
-              响应时间：
-              <Text strong style={{ color: THEME.primary }}>
-                {service.responseTime}
-              </Text>
-            </div>
-            {displayData.priceRange && (
-              <div style={{ fontSize: "12px", color: THEME.textBody }}>
-                价格：
-                <Text strong style={{ color: "#fa8c16" }}>
-                  {displayData.priceRange}
-                </Text>
-              </div>
-            )}
-          </Space>
+          </div>
 
-          <Space size={8} onClick={(e) => e.stopPropagation()}>
+          {/* 操作按钮 */}
+          <Space direction="vertical" size={8} style={{ width: "100%" }}>
             <Button
               type="primary"
-              size="small"
+              block
               icon={<ThunderboltOutlined />}
               onClick={() => onConnect(service)}
-              style={{
-                borderRadius: "6px",
-                fontWeight: "500",
-                opacity: isHovered ? 1 : 0.8,
-                transition: "opacity 0.2s",
-              }}
             >
               立即对接
             </Button>
-            <Button
-              type="text"
-              size="small"
-              icon={<HeartOutlined />}
-              onClick={() => onFavorite(service)}
-              style={{ color: THEME.textBody }}
-            />
+            <Space style={{ width: "100%" }}>
+              <Button
+                style={{ flex: 1 }}
+                icon={<HeartOutlined />}
+                onClick={() => onFavorite(service)}
+              >
+                收藏
+              </Button>
+              <Button
+                style={{ flex: 1 }}
+                type={isComparing ? "primary" : "default"}
+                onClick={() => onCompare(service)}
+              >
+                {isComparing ? "已对比" : "对比"}
+              </Button>
+            </Space>
           </Space>
         </div>
       </div>

@@ -185,11 +185,12 @@ interface Highlight {
 // 筛选条件接口
 interface FilterCriteria {
   keyword: string;
-  level: string[];
-  field: string[];
-  status: string;
-  publishOrg: string[];
-  dateRange: [dayjs.Dayjs, dayjs.Dayjs] | null;
+  level: string[];        // 法规级别
+  field: string[];        // 业务领域
+  status: string;         // 法规状态
+  targetAudience: string; // 适用对象
+  publishDateRange: [dayjs.Dayjs, dayjs.Dayjs] | null; // 发布日期范围
+  effectiveStatus: string; // 实施状态
 }
 
 // 筛选模板
@@ -482,15 +483,47 @@ const filterTemplates: FilterTemplate[] = [
 
 // 筛选选项
 const filterOptions = {
-  levels: ["法律", "行政法规", "部门规章", "地方性法规", "司法解释"],
-  fields: ["劳动法", "公司法", "财税法", "知识产权", "网络安全", "商法"],
+  // 法规级别
+  levels: [
+    { label: "法律", value: "法律" },
+    { label: "行政法规", value: "行政法规" },
+    { label: "部门规章", value: "部门规章" },
+    { label: "地方性法规", value: "地方性法规" },
+    { label: "规范性文件", value: "规范性文件" },
+  ],
+  // 业务领域
+  fields: [
+    { label: "公司设立", value: "公司设立" },
+    { label: "劳动用工", value: "劳动用工" },
+    { label: "财税管理", value: "财税管理" },
+    { label: "知识产权", value: "知识产权" },
+    { label: "数据合规", value: "数据合规" },
+    { label: "安全生产", value: "安全生产" },
+    { label: "环境保护", value: "环境保护" },
+    { label: "招投标", value: "招投标" },
+    { label: "合同管理", value: "合同管理" },
+  ],
+  // 法规状态
   statuses: [
-    { label: "全部", value: "all" },
     { label: "现行有效", value: "effective" },
+    { label: "即将实施", value: "pending" },
     { label: "已修订", value: "revised" },
     { label: "已废止", value: "abolished" },
   ],
-  publishOrgs: ["全国人大常委会", "国务院", "最高人民法院", "各部委"],
+  // 适用对象
+  targetAudiences: [
+    { label: "全部", value: "all" },
+    { label: "中小微企业", value: "sme" },
+    { label: "大型企业", value: "large" },
+    { label: "事业单位", value: "institution" },
+    { label: "个体工商户", value: "individual" },
+  ],
+  // 实施状态
+  effectiveStatuses: [
+    { label: "全部", value: "all" },
+    { label: "已实施", value: "implemented" },
+    { label: "即将实施", value: "upcoming" },
+  ],
 };
 
 const RegulationIntegrated: React.FC = () => {
@@ -501,14 +534,15 @@ const RegulationIntegrated: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortType>("relevance");
   
   // 筛选状态
-  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>(({
+  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>({
     keyword: "",
     level: [],
     field: [],
-    status: "all",
-    publishOrg: [],
-    dateRange: null,
-  }));
+    status: "effective",      // 默认显示现行有效
+    targetAudience: "all",    // 默认全部对象
+    publishDateRange: null,
+    effectiveStatus: "all",   // 默认全部实施状态
+  });
   
   // 搜索关键词
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -553,6 +587,9 @@ const RegulationIntegrated: React.FC = () => {
   // 收藏列表（用于卡片收藏状态）
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+  // 快捷筛选状态
+  const [activeQuickFilter, setActiveQuickFilter] = useState<string | null>(null);
+
   // 根据筛选条件过滤数据
   const filteredData = useMemo(() => {
     let result = [...mockRegulations];
@@ -568,34 +605,43 @@ const RegulationIntegrated: React.FC = () => {
       );
     }
     
-    // 效力层级筛选
+    // 法规级别筛选
     if (filterCriteria.level.length > 0) {
       result = result.filter((item) => filterCriteria.level.includes(item.level));
     }
     
     // 业务领域筛选
     if (filterCriteria.field.length > 0) {
-      result = result.filter((item) => filterCriteria.field.includes(item.field));
-    }
-    
-    // 法规状态筛选
-    if (filterCriteria.status !== "all") {
-      result = result.filter((item) => item.status === filterCriteria.status);
-    }
-    
-    // 发布机关筛选
-    if (filterCriteria.publishOrg.length > 0) {
-      result = result.filter((item) =>
-        filterCriteria.publishOrg.includes(item.publishOrg)
+      result = result.filter((item) => 
+        filterCriteria.field.some(field => item.field?.includes(field) || item.tags?.includes(field))
       );
     }
     
-    // 日期范围筛选
-    if (filterCriteria.dateRange) {
-      const [start, end] = filterCriteria.dateRange;
+    // 法规状态筛选
+    if (filterCriteria.status && filterCriteria.status !== "all") {
+      result = result.filter((item) => item.status === filterCriteria.status);
+    }
+    
+    // 发布日期范围筛选
+    if (filterCriteria.publishDateRange) {
+      const [start, end] = filterCriteria.publishDateRange;
       result = result.filter((item) => {
         const itemDate = dayjs(item.publishDate);
         return itemDate.isAfter(start) && itemDate.isBefore(end);
+      });
+    }
+    
+    // 实施状态筛选
+    if (filterCriteria.effectiveStatus && filterCriteria.effectiveStatus !== "all") {
+      const today = dayjs();
+      result = result.filter((item) => {
+        const effectiveDate = dayjs(item.effectiveDate);
+        if (filterCriteria.effectiveStatus === "implemented") {
+          return effectiveDate.isBefore(today);
+        } else if (filterCriteria.effectiveStatus === "upcoming") {
+          return effectiveDate.isAfter(today);
+        }
+        return true;
       });
     }
     
@@ -611,7 +657,7 @@ const RegulationIntegrated: React.FC = () => {
         result.sort((a, b) => b.viewCount - a.viewCount);
         break;
       case "level":
-        const levelOrder = ["法律", "行政法规", "部门规章", "地方性法规", "司法解释"];
+        const levelOrder = ["法律", "行政法规", "部门规章", "地方性法规", "规范性文件"];
         result.sort((a, b) => levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level));
         break;
       default:
@@ -672,21 +718,88 @@ const RegulationIntegrated: React.FC = () => {
 
   // 重置筛选
   const resetFilters = () => {
-    setActiveTemplate(null);
+    setActiveQuickFilter(null);
     setFilterCriteria({
       keyword: "",
       level: [],
       field: [],
-      status: "all",
-      publishOrg: [],
-      dateRange: null,
+      status: "effective",
+      targetAudience: "all",
+      publishDateRange: null,
+      effectiveStatus: "all",
     });
     setSearchKeyword("");
+    setCurrentPage(1);
   };
 
   // 处理搜索
   const handleSearch = (value: string) => {
     setFilterCriteria((prev) => ({ ...prev, keyword: value }));
+    setCurrentPage(1); // 搜索时重置到第一页
+  };
+
+  // 处理快捷筛选
+  const handleQuickFilter = (type: string | null) => {
+    setActiveQuickFilter(type);
+    setCurrentPage(1);
+    
+    if (!type) {
+      // 清除快捷筛选，重置为默认状态
+      setFilterCriteria({
+        keyword: "",
+        level: [],
+        field: [],
+        status: "effective",
+        targetAudience: "all",
+        publishDateRange: null,
+        effectiveStatus: "all",
+      });
+      return;
+    }
+
+    const today = dayjs();
+    
+    switch (type) {
+      case 'favorites':
+        // 我的关注 - 筛选已收藏的法规
+        setFilterCriteria(prev => ({
+          ...prev,
+          status: "all",
+        }));
+        break;
+      case 'enterprise':
+        // 企业相关 - 筛选企业常用法规领域
+        setFilterCriteria(prev => ({
+          ...prev,
+          field: ["公司设立", "劳动用工", "财税管理", "合同管理"],
+          status: "effective",
+        }));
+        break;
+      case 'hot':
+        // 热门法规 - 按浏览量排序，显示高浏览量法规
+        setSortBy('views');
+        setFilterCriteria(prev => ({
+          ...prev,
+          status: "effective",
+        }));
+        break;
+      case 'upcoming':
+        // 即将实施 - 筛选30天内即将实施的法规
+        setFilterCriteria(prev => ({
+          ...prev,
+          effectiveStatus: "upcoming",
+          status: "all",
+        }));
+        break;
+      case 'new':
+        // 新发布 - 筛选近3个月发布的法规
+        setFilterCriteria(prev => ({
+          ...prev,
+          publishDateRange: [today.subtract(3, 'month'), today] as [dayjs.Dayjs, dayjs.Dayjs],
+          status: "all",
+        }));
+        break;
+    }
   };
 
   // 选择法规
@@ -1078,8 +1191,8 @@ const RegulationIntegrated: React.FC = () => {
                 allowClear
               >
                 {filterOptions.levels.map((level) => (
-                  <Option key={level} value={level}>
-                    {level}
+                  <Option key={level.value} value={level.value}>
+                    {level.label}
                   </Option>
                 ))}
               </Select>
@@ -1097,15 +1210,15 @@ const RegulationIntegrated: React.FC = () => {
                 allowClear
               >
                 {filterOptions.fields.map((field) => (
-                  <Option key={field} value={field}>
-                    {field}
+                  <Option key={field.value} value={field.value}>
+                    {field.label}
                   </Option>
                 ))}
               </Select>
               
               <Select
                 placeholder="法规状态"
-                style={{ width: 100 }}
+                style={{ width: 110 }}
                 value={filterCriteria.status}
                 onChange={(value) =>
                   setFilterCriteria((prev) => ({ ...prev, status: value }))
@@ -1119,14 +1232,31 @@ const RegulationIntegrated: React.FC = () => {
                   </Option>
                 ))}
               </Select>
+
+              <Select
+                placeholder="适用对象"
+                style={{ width: 110 }}
+                value={filterCriteria.targetAudience}
+                onChange={(value) =>
+                  setFilterCriteria((prev) => ({ ...prev, targetAudience: value }))
+                }
+                size="small"
+                allowClear
+              >
+                {filterOptions.targetAudiences.map((audience) => (
+                  <Option key={audience.value} value={audience.value}>
+                    {audience.label}
+                  </Option>
+                ))}
+              </Select>
               
               <RangePicker
-                placeholder={["开始", "结束"]}
-                value={filterCriteria.dateRange}
+                placeholder={["发布开始", "发布结束"]}
+                value={filterCriteria.publishDateRange}
                 onChange={(dates) =>
                   setFilterCriteria((prev) => ({
                     ...prev,
-                    dateRange: dates as [dayjs.Dayjs, dayjs.Dayjs],
+                    publishDateRange: dates as [dayjs.Dayjs, dayjs.Dayjs],
                   }))
                 }
                 size="small"
@@ -1141,20 +1271,89 @@ const RegulationIntegrated: React.FC = () => {
               size="small"
             >
               <Radio.Button value="relevance">相关度</Radio.Button>
-              <Radio.Button value="date_desc">最新发布</Radio.Button>
-              <Radio.Button value="views">浏览最多</Radio.Button>
+              <Radio.Button value="date_desc">最新</Radio.Button>
+              <Radio.Button value="views">最热</Radio.Button>
             </Radio.Group>
           </Col>
         </Row>
       </div>
 
+      {/* 已选条件展示 */}
+      {(filterCriteria.keyword || filterCriteria.level.length > 0 || filterCriteria.field.length > 0 || 
+        filterCriteria.status !== "all" || filterCriteria.targetAudience !== "all" || 
+        filterCriteria.effectiveStatus !== "all" || filterCriteria.publishDateRange || activeQuickFilter) && (
+        <div style={{ marginBottom: 16, padding: "8px 0" }}>
+          <Space wrap align="center">
+            <Text type="secondary">已选条件：</Text>
+            
+            {filterCriteria.keyword && (
+              <Tag closable onClose={() => setFilterCriteria(prev => ({ ...prev, keyword: "" }))}>
+                关键词：{filterCriteria.keyword}
+              </Tag>
+            )}
+            
+            {filterCriteria.level.map(level => (
+              <Tag key={level} closable onClose={() => setFilterCriteria(prev => ({ 
+                ...prev, 
+                level: prev.level.filter(l => l !== level) 
+              }))}>
+                级别：{level}
+              </Tag>
+            ))}
+            
+            {filterCriteria.field.map(field => (
+              <Tag key={field} closable onClose={() => setFilterCriteria(prev => ({ 
+                ...prev, 
+                field: prev.field.filter(f => f !== field) 
+              }))}>
+                领域：{field}
+              </Tag>
+            ))}
+            
+            {filterCriteria.status !== "all" && (
+              <Tag closable onClose={() => setFilterCriteria(prev => ({ ...prev, status: "all" }))}>
+                状态：{filterOptions.statuses.find(s => s.value === filterCriteria.status)?.label}
+              </Tag>
+            )}
+            
+            {filterCriteria.targetAudience !== "all" && (
+              <Tag closable onClose={() => setFilterCriteria(prev => ({ ...prev, targetAudience: "all" }))}>
+                对象：{filterOptions.targetAudiences.find(a => a.value === filterCriteria.targetAudience)?.label}
+              </Tag>
+            )}
+            
+            {filterCriteria.effectiveStatus !== "all" && (
+              <Tag closable onClose={() => setFilterCriteria(prev => ({ ...prev, effectiveStatus: "all" }))}>
+                实施：{filterOptions.effectiveStatuses.find(s => s.value === filterCriteria.effectiveStatus)?.label}
+              </Tag>
+            )}
+            
+            {filterCriteria.publishDateRange && (
+              <Tag closable onClose={() => setFilterCriteria(prev => ({ ...prev, publishDateRange: null }))}>
+                日期：{filterCriteria.publishDateRange[0].format('YYYY-MM-DD')} 至 {filterCriteria.publishDateRange[1].format('YYYY-MM-DD')}
+              </Tag>
+            )}
+            
+            {activeQuickFilter && (
+              <Tag color="blue" closable onClose={() => handleQuickFilter(null)}>
+                快捷：{activeQuickFilter === 'favorites' ? '我的关注' : 
+                       activeQuickFilter === 'enterprise' ? '企业相关' : 
+                       activeQuickFilter === 'hot' ? '热门法规' : 
+                       activeQuickFilter === 'upcoming' ? '即将实施' : '新发布'}
+              </Tag>
+            )}
+            
+            <Button type="link" size="small" onClick={resetFilters}>
+              清除全部
+            </Button>
+          </Space>
+        </div>
+      )}
+
       {/* 结果统计 */}
       <div style={{ marginBottom: 16 }}>
         <Text type="secondary">
           共找到 <Text strong>{filteredData.length}</Text> 条法规
-          {filterCriteria.keyword && (
-            <span>，搜索关键词："{filterCriteria.keyword}"</span>
-          )}
         </Text>
       </div>
 
@@ -1174,12 +1373,30 @@ const RegulationIntegrated: React.FC = () => {
         ) : (
           <Card>
             <Empty
-              description="未找到符合条件的法规"
+              description={
+                <Space direction="vertical" size={16}>
+                  <Text>未找到符合条件的法规</Text>
+                  <Text type="secondary" style={{ fontSize: 14 }}>
+                    建议您：
+                  </Text>
+                  <Space direction="vertical" align="start">
+                    <Text type="secondary">• 检查关键词拼写是否正确</Text>
+                    <Text type="secondary">• 尝试减少筛选条件</Text>
+                    <Text type="secondary">• 使用更宽泛的业务领域</Text>
+                    <Text type="secondary">• 扩大日期范围</Text>
+                  </Space>
+                </Space>
+              }
               image={Empty.PRESENTED_IMAGE_SIMPLE}
             >
-              <Button type="primary" onClick={resetFilters}>
-                重置筛选条件
-              </Button>
+              <Space>
+                <Button type="primary" onClick={resetFilters}>
+                  重置筛选条件
+                </Button>
+                <Button onClick={() => handleQuickFilter('hot')}>
+                  查看热门法规
+                </Button>
+              </Space>
             </Empty>
           </Card>
         )}

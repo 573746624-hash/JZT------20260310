@@ -213,9 +213,9 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
           label: "业务大厅",
         },
         {
-          key: "/industry/service-match/procurement-hall",
+          key: "/industry/service-match/requirement-hall",
           icon: <DollarOutlined />,
-          label: "采购大厅",
+          label: "需求大厅",
         },
         {
           key: "/industry/service-match/my-services",

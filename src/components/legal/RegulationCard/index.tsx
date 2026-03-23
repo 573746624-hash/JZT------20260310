@@ -5,8 +5,6 @@
 import React from "react";
 import { Card, Tag, Space, Typography, Button, Tooltip } from "antd";
 import {
-  EyeOutlined,
-  DownloadOutlined,
   StarOutlined,
   StarFilled,
 } from "@ant-design/icons";
@@ -118,19 +116,8 @@ export const RegulationCard: React.FC<RegulationCardProps> = ({
     </Space>
   );
 
-  // 渲染统计信息
-  const renderStats = () => (
-    <Space size={16}>
-      <Text type="secondary" style={{ fontSize: 12 }}>
-        <EyeOutlined style={{ marginRight: 4 }} />
-        {data.viewCount.toLocaleString()}
-      </Text>
-      <Text type="secondary" style={{ fontSize: 12 }}>
-        <DownloadOutlined style={{ marginRight: 4 }} />
-        {data.downloadCount.toLocaleString()}
-      </Text>
-    </Space>
-  );
+  // 渲染统计信息（已移除浏览量、下载量）
+  const renderStats = () => null;
 
   // 渲染操作按钮
   const renderActions = () => (
