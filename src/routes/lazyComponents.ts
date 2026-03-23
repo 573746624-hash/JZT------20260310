@@ -59,12 +59,6 @@ export const PolicyApprovedList = lazy(
 // 法律护航页面
 // 路由配置更新时间: 2026-01-13 (模块化拆分完成)
 export const LegalSupport = lazy(() => import("../pages/legal-support"));
-export const RegulationQuery = lazy(
-  () => import("../pages/legal/RegulationQuery"),
-);
-export const RegulationDetail = lazy(
-  () => import("../pages/legal/RegulationDetail"),
-);
 export const AILawyer = lazy(() => import("../pages/legal-support/AILawyer/index"));
 export const TimelinessManagement = lazy(
   () => import("../pages/legal/TimelinessManagement/index"),
@@ -93,15 +87,6 @@ export const ApplicationApplySuccess = lazy(
 // 重构版申报管理模块 - 2026-03-23
 export const ApplicationManagementDashboard = lazy(
   () => import("../pages/application-new/management/index"),
-);
-export const ApplicationManagementList = lazy(
-  () => import("../pages/application-new/management/ListView"),
-);
-export const MyApplicationsNew = lazy(
-  () => import("../pages/application-new/my/index"),
-);
-export const ApplyWizardNew = lazy(
-  () => import("../pages/application-new/wizard/index"),
 );
 
 // 金融服务页面

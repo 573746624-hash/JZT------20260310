@@ -719,4 +719,14 @@ const RegulationInterpretationPage: React.FC = () => {
                 description="根据您的行业特点，我们推荐以下评估领域"
                 type="info"
                 showIcon
-                style={{ margin
+                style={{ marginBottom: 16 }}
+              />
+            </div>
+          )}
+        </Modal>
+      </div>
+    </PageWrapper>
+  );
+};
+
+export default RegulationInterpretation;

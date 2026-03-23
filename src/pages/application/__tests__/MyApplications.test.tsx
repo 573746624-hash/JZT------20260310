@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import MyApplications from "../MyApplications";
+import OptimizedMyApplications from "../OptimizedMyApplications";
 import { BrowserRouter } from "react-router-dom";
 
 // Mock useNavigate
@@ -33,7 +33,7 @@ vi.mock("echarts-for-react", () => ({
   default: () => <div data-testid="echarts-mock">ECharts Mock</div>,
 }));
 
-describe("MyApplications Component", () => {
+describe("OptimizedMyApplications Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -41,7 +41,7 @@ describe("MyApplications Component", () => {
   const renderComponent = () => {
     return render(
       <BrowserRouter>
-        <MyApplications />
+        <OptimizedMyApplications />
       </BrowserRouter>,
     );
   };

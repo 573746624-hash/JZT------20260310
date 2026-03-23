@@ -147,11 +147,6 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
           label: "申报管理",
         },
         {
-          key: "/application?view=list",
-          icon: <FormOutlined />,
-          label: "项目列表",
-        },
-        {
           key: "/application?view=status",
           icon: <ContainerOutlined />,
           label: "我的申报",
@@ -168,21 +163,6 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
           icon: <PieChartOutlined />,
           label: "管理仪表盘",
         },
-        {
-          key: "/application-new/management/list",
-          icon: <FormOutlined />,
-          label: "申报列表",
-        },
-        {
-          key: "/application-new/my",
-          icon: <ContainerOutlined />,
-          label: "我的申报",
-        },
-        {
-          key: "/application-new/wizard",
-          icon: <AuditOutlined />,
-          label: "申报向导",
-        },
       ],
     },
     {
@@ -194,16 +174,6 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
           key: "/legal-support/ai-lawyer",
           icon: <RobotOutlined />,
           label: "AI 问答",
-        },
-        {
-          key: "/legal-support/regulation-query",
-          icon: <SafetyOutlined />,
-          label: "法规查询",
-        },
-        {
-          key: "/legal-support/regulation-detail/civil-code-2020",
-          icon: <ReadOutlined />,
-          label: "法规详情",
         },
         {
           key: "/legal-support/regulation-integrated",
@@ -291,7 +261,6 @@ export const routeMenuMap: Record<string, string> = {
   // 申报管理模块路由映射（已迁移至政策中心下）- 2026-03-23
   "/application": "/application?view=management", // 申报管理页面 - 默认显示管理仪表盘
   "/application?view=management": "/application?view=management", // 管理仪表盘视图
-  "/application?view=list": "/application?view=list", // 项目列表视图
   "/application?view=status": "/application?view=status", // 我的申报状态视图
   "/application?view=statistics": "/application?view=statistics", // 统计分析视图
   "/application/detail": "/application?view=management", // 申报详情页面
@@ -301,16 +270,9 @@ export const routeMenuMap: Record<string, string> = {
   // 重构版申报管理模块路由映射 - 2026-03-23
   "/application-new": "/application-new/management",
   "/application-new/management": "/application-new/management", // 管理仪表盘
-  "/application-new/management/list": "/application-new/management/list", // 申报列表
-  "/application-new/my": "/application-new/my", // 我的申报
-  "/application-new/wizard": "/application-new/wizard", // 申报向导
-  "/application-new/wizard/:id": "/application-new/wizard", // 编辑向导
 
   // 法律护航模块路由映射
   "/legal-support": "/legal-support/ai-lawyer",
-  "/legal-support/regulation-query": "/legal-support/regulation-query", // 法规查询页面
-  "/legal-support/regulation-detail":
-    "/legal-support/regulation-detail/civil-code-2020", // 法规详情页面
   "/legal-support/ai-lawyer": "/legal-support/ai-lawyer", // AI律师页面
   "/legal-support/regulation-integrated": "/legal-support/regulation-integrated", // 法规整合查询页面
 
@@ -453,8 +415,6 @@ export function getSelectedKeys(pathname: string): string[] {
     switch (view) {
       case "management":
         return ["/application?view=management"];
-      case "list":
-        return ["/application?view=list"];
       case "status":
         return ["/application?view=status"];
       case "statistics":

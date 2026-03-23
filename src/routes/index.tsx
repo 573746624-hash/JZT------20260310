@@ -64,14 +64,6 @@ export const applicationNewRoutes = (
   <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     {/* 企业级 - 申报管理 */}
     <Route path="/application-new/management" element={<Pages.ApplicationManagementDashboard />} />
-    <Route path="/application-new/management/list" element={<Pages.ApplicationManagementList />} />
-    
-    {/* 个人级 - 我的申报 */}
-    <Route path="/application-new/my" element={<Pages.MyApplicationsNew />} />
-    
-    {/* 申报向导 */}
-    <Route path="/application-new/wizard" element={<Pages.ApplyWizardNew />} />
-    <Route path="/application-new/wizard/:id" element={<Pages.ApplyWizardNew />} />
   </Route>
 );
 
@@ -81,18 +73,6 @@ export const applicationNewRoutes = (
 export const legalRoutes = (
   <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
     <Route path="/legal-support" element={<Pages.LegalSupport />} />
-    <Route
-      path="/legal-support/regulation-query"
-      element={<Pages.RegulationQuery />}
-    />
-    <Route
-      path="/legal-support/regulation-detail/:id"
-      element={<Pages.RegulationDetail />}
-    />
-    <Route
-      path="/legal-support/regulation-query/detail/:id"
-      element={<Pages.RegulationDetail />}
-    />
     <Route path="/legal-support/ai-lawyer" element={<Pages.AILawyer />} />
     <Route path="/legal-support/regulation-integrated" element={<Pages.RegulationIntegrated />} />
   </Route>

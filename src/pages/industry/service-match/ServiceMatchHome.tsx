@@ -14,7 +14,6 @@ import {
   Checkbox,
   Row,
   Col,
-  Divider,
   Input,
   Select,
 } from "antd";
@@ -36,9 +35,6 @@ import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
 import LatestRequirements from "./components/LatestRequirements";
 import {
-  maskCompanyName,
-  maskPhone,
-  maskPrice,
   maskSensitiveData,
 } from "../../../utils/maskUtils";
 import {
@@ -313,14 +309,6 @@ const ServiceMatchHome: React.FC = () => {
       console.error(e);
       message.error({ content: "导出失败", key: "export" });
     }
-  };
-
-  const handleMessagesClick = () => {
-    navigate("/industry/service-match/messages");
-  };
-
-  const handleMyServicesClick = () => {
-    navigate("/industry/service-match/my-services");
   };
 
   return (
