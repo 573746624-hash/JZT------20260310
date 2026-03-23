@@ -28,7 +28,7 @@ import ServiceMatchCard from "./components/ServiceMatchCard";
 import SupplyServiceCard from "./components/SupplyServiceCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
-import BusinessHallBanner from "./components/BusinessHallBanner";
+
 import ServiceCategoryNav from "./components/ServiceCategoryNav";
 import LatestRequirements from "./components/LatestRequirements";
 import PrivacyControlPanel from "./components/PrivacyControlPanel";
@@ -372,15 +372,6 @@ const ServiceMatchHome: React.FC = () => {
 
   return (
     <div style={{ background: "#f5f7fa", minHeight: "100%", paddingBottom: 60 }}>
-      {/* Enhanced Header Banner */}
-      <div style={{ padding: "20px 20px 0" }}>
-        <BusinessHallBanner
-          onPublishClick={handleCreateClick}
-          onMyServicesClick={handleMyServicesClick}
-          onMessagesClick={handleMessagesClick}
-        />
-      </div>
-
       {/* Search Header */}
       <div style={{ padding: "0 20px", background: "#fff", margin: "0 20px", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
         <HallHeader

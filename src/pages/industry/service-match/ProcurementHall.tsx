@@ -27,6 +27,8 @@ import {
   EnvironmentOutlined,
   ClockCircleOutlined,
   EyeOutlined,
+  MessageOutlined,
+  FileTextOutlined as DemandIcon,
 } from "@ant-design/icons";
 import ServiceMatchCard from "./components/ServiceMatchCard";
 import ConnectModal from "./components/ConnectModal";
@@ -36,16 +38,19 @@ import { getPublications } from "../../../services/industryService";
 const { Text, Title } = Typography;
 const { Option } = Select;
 
-// 企业级配色
+// 企业级配色 - 稳重专业
 const ENTERPRISE_THEME = {
-  primary: "#165DFF",
+  primary: "#1A5FB4",
   textPrimary: "#1A1A1A",
-  textSecondary: "#666666",
+  textSecondary: "#333333",
+  textTertiary: "#666666",
   textMuted: "#999999",
-  border: "#E4E7ED",
-  background: "#F5F7FA",
-  success: "#2F7A3E",
-  warning: "#D46B08",
+  border: "#D9D9D9",
+  borderLight: "#E8E8E8",
+  background: "#F5F5F5",
+  success: "#27AE60",
+  warning: "#E67E22",
+  error: "#C0392B",
 };
 
 // 数据打码工具函数
@@ -196,6 +201,14 @@ const ProcurementHall: React.FC = () => {
     navigate("/industry/service-match/publish?type=demand");
   };
 
+  const handleMessagesClick = () => {
+    navigate("/industry/service-match/messages");
+  };
+
+  const handleMyDemandsClick = () => {
+    navigate("/industry/service-match/my-services");
+  };
+
   const handleSortChange = (e: any) => {
     setSortField(e.target.value);
   };
@@ -260,17 +273,37 @@ const ProcurementHall: React.FC = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary }}>
-            <FileTextOutlined style={{ marginRight: 8, color: ENTERPRISE_THEME.primary }} />
+          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary, fontWeight: 600 }}>
             需求大厅
           </Title>
-          <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+          <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
             企业需求信息发布与对接平台
           </Text>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateClick}>
-          发布需求
-        </Button>
+        <Space>
+          <Button 
+            icon={<MessageOutlined />} 
+            onClick={handleMessagesClick}
+            style={{ borderRadius: 2 }}
+          >
+            消息中心
+          </Button>
+          <Button 
+            icon={<DemandIcon />} 
+            onClick={handleMyDemandsClick}
+            style={{ borderRadius: 2 }}
+          >
+            我的需求
+          </Button>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            onClick={handleCreateClick}
+            style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+          >
+            发布需求
+          </Button>
+        </Space>
       </div>
 
       <div style={{ padding: "24px" }}>
@@ -278,17 +311,18 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
             marginBottom: 24,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "24px" }}
+          bodyStyle={{ padding: "20px 24px" }}
         >
           <Row gutter={[16, 16]} align="middle">
             <Col flex="1">
               <Input.Search
                 placeholder="搜索需求关键词、服务类型"
                 allowClear
-                enterButton={<Button type="primary" icon={<SearchOutlined />}>搜索</Button>}
+                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}>搜索</Button>}
                 size="large"
                 onSearch={handleSearch}
                 style={{ width: "100%" }}
@@ -338,38 +372,39 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
             marginBottom: 24,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "20px 24px" }}
+          bodyStyle={{ padding: "16px 24px" }}
         >
           <Row gutter={[48, 16]}>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>总需求数</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>总需求数</Text>}
                 value={statistics.totalDemands}
-                valueStyle={{ color: ENTERPRISE_THEME.primary, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>今日新增</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>今日新增</Text>}
                 value={statistics.todayNew}
-                valueStyle={{ color: ENTERPRISE_THEME.success, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>成功对接</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>成功对接</Text>}
                 value={statistics.successfulMatches}
-                valueStyle={{ color: ENTERPRISE_THEME.warning, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>待响应</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>待响应</Text>}
                 value={statistics.pendingResponse}
-                valueStyle={{ color: ENTERPRISE_THEME.textMuted, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
           </Row>
@@ -379,10 +414,11 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
             marginBottom: 24,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "16px 24px" }}
+          bodyStyle={{ padding: "12px 20px" }}
         >
           <div
             style={{
@@ -401,18 +437,26 @@ const ProcurementHall: React.FC = () => {
               >
                 全选
               </Checkbox>
-              <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+              <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
                 共找到 {data.length} 条需求
               </Text>
-              <Tag color="warning" icon={<EyeOutlined />}>
+              <Tag 
+                style={{
+                  borderRadius: 2,
+                  background: "#FFF7E6",
+                  border: `1px solid ${ENTERPRISE_THEME.warning}`,
+                  color: ENTERPRISE_THEME.warning,
+                  fontSize: 11,
+                }}
+              >
                 信息已脱敏处理
               </Tag>
             </Space>
 
             <Radio.Group value={sortField} onChange={handleSortChange}>
-              <Radio.Button value="match">匹配度</Radio.Button>
+              <Radio.Button value="match" style={{ borderRadius: "2px 0 0 2px" }}>匹配度</Radio.Button>
               <Radio.Button value="time">发布时间</Radio.Button>
-              <Radio.Button value="qual">企业资质</Radio.Button>
+              <Radio.Button value="qual" style={{ borderRadius: "0 2px 2px 0" }}>企业资质</Radio.Button>
             </Radio.Group>
           </div>
         </Card>
@@ -421,9 +465,10 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "24px" }}
+          bodyStyle={{ padding: "20px 24px" }}
         >
           <div style={{ minHeight: "400px" }}>
             {loading ? (

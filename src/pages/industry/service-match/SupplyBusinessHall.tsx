@@ -35,24 +35,27 @@ import HallHeader from "./components/HallHeader";
 import SupplyServiceCard from "./components/SupplyServiceCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
-import ServiceCategoryNav from "./components/ServiceCategoryNav";
+
 import { mockSupplyServices, SupplyService } from "./data/supplyServiceData";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// 专业企业级配色方案
+// 企业级配色方案 - 稳重专业
 const ENTERPRISE_THEME = {
-  primary: "#165DFF",
-  secondary: "#1A1A1A",
+  primary: "#1A5FB4",
+  secondary: "#2C3E50",
   textPrimary: "#1A1A1A",
-  textSecondary: "#666666",
+  textSecondary: "#333333",
+  textTertiary: "#666666",
   textMuted: "#999999",
-  border: "#E4E7ED",
-  background: "#F5F7FA",
+  border: "#D9D9D9",
+  borderLight: "#E8E8E8",
+  background: "#F5F5F5",
   white: "#FFFFFF",
-  success: "#2F7A3E",
-  warning: "#D46B08",
+  success: "#27AE60",
+  warning: "#E67E22",
+  error: "#C0392B",
 };
 
 const SupplyBusinessHall: React.FC = () => {
@@ -229,22 +232,34 @@ const SupplyBusinessHall: React.FC = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary }}>
-            <ShopOutlined style={{ marginRight: 8, color: ENTERPRISE_THEME.primary }} />
+          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary, fontWeight: 600 }}>
             业务大厅
           </Title>
-          <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+          <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
             为企业提供专业服务对接
           </Text>
         </div>
         <Space>
-          <Button icon={<MessageOutlined />} onClick={handleMessagesClick}>
+          <Button 
+            icon={<MessageOutlined />} 
+            onClick={handleMessagesClick}
+            style={{ borderRadius: 2 }}
+          >
             消息中心
           </Button>
-          <Button icon={<ShopOutlined />} onClick={handleMyServicesClick}>
+          <Button 
+            icon={<ShopOutlined />} 
+            onClick={handleMyServicesClick}
+            style={{ borderRadius: 2 }}
+          >
             我的服务
           </Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateClick}>
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            onClick={handleCreateClick}
+            style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+          >
             发布服务
           </Button>
         </Space>
@@ -255,17 +270,18 @@ const SupplyBusinessHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
             marginBottom: 24,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "24px" }}
+          bodyStyle={{ padding: "20px 24px" }}
         >
           <Row gutter={[16, 16]} align="middle">
             <Col flex="1">
               <Input.Search
                 placeholder="搜索服务名称、企业名称或关键词"
                 allowClear
-                enterButton={<Button type="primary" icon={<SearchOutlined />}>搜索</Button>}
+                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}>搜索</Button>}
                 size="large"
                 onSearch={handleSearch}
                 style={{ width: "100%" }}
@@ -309,49 +325,43 @@ const SupplyBusinessHall: React.FC = () => {
           </Row>
         </Card>
 
-        {/* 服务分类导航 */}
-        <ServiceCategoryNav
-          onCategoryClick={handleCategoryClick}
-          selectedCategory={selectedCategory}
-        />
-
         {/* 平台数据统计 */}
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
             marginBottom: 24,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "20px 24px" }}
+          bodyStyle={{ padding: "16px 24px" }}
         >
           <Row gutter={[48, 16]}>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>入驻企业</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>入驻企业</Text>}
                 value={statistics.totalCompanies}
-                valueStyle={{ color: ENTERPRISE_THEME.primary, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>服务数量</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>服务数量</Text>}
                 value={statistics.totalServices}
-                valueStyle={{ color: ENTERPRISE_THEME.primary, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>认证企业</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>认证企业</Text>}
                 value={statistics.verifiedCompanies}
-                valueStyle={{ color: ENTERPRISE_THEME.success, fontSize: 24, fontWeight: 600 }}
-                prefix={<CheckCircleOutlined />}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
             <Col>
               <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textSecondary }}>成功对接</Text>}
+                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>成功对接</Text>}
                 value={statistics.successfulMatches}
-                valueStyle={{ color: ENTERPRISE_THEME.warning, fontSize: 24, fontWeight: 600 }}
+                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
               />
             </Col>
           </Row>
@@ -361,9 +371,10 @@ const SupplyBusinessHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.border}`,
+            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            boxShadow: "none",
           }}
-          bodyStyle={{ padding: "24px" }}
+          bodyStyle={{ padding: "20px 24px" }}
           title={
             <div
               style={{
@@ -382,14 +393,14 @@ const SupplyBusinessHall: React.FC = () => {
                 >
                   全选
                 </Checkbox>
-                <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+                <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
                   共找到 {data.length} 个服务
                 </Text>
               </Space>
               <Radio.Group value={sortField} onChange={handleSortChange}>
-                <Radio.Button value="featured">综合排序</Radio.Button>
+                <Radio.Button value="featured" style={{ borderRadius: "2px 0 0 2px" }}>综合排序</Radio.Button>
                 <Radio.Button value="rating">评分最高</Radio.Button>
-                <Radio.Button value="projects">项目最多</Radio.Button>
+                <Radio.Button value="projects" style={{ borderRadius: "0 2px 2px 0" }}>项目最多</Radio.Button>
               </Radio.Group>
             </div>
           }

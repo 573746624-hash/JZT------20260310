@@ -359,7 +359,7 @@ const MainLayout: React.FC = () => {
             alignItems: "center",
             padding: "0 24px",
             background: "#fff",
-            boxShadow: "0 1px 4px rgba(0,21,41,0.08)",
+            borderBottom: "1px solid #E8E8E8",
             zIndex: 1,
           }}
         >
@@ -383,6 +383,7 @@ const MainLayout: React.FC = () => {
                 src={avatar}
                 icon={<UserOutlined />}
                 className={styles.userAvatar}
+                style={{ borderRadius: 4, background: "#F5F5F5", color: "#666666" }}
               />
               <Text>{username}</Text>
             </Space>

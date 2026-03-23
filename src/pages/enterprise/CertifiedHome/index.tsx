@@ -52,14 +52,12 @@ const QuickActionButton: React.FC<{ action: QuickAction; onClick: () => void }> 
     hoverable
     className="quick-action-card"
     onClick={onClick}
-    bodyStyle={{ padding: '20px', textAlign: 'center' }}
+    bodyStyle={{ padding: '16px', textAlign: 'center' }}
   >
     <Badge count={action.badge} overflowCount={99}>
-      <Avatar
-        size={48}
-        icon={getIconComponent(action.icon)}
-        style={{ backgroundColor: '#1890ff', marginBottom: 12 }}
-      />
+      <div className="quick-action-icon">
+        {getIconComponent(action.icon)}
+      </div>
     </Badge>
     <div className="quick-action-name">{action.name}</div>
   </Card>
@@ -110,13 +108,14 @@ const NotificationItem: React.FC<{
       <List.Item.Meta
         avatar={
           <Avatar
-            size={40}
+            size={36}
             style={{
-              backgroundColor: !notification.read ? '#1890ff' : '#f0f0f0',
+              backgroundColor: !notification.read ? '#F0F5FF' : '#F5F5F5',
+              borderRadius: 4,
+              color: !notification.read ? '#1A5FB4' : '#999999',
             }}
-          >
-            <BellOutlined style={{ color: !notification.read ? '#fff' : '#999' }} />
-          </Avatar>
+            icon={<BellOutlined />}
+          />
         }
         title={
           <Space>

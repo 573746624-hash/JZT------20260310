@@ -1,24 +1,40 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
   Tag,
   Button,
   Typography,
-  Tooltip,
   Rate,
   Checkbox,
   Space,
+  Avatar,
 } from "antd";
 import {
   ThunderboltOutlined,
   HeartOutlined,
   StarFilled,
-  TagsOutlined,
   EnvironmentOutlined,
+  ClockCircleOutlined,
+  TeamOutlined,
+  SafetyCertificateFilled,
 } from "@ant-design/icons";
-import { THEME, COMMON_STYLES } from "../styles";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
+
+// 企业级配色 - 统一使用designTokens规范
+const ENTERPRISE_THEME = {
+  primary: "#1A5FB4",
+  textPrimary: "#1A1A1A",
+  textSecondary: "#333333",
+  textTertiary: "#666666",
+  textMuted: "#999999",
+  border: "#D9D9D9",
+  borderLight: "#E8E8E8",
+  background: "#F5F5F5",
+  success: "#27AE60",
+  warning: "#E67E22",
+  error: "#C0392B",
+};
 
 interface ServiceMatchCardProps {
   item: any;
@@ -41,186 +57,254 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
   onConnect,
   navigate,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const showConnect = isHovered || item.matchDegree >= 80;
+  const isProcurement = activeTab === "procurement";
 
   return (
     <Card
-      hoverable
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       style={{
-        ...COMMON_STYLES.card,
-        border: item.score >= 4 ? "1px solid #faad14" : "none",
-        marginBottom: "15px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        position: "relative",
+        marginBottom: 12,
+        borderRadius: 4,
+        border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        boxShadow: "none",
       }}
-      styles={{ body: { padding: "20px 20px 20px 50px" } }}
+      bodyStyle={{ padding: "16px 20px" }}
       onClick={() => navigate(`/industry/service-match/detail/${item.id}`)}
     >
-      {/* Selection Checkbox */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "15px",
-          transform: "translateY(-50%)",
-          zIndex: 2,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Checkbox
-          checked={isSelected}
-          onChange={(e) => onSelect(item.id, e.target.checked)}
-        />
-      </div>
-
-      {/* Quality Score */}
-      <div
-        style={{ position: "absolute", top: "15px", right: "15px", zIndex: 1 }}
-      >
-        <Tooltip title={`质量评分: ${item.score}星`}>
-          <Rate
-            disabled
-            defaultValue={item.score}
-            character={<StarFilled style={{ fontSize: "14px" }} />}
-            style={{
-              color: item.score >= 4 ? "#faad14" : "#ccc",
-              fontSize: "14px",
+      <div style={{ display: "flex", gap: 16 }}>
+        {/* 左侧：选择框和企业头像 */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <Checkbox
+            checked={isSelected}
+            onChange={(e) => {
+              e.stopPropagation();
+              onSelect(item.id, e.target.checked);
             }}
           />
-        </Tooltip>
-      </div>
+          <Avatar
+            size={56}
+            style={{
+              backgroundColor: ENTERPRISE_THEME.background,
+              color: ENTERPRISE_THEME.textTertiary,
+              borderRadius: 4,
+            }}
+          >
+            {item.name ? item.name.charAt(0) : "企"}
+          </Avatar>
+        </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-        }}
-      >
-        <div style={{ flex: 1 }}>
-          {/* Header Line: Tags + Name */}
+        {/* 中间：主要内容 */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* 第一行：企业名称和标签 */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: "12px",
+              gap: 8,
+              marginBottom: 6,
               flexWrap: "wrap",
-              paddingRight: "100px",
             }}
           >
-            {item.isRecommend && <Tag color="red">推荐</Tag>}
+            <Text
+              strong
+              style={{
+                fontSize: 15,
+                color: ENTERPRISE_THEME.textPrimary,
+                fontWeight: 600,
+              }}
+            >
+              {item.name}
+            </Text>
+            {item.qualification === "已认证" && (
+              <Tag
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  borderRadius: 2,
+                  background: "#F6FFED",
+                  border: `1px solid ${ENTERPRISE_THEME.success}`,
+                  color: ENTERPRISE_THEME.success,
+                  padding: "0 6px",
+                }}
+              >
+                已认证
+              </Tag>
+            )}
+            {item.isRecommend && (
+              <Tag
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  borderRadius: 2,
+                  background: "#FFF7E6",
+                  border: `1px solid ${ENTERPRISE_THEME.warning}`,
+                  color: ENTERPRISE_THEME.warning,
+                  padding: "0 6px",
+                }}
+              >
+                推荐
+              </Tag>
+            )}
             {item.advantageTags &&
               item.advantageTags.map((tag: string) => (
-                <Tag key={tag} style={COMMON_STYLES.advantageTag}>
+                <Tag
+                  key={tag}
+                  style={{
+                    margin: 0,
+                    fontSize: 11,
+                    borderRadius: 2,
+                    background: "#F5F5F5",
+                    border: `1px solid ${ENTERPRISE_THEME.border}`,
+                    color: ENTERPRISE_THEME.textTertiary,
+                    padding: "0 6px",
+                  }}
+                >
                   {tag}
                 </Tag>
               ))}
-            <Title
-              level={5}
-              style={{ margin: 0, fontSize: "16px", color: THEME.textTitle }}
-            >
-              {item.name}
-            </Title>
-            <Text
-              style={{
-                marginLeft: "12px",
-                fontSize: "12px",
-                color: THEME.textHint,
-              }}
-            >
+            <Text style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted, marginLeft: "auto" }}>
               {item.updateTime}
             </Text>
           </div>
 
-          {/* Scope / Requirement Detail */}
-          <div
+          {/* 第二行：需求/服务名称 */}
+          <Title
+            level={5}
             style={{
-              backgroundColor: "#F9F9F9",
-              padding: "12px",
-              borderRadius: "4px",
-              marginBottom: "12px",
+              margin: "0 0 8px 0",
+              fontSize: 16,
+              color: ENTERPRISE_THEME.primary,
+              fontWeight: 600,
             }}
           >
-            <Paragraph
-              ellipsis={{ rows: 2 }}
-              style={{ margin: 0, fontSize: "14px", color: THEME.textBody }}
-            >
-              <Text strong style={{ color: THEME.primary }}>
-                {activeTab === "business" ? "业务供给：" : "采购需求："}
-              </Text>
-              {item.scope}
-            </Paragraph>
-            {activeTab === "procurement" && (
-              <div
-                style={{
-                  marginTop: "8px",
-                  fontSize: "12px",
-                  color: THEME.textBody,
-                  display: "flex",
-                  gap: "16px",
-                }}
-              >
-                <span>
-                  预算：<Text strong>{item.budget}</Text>
-                </span>
-                <span>
-                  数量：<Text strong>{item.quantity}</Text>
-                </span>
-                <span>
-                  截止：<Text type="danger">{item.deadline}</Text>
-                </span>
-              </div>
+            {isProcurement ? "采购需求" : "服务供给"}
+          </Title>
+
+          {/* 第三行：描述内容 */}
+          <Text
+            style={{
+              color: ENTERPRISE_THEME.textTertiary,
+              fontSize: 13,
+              lineHeight: "1.5",
+              display: "block",
+              marginBottom: 10,
+            }}
+            ellipsis={{ rows: 2 }}
+          >
+            {item.scope}
+          </Text>
+
+          {/* 第四行：标签组 */}
+          {item.tags && item.tags.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <Space size={[6, 6]} wrap>
+                {item.tags.slice(0, 4).map((tag: string, index: number) => (
+                  <Tag
+                    key={index}
+                    style={{
+                      backgroundColor: "#F5F5F5",
+                      border: `1px solid ${ENTERPRISE_THEME.border}`,
+                      color: ENTERPRISE_THEME.textTertiary,
+                      borderRadius: 2,
+                      fontSize: 11,
+                      padding: "1px 6px",
+                    }}
+                  >
+                    {tag}
+                  </Tag>
+                ))}
+              </Space>
+            </div>
+          )}
+
+          {/* 第五行：元信息 */}
+          <Space size={16} style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted }}>
+            <span>
+              <EnvironmentOutlined style={{ marginRight: 4 }} />
+              {item.region}
+            </span>
+            {isProcurement && item.budget && (
+              <span>
+                预算：<Text strong style={{ color: ENTERPRISE_THEME.textSecondary }}>{item.budget}</Text>
+              </span>
             )}
+            {isProcurement && item.quantity && (
+              <span>
+                数量：<Text strong style={{ color: ENTERPRISE_THEME.textSecondary }}>{item.quantity}</Text>
+              </span>
+            )}
+            {isProcurement && item.deadline && (
+              <span>
+                截止：<Text strong style={{ color: ENTERPRISE_THEME.error }}>{item.deadline}</Text>
+              </span>
+            )}
+            <span>
+              <StarFilled style={{ marginRight: 4, color: "#FAAD14" }} />
+              {item.score}
+            </span>
+            {item.matchDegree && (
+              <span>
+                匹配度：<Text strong style={{ color: ENTERPRISE_THEME.primary }}>{item.matchDegree}%</Text>
+              </span>
+            )}
+          </Space>
+        </div>
+
+        {/* 右侧：操作区域 */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            minWidth: 120,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* 评分 */}
+          <div style={{ textAlign: "right", marginBottom: 12 }}>
+            <Rate
+              disabled
+              defaultValue={item.score}
+              character={<StarFilled style={{ fontSize: "12px" }} />}
+              style={{
+                color: "#FAAD14",
+                fontSize: "12px",
+              }}
+            />
           </div>
 
-          {/* Footer Line: Tags + Region + Actions */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Space
-              size={16}
-              style={{ fontSize: "12px", color: THEME.textBody }}
+          {/* 操作按钮 */}
+          <Space direction="vertical" size={6} style={{ width: "100%" }}>
+            <Button
+              type="primary"
+              block
+              size="small"
+              icon={<ThunderboltOutlined />}
+              onClick={() => onConnect(item)}
+              style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
             >
-              <span style={{ display: "flex", alignItems: "center" }}>
-                <TagsOutlined style={{ marginRight: "4px" }} />
-                {item.tags.join(" | ")}
-              </span>
-              <span style={{ display: "flex", alignItems: "center" }}>
-                <EnvironmentOutlined style={{ marginRight: "4px" }} />
-                {item.region}
-              </span>
-            </Space>
-
-            {/* Hover Actions */}
-            <Space size={8} onClick={(e) => e.stopPropagation()}>
+              立即对接
+            </Button>
+            <Space style={{ width: "100%" }}>
               <Button
-                type="link"
                 size="small"
-                icon={<ThunderboltOutlined />}
-                onClick={() => onConnect(item)}
-                style={{
-                  opacity: showConnect ? 1 : 0,
-                  pointerEvents: showConnect ? "auto" : "none",
-                  transition: "opacity 0.2s",
-                  color: THEME.primary,
-                  fontWeight: 500,
-                }}
+                style={{ flex: 1, borderRadius: 2 }}
+                icon={<HeartOutlined />}
               >
-                立即对接
+                收藏
               </Button>
-              <Button type="text" size="small" icon={<HeartOutlined />} />
-              <Checkbox checked={isComparing} onChange={() => onCompare(item)}>
-                对比
-              </Checkbox>
+              <Button
+                size="small"
+                style={{ flex: 1, borderRadius: 2 }}
+                type={isComparing ? "primary" : "default"}
+                onClick={() => onCompare(item)}
+              >
+                {isComparing ? "已对比" : "对比"}
+              </Button>
             </Space>
-          </div>
+          </Space>
         </div>
       </div>
     </Card>

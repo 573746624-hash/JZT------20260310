@@ -1,19 +1,20 @@
 /**
- * 企业认证后首页样式
+ * 企业认证后首页样式 - 企业级风格
  * 创建时间: 2026-03-23
+ * 更新: 统一企业级视觉风格
  */
 
 .certified-home-container {
   padding: 24px;
-  background: #f0f2f5;
+  background: #f5f5f5;
   min-height: 100vh;
 }
 
-/* 页面头部 */
+/* 页面头部 - 移除渐变，使用纯色 */
 .page-header {
-  background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
-  border-radius: 12px;
-  padding: 24px;
+  background: #1A5FB4;
+  border-radius: 4px;
+  padding: 20px 24px;
   margin-bottom: 24px;
   color: #fff;
 }
@@ -26,41 +27,51 @@
 
 .header-content h4 {
   color: #fff !important;
-}
-
-/* 区块卡片 */
-.section-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.section-card .ant-card-head {
-  border-bottom: 1px solid #f0f0f0;
   font-weight: 600;
 }
 
-/* 快捷操作卡片 */
+/* 区块卡片 - 统一4px圆角，无边框阴影 */
+.section-card {
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+  box-shadow: none;
+}
+
+.section-card .ant-card-head {
+  border-bottom: 1px solid #e8e8e8;
+  font-weight: 600;
+  padding: 12px 20px;
+}
+
+.section-card .ant-card-body {
+  padding: 20px;
+}
+
+/* 快捷操作卡片 - 移除悬浮动画，简化样式 */
 .quick-action-card {
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
 .quick-action-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #1A5FB4;
 }
 
 .quick-action-name {
-  font-size: 14px;
-  color: #262626;
+  font-size: 13px;
+  color: #333333;
   margin-top: 8px;
+  font-weight: 500;
 }
 
 /* 通知项 */
 .notification-item {
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
+  padding: 10px 16px;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+  border-left: 3px solid transparent;
 }
 
 .notification-item:hover {
@@ -68,22 +79,25 @@
 }
 
 .notification-item.unread {
-  background-color: #e6f7ff;
+  background-color: #f0f5ff;
+  border-left-color: #1A5FB4;
 }
 
 .notification-item.unread:hover {
-  background-color: #bae7ff;
+  background-color: #e6f0ff;
 }
 
 /* 推荐卡片 */
 .recommendation-card {
-  border-radius: 12px;
+  border-radius: 4px;
   height: 100%;
-  transition: all 0.3s ease;
+  border: 1px solid #e8e8e8;
+  box-shadow: none;
+  transition: all 0.2s ease;
 }
 
 .recommendation-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #1A5FB4;
 }
 
 .recommendation-header {
@@ -98,89 +112,38 @@
 
 .recommendation-tags .ant-tag {
   margin-bottom: 4px;
+  border-radius: 2px;
+  font-size: 11px;
+  padding: 1px 6px;
 }
 
-.recommendation-reason {
-  margin-top: 8px;
-  padding: 8px;
-  background: #fff7e6;
-  border-radius: 4px;
-}
-
-.recommendation-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* 推荐分类 */
-.recommendation-category {
-  margin-bottom: 24px;
-}
-
-.recommendation-category:last-child {
-  margin-bottom: 0;
-}
-
-.category-header {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-/* 企业画像项 */
-.profile-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px dashed #f0f0f0;
-}
-
-.profile-item:last-child {
-  border-bottom: none;
-}
-
-/* 统计卡片 */
-.ant-statistic-title {
-  font-size: 14px;
-  color: #8c8c8c;
-}
-
-.ant-statistic-content {
+/* 统计数字样式 */
+.statistic-value {
   font-size: 24px;
   font-weight: 600;
+  color: #1a1a1a;
 }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .certified-home-container {
-    padding: 16px;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .page-header {
-    padding: 16px;
-  }
+.statistic-label {
+  font-size: 12px;
+  color: #666666;
 }
 
-/* 动画效果 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 快捷操作图标 */
+.quick-action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #666666;
+  font-size: 20px;
+  margin: 0 auto;
 }
 
-.certified-home-container > * {
-  animation: fadeIn 0.5s ease-out;
+.quick-action-card:hover .quick-action-icon {
+  background: #f0f5ff;
+  color: #1A5FB4;
 }

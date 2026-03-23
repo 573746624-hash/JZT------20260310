@@ -25,16 +25,18 @@ import {
 
 const { Title, Text } = Typography;
 
-// 企业级配色
+// 企业级配色 - 稳重专业
 const ENTERPRISE_THEME = {
-  primary: "#165DFF",
+  primary: "#1A5FB4",
   textPrimary: "#1A1A1A",
-  textSecondary: "#666666",
+  textSecondary: "#333333",
+  textTertiary: "#666666",
   textMuted: "#999999",
-  border: "#E4E7ED",
-  background: "#F5F7FA",
-  success: "#2F7A3E",
-  warning: "#D46B08",
+  border: "#D9D9D9",
+  borderLight: "#E8E8E8",
+  background: "#F5F5F5",
+  success: "#27AE60",
+  warning: "#E67E22",
 };
 
 interface SupplyService {
@@ -88,18 +90,19 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
   return (
     <Card
       style={{
-        marginBottom: 16,
+        marginBottom: 12,
         borderRadius: 4,
-        border: `1px solid ${ENTERPRISE_THEME.border}`,
+        border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
         cursor: "pointer",
-        transition: "all 0.3s",
+        transition: "all 0.2s ease",
+        boxShadow: "none",
       }}
-      bodyStyle={{ padding: "20px 24px" }}
+      bodyStyle={{ padding: "16px 20px" }}
       onClick={() => navigate(`/industry/service-match/detail/${service.id}`)}
     >
-      <div style={{ display: "flex", gap: 20 }}>
+      <div style={{ display: "flex", gap: 16 }}>
         {/* 左侧：选择框和企业头像 */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <Checkbox
             checked={isSelected}
             onChange={(e) => {
@@ -110,10 +113,11 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           <Avatar
             src={service.companyLogo}
             icon={<TeamOutlined />}
-            size={64}
+            size={56}
             style={{
               backgroundColor: ENTERPRISE_THEME.background,
-              color: ENTERPRISE_THEME.textSecondary,
+              color: ENTERPRISE_THEME.textTertiary,
+              borderRadius: 4,
             }}
           />
         </div>
@@ -125,33 +129,46 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 12,
-              marginBottom: 8,
+              gap: 8,
+              marginBottom: 6,
             }}
           >
             <Text
               strong
               style={{
-                fontSize: 16,
+                fontSize: 15,
                 color: ENTERPRISE_THEME.textPrimary,
+                fontWeight: 600,
               }}
             >
               {service.companyName}
             </Text>
             {service.isVerified && (
               <Tag
-                icon={<SafetyCertificateFilled />}
-                color="success"
-                style={{ margin: 0, fontSize: 12 }}
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  borderRadius: 2,
+                  background: "#F6FFED",
+                  border: `1px solid ${ENTERPRISE_THEME.success}`,
+                  color: ENTERPRISE_THEME.success,
+                  padding: "0 6px",
+                }}
               >
                 已认证
               </Tag>
             )}
             {service.isFeatured && (
               <Tag
-                icon={<StarFilled />}
-                color="warning"
-                style={{ margin: 0, fontSize: 12 }}
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  borderRadius: 2,
+                  background: "#FFF7E6",
+                  border: `1px solid ${ENTERPRISE_THEME.warning}`,
+                  color: ENTERPRISE_THEME.warning,
+                  padding: "0 6px",
+                }}
               >
                 精选
               </Tag>
@@ -162,8 +179,8 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           <Title
             level={5}
             style={{
-              margin: "0 0 12px 0",
-              fontSize: 18,
+              margin: "0 0 8px 0",
+              fontSize: 16,
               color: ENTERPRISE_THEME.primary,
               fontWeight: 600,
             }}
@@ -174,11 +191,11 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           {/* 第三行：服务描述 */}
           <Text
             style={{
-              color: ENTERPRISE_THEME.textSecondary,
-              fontSize: 14,
-              lineHeight: "1.6",
+              color: ENTERPRISE_THEME.textTertiary,
+              fontSize: 13,
+              lineHeight: "1.5",
               display: "block",
-              marginBottom: 12,
+              marginBottom: 10,
             }}
             ellipsis={{ rows: 2 }}
           >
@@ -186,18 +203,18 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           </Text>
 
           {/* 第四行：专业标签 */}
-          <div style={{ marginBottom: 12 }}>
-            <Space size={[8, 8]} wrap>
+          <div style={{ marginBottom: 10 }}>
+            <Space size={[6, 6]} wrap>
               {service.professionalTags.slice(0, 4).map((tag, index) => (
                 <Tag
                   key={index}
                   style={{
-                    backgroundColor: "#F0F5FF",
-                    border: `1px solid ${ENTERPRISE_THEME.primary}`,
-                    color: ENTERPRISE_THEME.primary,
-                    borderRadius: 4,
-                    fontSize: 12,
-                    padding: "2px 8px",
+                    backgroundColor: "#F5F5F5",
+                    border: `1px solid ${ENTERPRISE_THEME.border}`,
+                    color: ENTERPRISE_THEME.textTertiary,
+                    borderRadius: 2,
+                    fontSize: 11,
+                    padding: "1px 6px",
                   }}
                 >
                   {tag}
@@ -208,18 +225,18 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
 
           {/* 第五行：资质认证 */}
           {service.certifications.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <Space size={[8, 8]} wrap>
+            <div style={{ marginBottom: 10 }}>
+              <Space size={[6, 6]} wrap>
                 {service.certifications.slice(0, 3).map((cert, index) => (
                   <Tag
                     key={index}
-                    icon={<CheckCircleOutlined />}
                     style={{
                       backgroundColor: "#F6FFED",
                       border: `1px solid ${ENTERPRISE_THEME.success}`,
                       color: ENTERPRISE_THEME.success,
-                      borderRadius: 4,
-                      fontSize: 12,
+                      borderRadius: 2,
+                      fontSize: 11,
+                      padding: "1px 6px",
                     }}
                   >
                     {cert}
@@ -230,7 +247,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           )}
 
           {/* 第六行：基础信息 */}
-          <Space size={24} style={{ fontSize: 13, color: ENTERPRISE_THEME.textMuted }}>
+          <Space size={16} style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted }}>
             <span>
               <EnvironmentOutlined style={{ marginRight: 4 }} />
               {service.region}
@@ -241,11 +258,11 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
             </span>
             <span>
               <TeamOutlined style={{ marginRight: 4 }} />
-              {service.completedProjects} 个成功案例
+              {service.completedProjects} 个案例
             </span>
             <span>
               <StarFilled style={{ marginRight: 4, color: "#FAAD14" }} />
-              {service.rating} 分
+              {service.rating}
             </span>
           </Space>
         </div>
@@ -257,20 +274,20 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
             flexDirection: "column",
             justifyContent: "space-between",
             alignItems: "flex-end",
-            minWidth: 140,
+            minWidth: 120,
           }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* 价格 */}
-          <div style={{ textAlign: "right", marginBottom: 16 }}>
-            <Text style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted }}>
+          <div style={{ textAlign: "right", marginBottom: 12 }}>
+            <Text style={{ fontSize: 11, color: ENTERPRISE_THEME.textMuted }}>
               价格区间
             </Text>
             <div
               style={{
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: 600,
-                color: ENTERPRISE_THEME.warning,
+                color: ENTERPRISE_THEME.textPrimary,
               }}
             >
               {service.priceRange || "面议"}
@@ -278,25 +295,29 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           </div>
 
           {/* 操作按钮 */}
-          <Space direction="vertical" size={8} style={{ width: "100%" }}>
+          <Space direction="vertical" size={6} style={{ width: "100%" }}>
             <Button
               type="primary"
               block
+              size="small"
               icon={<ThunderboltOutlined />}
               onClick={() => onConnect(service)}
+              style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
             >
               立即对接
             </Button>
             <Space style={{ width: "100%" }}>
               <Button
-                style={{ flex: 1 }}
+                size="small"
+                style={{ flex: 1, borderRadius: 2 }}
                 icon={<HeartOutlined />}
                 onClick={() => onFavorite(service)}
               >
                 收藏
               </Button>
               <Button
-                style={{ flex: 1 }}
+                size="small"
+                style={{ flex: 1, borderRadius: 2 }}
                 type={isComparing ? "primary" : "default"}
                 onClick={() => onCompare(service)}
               >
