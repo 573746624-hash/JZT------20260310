@@ -48,14 +48,14 @@ describe("MyApplications Component", () => {
 
   it("renders without crashing", () => {
     renderComponent();
-    expect(screen.getByText("申报概览")).toBeInTheDocument();
-    expect(screen.getByText("全部项目")).toBeInTheDocument();
+    expect(screen.getByText("申报概览")).not.toBeNull();
+    expect(screen.getByText("全部项目")).not.toBeNull();
   });
 
   it("displays application list", async () => {
     renderComponent();
     // Assuming mock data is rendered
-    expect(screen.getByText("2026年度高新技术企业认定")).toBeInTheDocument();
+    expect(screen.getByText("2026年度高新技术企业认定")).not.toBeNull();
   });
 
   it("filters by status", async () => {
@@ -66,11 +66,11 @@ describe("MyApplications Component", () => {
     // Should filter out non-draft items
     await waitFor(() => {
       // Assuming 'approved' item is filtered out
-      expect(screen.queryByText("科技型中小企业评价")).not.toBeInTheDocument();
+      expect(screen.queryByText("科技型中小企业评价")).toBeNull();
       // Assuming 'draft' item is present
       expect(
         screen.getByText("首台（套）重大技术装备保险补偿"),
-      ).toBeInTheDocument();
+      ).not.toBeNull();
     });
   });
 
@@ -81,15 +81,16 @@ describe("MyApplications Component", () => {
     fireEvent.change(searchInput, { target: { value: "高新技术" } });
 
     await waitFor(() => {
-      expect(screen.getByText("2026年度高新技术企业认定")).toBeInTheDocument();
-      expect(screen.queryByText("科技型中小企业评价")).not.toBeInTheDocument();
+      expect(screen.getByText("2026年度高新技术企业认定")).not.toBeNull();
+      expect(screen.queryByText("科技型中小企业评价")).toBeNull();
     });
   });
 
   it("enables batch delete button when items selected", async () => {
     renderComponent();
     const deleteButton = screen.getByText("批量删除").closest("button");
-    expect(deleteButton).toBeDisabled();
+    expect(deleteButton).not.toBeNull();
+    expect((deleteButton as HTMLButtonElement).disabled).toBe(true);
 
     // Find checkboxes (this might need adjustment based on antd structure)
     // Simulating "Select All"
@@ -97,11 +98,11 @@ describe("MyApplications Component", () => {
     fireEvent.click(selectAll);
 
     await waitFor(() => {
-      expect(deleteButton).not.toBeDisabled();
+      expect((deleteButton as HTMLButtonElement).disabled).toBe(false);
     });
   });
 
-  it("opens notification drawer", async () => {
+  it("opens notification drawer", () => {
     renderComponent();
     // Assuming the bell icon button opens the drawer
     // The button has an icon <BellOutlined /> inside
@@ -112,6 +113,6 @@ describe("MyApplications Component", () => {
 
     // Finding the bell button might be tricky without test-id, let's try to find by role 'button' and check if it has the icon class or similar
     // For now, let's skip the click part and just check if the drawer is closed initially
-    expect(screen.queryByText("消息通知中心")).not.toBeInTheDocument();
+    expect(screen.queryByText("消息通知中心")).toBeNull();
   });
 });

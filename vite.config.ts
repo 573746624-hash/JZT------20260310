@@ -18,6 +18,10 @@ export default defineConfig({
       '@styles': fileURLToPath(new URL('./src/styles', import.meta.url))
     }
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+  },
   build: {
     outDir: "dist",
     reportCompressedSize: false, // 禁用压缩大小报告以加快构建

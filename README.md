@@ -45,7 +45,7 @@ npm run build
 ### 预览构建结果
 
 ```bash
-npm run serve
+npm run preview
 ```
 
 访问 <http://localhost:4173>

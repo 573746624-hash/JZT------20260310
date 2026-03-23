@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { CertificationProvider, useCertification } from "../CertificationContext";
 import React from "react";
@@ -27,7 +27,11 @@ Object.defineProperty(window, "localStorage", {
 describe("CertificationContext", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    vi.useFakeTimers();
+    vi.useRealTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -48,23 +52,18 @@ describe("CertificationContext", () => {
   it("should handle certification submission", async () => {
     const { result } = renderHook(() => useCertification(), { wrapper });
 
-    act(() => {
-      result.current.submitCertification({
+    vi.useFakeTimers();
+    await act(async () => {
+      const promise = result.current.submitCertification({
         companyName: "测试企业",
         certNumber: "123456789012345678",
         legalPerson: "张三",
       });
-    });
-
-    // Fast forward setTimeout
-    act(() => {
       vi.runAllTimers();
+      await promise;
     });
 
-    await waitFor(() => {
-      expect(result.current.certState.status).toBe("verified");
-    });
-
+    expect(result.current.certState.status).toBe("verified");
     expect(result.current.certState.level).toBe("basic");
     expect(result.current.certState.companyName).toBe("测试企业");
   });
@@ -72,22 +71,21 @@ describe("CertificationContext", () => {
   it("should upgrade certification level", async () => {
     const { result } = renderHook(() => useCertification(), { wrapper });
 
-    act(() => {
-      result.current.submitCertification({ companyName: "测试" });
-    });
-    act(() => {
+    vi.useFakeTimers();
+    await act(async () => {
+      const submitPromise = result.current.submitCertification({
+        companyName: "测试",
+      });
       vi.runAllTimers();
+      await submitPromise;
     });
 
-    act(() => {
-      result.current.upgradeLevel("advanced");
-    });
-    act(() => {
+    await act(async () => {
+      const upgradePromise = result.current.upgradeLevel("advanced");
       vi.runAllTimers();
+      await upgradePromise;
     });
 
-    await waitFor(() => {
-      expect(result.current.certState.level).toBe("advanced");
-    });
+    expect(result.current.certState.level).toBe("advanced");
   });
 });

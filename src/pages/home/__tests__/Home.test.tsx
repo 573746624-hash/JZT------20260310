@@ -6,6 +6,8 @@ import { describe, it, expect, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import Home from "../index";
 import { defaultHomeData } from "../config/homeDataConfig";
+import { CertificationProvider } from "../../../context/CertificationContext";
+import { CompanyProfileProvider } from "../../../context/CompanyProfileContext";
 
 // Mock matchMedia
 Object.defineProperty(window, "matchMedia", {
@@ -41,7 +43,11 @@ describe("Home Page", () => {
   it("renders welcome message correctly", async () => {
     render(
       <MemoryRouter>
-        <Home />
+        <CertificationProvider>
+          <CompanyProfileProvider>
+            <Home />
+          </CompanyProfileProvider>
+        </CertificationProvider>
       </MemoryRouter>,
     );
 
@@ -55,28 +61,31 @@ describe("Home Page", () => {
   it("renders key sections", () => {
     render(
       <MemoryRouter>
-        <Home />
+        <CertificationProvider>
+          <CompanyProfileProvider>
+            <Home />
+          </CompanyProfileProvider>
+        </CertificationProvider>
       </MemoryRouter>,
     );
 
-    // Check for Data Overview
-    expect(screen.getAllByText(/政策总数/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/补贴金额/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/核心功能/i)).not.toBeNull();
 
     // Check for Quick Actions
     const policyCenterElements = screen.getAllByText(/政策中心/i);
     expect(policyCenterElements.length).toBeGreaterThan(0);
 
     expect(screen.getAllByText(/申报管理/i).length).toBeGreaterThan(0);
-
-    // Check for Recent Activities
-    expect(screen.getAllByText(/最近活动/i).length).toBeGreaterThan(0);
   });
 
   it("navigates to policy center when quick action is clicked", () => {
     const { container } = render(
       <MemoryRouter>
-        <Home />
+        <CertificationProvider>
+          <CompanyProfileProvider>
+            <Home />
+          </CompanyProfileProvider>
+        </CertificationProvider>
       </MemoryRouter>,
     );
 

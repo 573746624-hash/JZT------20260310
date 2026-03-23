@@ -58,7 +58,7 @@ class FilterService {
       const newCondition: FilterCondition = {
         ...condition,
         id,
-        isActive: true,
+        isActive: condition.isActive ?? true,
       };
 
       // 验证筛选条件
@@ -470,6 +470,18 @@ class FilterService {
     return `filter_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  private encodeBase64Utf8(input: string): string {
+    try {
+      return btoa(input);
+    } catch {
+      const encoded = encodeURIComponent(input).replace(
+        /%([0-9A-F]{2})/g,
+        (_, p1) => String.fromCharCode(parseInt(p1, 16)),
+      );
+      return btoa(encoded);
+    }
+  }
+
   /**
    * 生成缓存键
    */
@@ -480,7 +492,7 @@ class FilterService {
         .sort((a, b) => a.type.localeCompare(b.type)),
     );
 
-    return btoa(conditionsStr).replace(/[^a-zA-Z0-9]/g, "");
+    return this.encodeBase64Utf8(conditionsStr).replace(/[^a-zA-Z0-9]/g, "");
   }
 
   /**
@@ -582,6 +594,22 @@ class FilterService {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
+    this.debounceTimer = null;
+    this.filterState = {
+      conditions: [],
+      isLoading: false,
+      hasError: false,
+      lastUpdated: Date.now(),
+      resultCount: undefined,
+      errorMessage: undefined,
+    };
+    this.performanceMetrics = {
+      queryTime: 0,
+      renderTime: 0,
+      memoryUsage: 0,
+      cacheHitRate: 0,
+      errorRate: 0,
+    };
     this.cache.clear();
     this.eventListeners.clear();
   }
