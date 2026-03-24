@@ -440,21 +440,3 @@ export const sendPhoneCode = async (phone: string): Promise<any> => {
     `/qgb/portal/user/sendPhoneCode?phone=${encodeURIComponent(phone)}`,
   );
 };
-
-/**
- * 用户登出（兼容旧代码）
- * @deprecated 请使用 authService.logout()
- */
-export const logout = () => {
-  // 清除所有相关的localStorage字段
-  localStorage.removeItem("portalToken");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("userInfo");
-  localStorage.removeItem("isLoggedIn");
-  localStorage.removeItem("lastLoginTime");
-  localStorage.removeItem("username");
-  localStorage.removeItem("auth_user");
-
-  // 清除apiClient的认证token
-  apiClient.setAuthToken("");
-};

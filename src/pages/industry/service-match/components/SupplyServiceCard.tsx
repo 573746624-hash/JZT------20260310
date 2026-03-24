@@ -75,6 +75,8 @@ interface SupplyServiceCardProps {
   onFavorite: (service: SupplyService) => void;
   navigate: any;
   userLevel?: string;
+  showMaskedData?: boolean;
+  maskedData?: any;
 }
 
 const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
@@ -197,7 +199,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
               display: "block",
               marginBottom: 10,
             }}
-            ellipsis={{ rows: 2 }}
+            ellipsis
           >
             {service.serviceDescription}
           </Text>

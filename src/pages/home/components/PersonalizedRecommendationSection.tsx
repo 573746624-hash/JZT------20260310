@@ -250,10 +250,10 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
           }
 
           // 匹配逻辑 2: 规模匹配
-          if (profile.size && profile.size.includes("小微")) {
+          if (profile.scale && profile.scale.includes("小微")) {
             if (item.title.includes("小微") || item.category === "创业支持") {
               score += 25;
-              reasons.push(`规模符合：${profile.size}`);
+              reasons.push(`规模符合：${profile.scale}`);
             }
           }
 
@@ -391,7 +391,7 @@ export const PersonalizedRecommendationSection: React.FC<PersonalizedRecommendat
                   </Title>
                   <Space>
                     <Tag color="blue">{profile?.industry || "行业未填"}</Tag>
-                    <Tag color="green">{profile?.size || "规模未填"}</Tag>
+                    <Tag color="green">{profile?.scale || "规模未填"}</Tag>
                   </Space>
                 </div>
               </div>

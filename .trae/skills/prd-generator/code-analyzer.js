@@ -2,14 +2,206 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * 深度代码分析器 - 从 TSX 文件中提取真实业务功能
+ * 深度代码分析器 v3.0 - 从菜单配置读取模块结构，从 TSX 文件提取业务功能
  * 
- * 本模块提供深度解析 React/TSX 代码的能力，能够：
- * 1. 提取数据模型（TypeScript 接口、useState）
- * 2. 识别 UI 组件结构（表格、表单、弹窗、卡片等）
- * 3. 分析业务功能（CRUD 操作、搜索筛选、状态管理）
- * 4. 提取业务规则和交互流程
+ * 本模块提供深度解析 React/TSX 代码的能力：
+ * 1. 从 menuConfig.tsx 严格读取模块和功能层级结构
+ * 2. 递归扫描 src 目录，智能识别页面组件
+ * 3. 将页面组件匹配到对应的功能下
+ * 4. 提取数据模型（TypeScript 接口、useState、Props）
+ * 5. 识别 UI 组件结构（表格、表单、弹窗、卡片、步骤条等）
+ * 6. 分析业务功能（CRUD 操作、搜索筛选、状态管理、导入导出等）
+ * 7. 提取业务规则、权限控制和交互流程
  */
+
+// ==================== 菜单配置解析（核心）====================
+
+/**
+ * 从 menuConfig.tsx 提取模块和功能结构
+ * @param {string} projectRoot - 项目根目录
+ * @returns {Array<{key: string, label: string, children: Array, isModule: boolean}>} - 模块和功能结构
+ */
+function extractMenuStructure(projectRoot) {
+  const menuConfigPath = path.join(projectRoot, 'src', 'config', 'menuConfig.tsx');
+  
+  if (!fs.existsSync(menuConfigPath)) {
+    console.warn(`⚠️ 未找到菜单配置文件: ${menuConfigPath}`);
+    return [];
+  }
+  
+  console.log(`📋 读取菜单配置: ${path.relative(projectRoot, menuConfigPath)}`);
+  
+  const menuContent = fs.readFileSync(menuConfigPath, 'utf-8');
+  
+  // 提取 getMenuItems 函数中的菜单配置
+  const menuItemsMatch = menuContent.match(/return\s*\[([\s\S]*?)\];\s*\}\s*$/m);
+  if (!menuItemsMatch) {
+    console.warn('⚠️ 无法解析菜单配置');
+    return [];
+  }
+  
+  // 解析模块结构
+  const modules = [];
+  
+  // 匹配一级菜单项（模块）
+  const modulePattern = /\{\s*key:\s*["']([^"']+)["']\s*,\s*icon:\s*<[^>]+>\s*,\s*label:\s*["']([^"']+)["'](?:\s*,\s*children:\s*(\[[^\]]*\]))?\s*\}/g;
+  
+  let moduleMatch;
+  while ((moduleMatch = modulePattern.exec(menuContent)) !== null) {
+    const moduleKey = moduleMatch[1];
+    const moduleLabel = moduleMatch[2];
+    const childrenStr = moduleMatch[3];
+    
+    const moduleItem = {
+      key: moduleKey,
+      label: moduleLabel,
+      isModule: true,
+      children: []
+    };
+    
+    // 如果有子菜单（功能），解析子菜单
+    if (childrenStr) {
+      // 匹配子菜单项
+      const childPattern = /\{\s*key:\s*["']([^"']+)["']\s*,\s*(?:icon:\s*<[^>]+>\s*,\s*)?label:\s*["']([^"']+)["']\s*\}/g;
+      let childMatch;
+      while ((childMatch = childPattern.exec(childrenStr)) !== null) {
+        moduleItem.children.push({
+          key: childMatch[1],
+          label: childMatch[2],
+          isModule: false
+        });
+      }
+    }
+    
+    modules.push(moduleItem);
+  }
+  
+  console.log(`  ✓ 解析到 ${modules.length} 个模块`);
+  modules.forEach(m => {
+    console.log(`    - ${m.label}: ${m.children.length} 个功能`);
+  });
+  
+  return modules;
+}
+
+/**
+ * 从 routeMenuMap 获取路由到菜单键的映射
+ * @param {string} projectRoot - 项目根目录
+ * @returns {Map<string, string>} - 路由路径到菜单键的映射
+ */
+function extractRouteMenuMap(projectRoot) {
+  const menuConfigPath = path.join(projectRoot, 'src', 'config', 'menuConfig.tsx');
+  const routeToMenuKey = new Map();
+  
+  if (!fs.existsSync(menuConfigPath)) {
+    return routeToMenuKey;
+  }
+  
+  const menuContent = fs.readFileSync(menuConfigPath, 'utf-8');
+  
+  // 解析 routeMenuMap
+  const routeMenuMapMatch = menuContent.match(/export\s+const\s+routeMenuMap[^{]*\{([^}]+)\}/s);
+  if (routeMenuMapMatch) {
+    const mapContent = routeMenuMapMatch[1];
+    const entryPattern = /["']([^"']+)["']\s*:\s*["']([^"']+)["']/g;
+    let entryMatch;
+    while ((entryMatch = entryPattern.exec(mapContent)) !== null) {
+      routeToMenuKey.set(entryMatch[1], entryMatch[2]);
+    }
+  }
+  
+  return routeToMenuKey;
+}
+
+/**
+ * 根据文件路径匹配对应的功能
+ * @param {string} filePath - 文件路径
+ * @param {Array} menuStructure - 菜单结构
+ * @param {Map} routeToMenuKey - 路由到菜单键的映射
+ * @returns {Object|null} - 匹配到的模块和功能
+ */
+function matchFileToFunction(filePath, menuStructure, routeToMenuKey) {
+  const normalizedPath = filePath.toLowerCase().replace(/\\/g, '/');
+  const baseName = path.basename(filePath, '.tsx').toLowerCase();
+  
+  // 文件名到功能的映射表（用于精确匹配）
+  const fileToFunctionMap = {
+    // 政策中心
+    'policysearch': { module: '政策中心', function: '智慧政策' },
+    'aipolicysearch': { module: '政策中心', function: '智慧政策' },
+    'enhancedpolicysearch': { module: '政策中心', function: '智慧政策' },
+    'policydetail': { module: '政策中心', function: '智慧政策' },
+    'enhancedpolicydetail': { module: '政策中心', function: '智慧政策' },
+    'policyapprovedlist': { module: '政策中心', function: '智慧政策' },
+    'application': { module: '政策中心', function: '申报管理' },
+    'applysuccess': { module: '政策中心', function: '申报管理' },
+    'applywizard': { module: '政策中心', function: '申报管理' },
+    'myapplications': { module: '政策中心', function: '我的申报' },
+    'optimizedmyapplications': { module: '政策中心', function: '我的申报' },
+    
+    // 法律护航
+    'ailawyer': { module: '法律护航', function: 'AI 问答' },
+    'regulationquery': { module: '法律护航', function: '法规查询' },
+    'regulationdetail': { module: '法律护航', function: '法规详情' },
+    
+    // 产业管理
+    'servicematchhome': { module: '产业管理', function: '业务大厅' },
+    'workbench': { module: '产业管理', function: '业务大厅' },
+    'procurementhall': { module: '产业管理', function: '采购大厅' },
+    'myservices': { module: '产业管理', function: '我的业务管理' },
+    'servicepublish': { module: '产业管理', function: '我的业务管理' },
+    'matchdetail': { module: '产业管理', function: '采购大厅' },
+    'mymatches': { module: '产业管理', function: '我的业务管理' },
+    'mymessages': { module: '产业管理', function: '我的业务管理' },
+    
+    // 金融服务
+    'financingdiagnosis': { module: '金融服务', function: '融资诊断' },
+    'diagnosisreport': { module: '金融服务', function: '诊断分析报告' },
+    'diagnosisanalysis': { module: '金融服务', function: '诊断分析报告' },
+    
+    // 系统管理
+    'usermanagement': { module: '系统管理', function: '用户管理' },
+    'personalcenter': { module: '系统管理', function: '个人中心' },
+    'myfavorites': { module: '系统管理', function: '我的收藏' },
+    'companymanagement': { module: '系统管理', function: '企业管理' },
+    
+    // 首页
+    'home': { module: '首页', function: '首页' },
+    'index': { module: '首页', function: '首页' },
+  };
+  
+  // 首先尝试文件名精确匹配
+  if (fileToFunctionMap[baseName]) {
+    return fileToFunctionMap[baseName];
+  }
+  
+  // 尝试路径匹配
+  for (const [key, mapping] of Object.entries(fileToFunctionMap)) {
+    if (normalizedPath.includes(key)) {
+      return mapping;
+    }
+  }
+  
+  // 尝试根据路由匹配
+  for (const [route, menuKey] of routeToMenuKey) {
+    const normalizedRoute = route.toLowerCase().replace(/\//g, '');
+    if (normalizedPath.includes(normalizedRoute) || baseName.includes(normalizedRoute)) {
+      // 找到对应的模块和功能
+      for (const module of menuStructure) {
+        if (module.key === menuKey) {
+          return { module: module.label, function: module.label };
+        }
+        for (const func of module.children) {
+          if (func.key === menuKey) {
+            return { module: module.label, function: func.label };
+          }
+        }
+      }
+    }
+  }
+  
+  return null;
+}
 
 // ==================== 类型定义（JSDoc）====================
 
@@ -46,6 +238,7 @@ const path = require('path');
  * @typedef {Object} ModuleAnalysis
  * @property {string} name - 模块英文名称
  * @property {string} chineseName - 模块中文名称
+ * @property {string} filePath - 文件相对路径
  * @property {string} description - 模块描述
  * @property {DataModel[]} dataModels - 数据模型
  * @property {FunctionConfig[]} functions - 功能列表
@@ -53,49 +246,231 @@ const path = require('path');
  * @property {Array<{scenario: string, behavior: string}>} exceptionScenarios - 异常场景
  */
 
-// ==================== 辅助函数 ====================
+// ==================== 目录和文件扫描 ====================
 
 /**
- * 从代码中提取 TypeScript 接口定义
+ * 需要排除的目录
+ */
+const EXCLUDED_DIRS = [
+  'node_modules',
+  'dist',
+  'build',
+  '.git',
+  '.trae',
+  '__tests__',
+  '__mocks__',
+  'test',
+  'tests',
+  'stories',
+  'storybook',
+  '.storybook'
+];
+
+/**
+ * 需要排除的文件模式
+ */
+const EXCLUDED_FILE_PATTERNS = [
+  /^index\./,                    // index.tsx, index.ts
+  /\.test\./,                   // *.test.tsx
+  /\.spec\./,                   // *.spec.tsx
+  /\.stories\./,                // *.stories.tsx
+  /types?\./,                    // types.ts, type.ts
+  /constants?\./,                // constants.ts, constant.ts
+  /config\./,                    // config.ts
+  /utils?\./,                    // utils.ts, util.ts
+  /helpers?\./,                  // helpers.ts, helper.ts
+  /\.d\.ts$/,                   // 类型声明文件
+  /Content/,                     // 包含 Content 的文件
+  /Template/,                    // 包含 Template 的文件
+  /Context/,                     // Context 文件
+  /Provider/,                    // Provider 文件
+  /Hook/,                        // Hook 文件
+  /use[A-Z]/,                    // useXxx hook 文件
+];
+
+/**
+ * 组件目录优先级（用于判断是否是页面组件）
+ */
+const PAGE_DIRECTORIES = [
+  'pages',
+  'views',
+  'routes',
+  'screens',
+  'modules'
+];
+
+/**
+ * 非页面目录（通常是可复用组件）
+ */
+const NON_PAGE_DIRECTORIES = [
+  'components',
+  'common',
+  'shared',
+  'ui',
+  'widgets',
+  'elements',
+  'layout',
+  'layouts',
+  'hooks',
+  'utils',
+  'helpers',
+  'services',
+  'api',
+  'config',
+  'types',
+  'styles',
+  'assets',
+  'data',
+  'mock',
+  'context',
+  'providers'
+];
+
+/**
+ * 递归扫描目录获取所有 TSX 文件
+ * @param {string} dir - 目录路径
+ * @param {string} [baseDir] - 基础目录（用于计算相对路径）
+ * @param {string[]} [files] - 文件列表（递归用）
+ * @returns {string[]} - TSX 文件路径列表
+ */
+function scanTsxFiles(dir, baseDir = dir, files = []) {
+  try {
+    const items = fs.readdirSync(dir);
+    
+    for (const item of items) {
+      const fullPath = path.join(dir, item);
+      const relativePath = path.relative(baseDir, fullPath);
+      const stat = fs.statSync(fullPath);
+      
+      if (stat.isDirectory()) {
+        // 排除不需要扫描的目录
+        if (EXCLUDED_DIRS.includes(item) || item.startsWith('.')) {
+          continue;
+        }
+        scanTsxFiles(fullPath, baseDir, files);
+      } else if (stat.isFile() && item.endsWith('.tsx')) {
+        // 检查文件是否应该被排除
+        if (!shouldExcludeFile(item, relativePath)) {
+          files.push(fullPath);
+        }
+      }
+    }
+  } catch (error) {
+    console.error(`扫描目录出错: ${dir}`, error.message);
+  }
+  
+  return files;
+}
+
+/**
+ * 判断文件是否应该被排除
+ * @param {string} fileName - 文件名
+ * @param {string} relativePath - 相对路径
+ * @returns {boolean}
+ */
+function shouldExcludeFile(fileName, relativePath) {
+  // 检查文件路径是否包含非页面目录
+  const pathParts = relativePath.split(path.sep);
+  for (const part of pathParts) {
+    if (NON_PAGE_DIRECTORIES.includes(part.toLowerCase())) {
+      return true;
+    }
+  }
+  
+  // 检查文件名是否匹配排除模式
+  for (const pattern of EXCLUDED_FILE_PATTERNS) {
+    if (pattern.test(fileName)) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * 判断是否是页面组件（而非普通组件）
+ * @param {string} filePath - 文件路径
+ * @param {string} sourceCode - 源代码
+ * @returns {boolean}
+ */
+function isPageComponent(filePath, sourceCode) {
+  const normalizedPath = filePath.toLowerCase();
+  
+  // 检查路径是否包含页面目录
+  for (const pageDir of PAGE_DIRECTORIES) {
+    if (normalizedPath.includes(`/${pageDir}/`) || normalizedPath.includes(`\\${pageDir}\\`)) {
+      return true;
+    }
+  }
+  
+  // 检查是否是路由组件（包含路由相关代码）
+  if (sourceCode.includes('useParams') || 
+      sourceCode.includes('useNavigate') || 
+      sourceCode.includes('useLocation') ||
+      sourceCode.includes('Outlet') ||
+      sourceCode.includes('<Route')) {
+    return true;
+  }
+  
+  // 检查是否是页面级组件（通常包含完整的页面结构）
+  const pageIndicators = [
+    'PageHeader',
+    'PageWrapper',
+    'Breadcrumb',
+    'Layout',
+    'title={',
+    'document.title'
+  ];
+  
+  for (const indicator of pageIndicators) {
+    if (sourceCode.includes(indicator)) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+// ==================== 代码分析功能 ====================
+
+/**
+ * 从 TSX 代码中提取 TypeScript 接口定义
  * @param {string} sourceCode 
  * @returns {DataModel[]}
  */
 function extractInterfaces(sourceCode) {
   const models = [];
   
-  // 匹配 interface 定义
-  const interfaceRegex = /interface\s+(\w+)\s*\{([^}]+)\}/g;
+  // 匹配接口定义
+  const interfacePattern = /interface\s+(\w+)\s*\{([^}]+)\}/g;
   let match;
   
-  while ((match = interfaceRegex.exec(sourceCode)) !== null) {
+  while ((match = interfacePattern.exec(sourceCode)) !== null) {
     const interfaceName = match[1];
     const interfaceBody = match[2];
     
     const fields = [];
-    // 解析接口字段
-    const fieldLines = interfaceBody.split('\n').filter(line => line.trim() && !line.trim().startsWith('//'));
+    // 解析字段
+    const fieldPattern = /(\w+)(\?)?:\s*([^;\n]+)/g;
+    let fieldMatch;
     
-    for (const line of fieldLines) {
-      // 匹配：fieldName: type; 或 fieldName?: type;
-      const fieldMatch = line.match(/(\w+)\??\s*:\s*([^;]+);?/);
-      if (fieldMatch) {
-        const fieldName = fieldMatch[1];
-        const fieldType = fieldMatch[2].trim();
-        const isOptional = line.includes('?');
-        
-        fields.push({
-          name: fieldName,
-          type: fieldType,
-          required: !isOptional,
-          description: inferFieldDescription(fieldName, fieldType)
-        });
-      }
+    while ((fieldMatch = fieldPattern.exec(interfaceBody)) !== null) {
+      const fieldName = fieldMatch[1];
+      const isOptional = !!fieldMatch[2];
+      const fieldType = fieldMatch[3].trim();
+      
+      fields.push({
+        name: fieldName,
+        type: fieldType,
+        required: !isOptional,
+        description: ''
+      });
     }
     
     if (fields.length > 0) {
       models.push({
         entity: interfaceName,
-        fields: fields
+        fields
       });
     }
   }
@@ -104,45 +479,35 @@ function extractInterfaces(sourceCode) {
 }
 
 /**
- * 从代码中提取 useState 定义的状态
+ * 从 TSX 代码中提取 useState 定义的状态
  * @param {string} sourceCode 
  * @returns {DataModel[]}
  */
 function extractUseStateModels(sourceCode) {
   const models = [];
+  const fields = [];
   
   // 匹配 useState 定义
-  const stateRegex = /const\s+\[(\w+),\s*set(\w+)\]\s*=\s*useState\(([^)]*)\)/g;
+  const useStatePattern = /const\s+\[([^,]+),\s*set(\w+)\]\s*=\s*useState(?:<([^>]+)>)?\(([^)]*)\)/g;
   let match;
   
-  const stateFields = [];
-  
-  while ((match = stateRegex.exec(sourceCode)) !== null) {
-    const stateName = match[1];
-    const setterName = match[2];
-    const initialValue = match[3].trim();
+  while ((match = useStatePattern.exec(sourceCode)) !== null) {
+    const stateName = match[1].trim();
+    const stateType = match[3] || inferTypeFromValue(match[4]);
+    const defaultValue = match[4];
     
-    // 推断类型
-    let fieldType = 'any';
-    if (initialValue.startsWith('[')) fieldType = 'array';
-    else if (initialValue.startsWith('{')) fieldType = 'object';
-    else if (initialValue === 'true' || initialValue === 'false') fieldType = 'boolean';
-    else if (!isNaN(parseFloat(initialValue))) fieldType = 'number';
-    else if (initialValue.startsWith("'") || initialValue.startsWith('"') || initialValue.startsWith('`')) fieldType = 'string';
-    else if (initialValue.includes('=>')) fieldType = 'function';
-    
-    stateFields.push({
+    fields.push({
       name: stateName,
-      type: fieldType,
+      type: stateType,
       required: false,
-      description: inferStateDescription(stateName, setterName, fieldType)
+      description: defaultValue && defaultValue !== 'undefined' ? `默认值: ${defaultValue}` : ''
     });
   }
   
-  if (stateFields.length > 0) {
+  if (fields.length > 0) {
     models.push({
       entity: 'ComponentState',
-      fields: stateFields
+      fields
     });
   }
   
@@ -150,236 +515,100 @@ function extractUseStateModels(sourceCode) {
 }
 
 /**
- * 推断字段描述
- * @param {string} fieldName 
- * @param {string} fieldType 
+ * 根据默认值推断类型
+ * @param {string} value 
  * @returns {string}
  */
-function inferFieldDescription(fieldName, fieldType) {
-  const descriptions = {
-    'id': '唯一标识',
-    'name': '名称',
-    'email': '邮箱地址',
-    'status': '状态',
-    'role': '角色',
-    'createdAt': '创建时间',
-    'updatedAt': '更新时间',
-    'description': '描述',
-    'avatar': '头像URL',
-    'password': '密码',
-    'dept': '部门',
-    'displayName': '显示名称',
-    'tags': '标签',
-    'model': '模型',
-    'systemPrompt': '系统提示词',
-    'temperature': '温度参数',
-    'maxLength': '最大长度',
-    'searchQuery': '搜索关键词',
-    'currentPage': '当前页码',
-    'modalType': '弹窗类型',
-    'selectedItem': '选中项',
-    'isLoading': '加载状态',
-    'isOpen': '是否打开'
-  };
-  
-  return descriptions[fieldName] || `${fieldName}字段`;
-}
-
-/**
- * 推断状态描述
- * @param {string} stateName 
- * @param {string} setterName 
- * @param {string} type 
- * @returns {string}
- */
-function inferStateDescription(stateName, setterName, type) {
-  // 根据 setter 名称推断用途
-  if (setterName.toLowerCase().includes('modal') || setterName.toLowerCase().includes('dialog')) {
-    return '弹窗显示状态';
-  }
-  if (setterName.toLowerCase().includes('search')) {
-    return '搜索关键词';
-  }
-  if (setterName.toLowerCase().includes('page')) {
-    return '分页状态';
-  }
-  if (setterName.toLowerCase().includes('select') || setterName.toLowerCase().includes('edit')) {
-    return '选中/编辑对象';
-  }
-  if (setterName.toLowerCase().includes('loading') || setterName.toLowerCase().includes('typing')) {
-    return '加载/输入状态';
-  }
-  if (setterName.toLowerCase().includes('filter')) {
-    return '筛选条件';
-  }
-  
-  return inferFieldDescription(stateName, type);
+function inferTypeFromValue(value) {
+  if (!value || value === 'undefined') return 'any';
+  if (value.startsWith('"') || value.startsWith("'")) return 'string';
+  if (value === 'true' || value === 'false') return 'boolean';
+  if (!isNaN(Number(value))) return 'number';
+  if (value.startsWith('[')) return 'array';
+  if (value.startsWith('{')) return 'object';
+  return 'any';
 }
 
 /**
  * 分析表格结构
  * @param {string} sourceCode 
- * @returns {Object|null}
+ * @returns {Object}
  */
 function analyzeTableStructure(sourceCode) {
-  // 查找 table 标签
-  const hasTable = sourceCode.includes('<table') || sourceCode.includes('<Table');
-  if (!hasTable) return null;
-  
-  // 提取表头
-  const thRegex = /<th[^>]*>([^<]+)<\/th>/g;
-  const headers = [];
-  let match;
-  
-  while ((match = thRegex.exec(sourceCode)) !== null) {
-    headers.push(match[1].trim());
-  }
-  
-  // 如果没有找到 th，尝试从 JSX 表达式中提取
-  if (headers.length === 0) {
-    const headerRegex = /{([^}]+)\.map\([^)]*=>[^}]+<th[^>]*>([^<]+)<\/th>/g;
-    while ((match = headerRegex.exec(sourceCode)) !== null) {
-      headers.push(match[2].trim());
-    }
-  }
-  
-  return {
-    type: 'table',
-    headers: headers,
-    hasPagination: sourceCode.includes('currentPage') || sourceCode.includes('setCurrentPage'),
-    hasSearch: sourceCode.includes('searchQuery') || sourceCode.includes('setSearchQuery'),
-    hasFilter: sourceCode.includes('filter') || sourceCode.includes('筛选')
+  const result = {
+    hasTable: false,
+    columns: [],
+    hasPagination: false,
+    hasSearch: false,
+    hasFilters: false
   };
+  
+  // 检查是否有表格
+  if (sourceCode.includes('<Table') || sourceCode.includes('Table ')) {
+    result.hasTable = true;
+  }
+  
+  // 检查是否有分页
+  if (sourceCode.includes('Pagination') || sourceCode.includes('pagination')) {
+    result.hasPagination = true;
+  }
+  
+  // 检查是否有搜索
+  if (sourceCode.includes('Search') || sourceCode.includes('search') || 
+      sourceCode.includes('Input') && sourceCode.includes('onSearch')) {
+    result.hasSearch = true;
+  }
+  
+  // 检查是否有筛选
+  if (sourceCode.includes('Filter') || sourceCode.includes('filter') ||
+      sourceCode.includes('Select') && sourceCode.includes('onChange')) {
+    result.hasFilters = true;
+  }
+  
+  return result;
 }
 
 /**
  * 分析表单结构
  * @param {string} sourceCode 
- * @returns {Object|null}
+ * @returns {Object}
  */
 function analyzeFormStructure(sourceCode) {
-  // 查找 form 标签
-  const hasForm = sourceCode.includes('<form') || sourceCode.includes('<Form');
-  if (!hasForm) return null;
-  
-  // 提取 input/select/textarea
-  const fields = [];
-  
-  // 匹配 input 元素
-  const inputRegex = /<input[^>]*name=["'](\w+)["'][^>]*>/g;
-  let match;
-  
-  while ((match = inputRegex.exec(sourceCode)) !== null) {
-    const inputTag = match[0];
-    const name = match[1];
-    const type = inputTag.includes('type="password"') ? 'password' :
-                 inputTag.includes('type="email"') ? 'email' :
-                 inputTag.includes('type="number"') ? 'number' : 'text';
-    const required = inputTag.includes('required');
-    
-    fields.push({
-      name: name,
-      type: type,
-      required: required,
-      label: inferFieldLabel(name)
-    });
-  }
-  
-  // 匹配 select 元素
-  const selectRegex = /<select[^>]*name=["'](\w+)["'][^>]*>[\s\S]*?<\/select>/g;
-  while ((match = selectRegex.exec(sourceCode)) !== null) {
-    const selectTag = match[0];
-    const name = match[1];
-    
-    // 提取选项
-    const optionRegex = /<option[^>]*>([^<]+)<\/option>/g;
-    const options = [];
-    let optionMatch;
-    
-    while ((optionMatch = optionRegex.exec(selectTag)) !== null) {
-      options.push(optionMatch[1].trim());
-    }
-    
-    fields.push({
-      name: name,
-      type: 'select',
-      required: selectTag.includes('required'),
-      label: inferFieldLabel(name),
-      options: options
-    });
-  }
-  
-  // 匹配 textarea 元素
-  const textareaRegex = /<textarea[^>]*name=["'](\w+)["'][^>]*>/g;
-  while ((match = textareaRegex.exec(sourceCode)) !== null) {
-    const name = match[1];
-    fields.push({
-      name: name,
-      type: 'textarea',
-      required: false,
-      label: inferFieldLabel(name)
-    });
-  }
-  
-  return {
-    type: 'form',
-    fields: fields,
-    hasSubmit: sourceCode.includes('onSubmit') || sourceCode.includes('type="submit"')
-  };
-}
-
-/**
- * 推断字段标签
- * @param {string} fieldName 
- * @returns {string}
- */
-function inferFieldLabel(fieldName) {
-  const labels = {
-    'name': '名称',
-    'email': '邮箱',
-    'password': '密码',
-    'role': '角色',
-    'dept': '部门',
-    'status': '状态',
-    'description': '描述',
-    'displayName': '显示名称',
-    'tags': '标签',
-    'model': '模型',
-    'systemPrompt': '系统提示词',
-    'temperature': '温度',
-    'topP': '核采样',
-    'maxLength': '最大长度',
-    'memoryDepth': '记忆深度'
+  const result = {
+    hasForm: false,
+    fields: [],
+    hasValidation: false
   };
   
-  return labels[fieldName] || fieldName;
+  // 检查是否有表单
+  if (sourceCode.includes('<Form') || sourceCode.includes('Form ')) {
+    result.hasForm = true;
+  }
+  
+  // 检查是否有验证
+  if (sourceCode.includes('rules=') || sourceCode.includes('validator') ||
+      sourceCode.includes('required:') || sourceCode.includes('message:')) {
+    result.hasValidation = true;
+  }
+  
+  return result;
 }
 
 /**
  * 分析弹窗/对话框
  * @param {string} sourceCode 
- * @returns {Object[]}
+ * @returns {Array}
  */
 function analyzeModals(sourceCode) {
   const modals = [];
   
-  // 查找条件渲染的弹窗
-  const modalPatterns = [
-    /\{\s*modalType\s*===?\s*['"](\w+)['"]\s*&&\s*\(/g,
-    /\{\s*show(\w+)\s*&&\s*\(/g,
-    /\{\s*is(\w+)Open\s*&&\s*\(/g,
-    /\{\s*(\w+)Modal\s*&&\s*\(/g
-  ];
-  
-  for (const pattern of modalPatterns) {
+  // 检查是否有弹窗
+  if (sourceCode.includes('Modal') || sourceCode.includes('Drawer') || sourceCode.includes('Dialog')) {
+    // 尝试提取弹窗标题
+    const titlePattern = /title[=:]\s*["']([^"']+)["']/g;
     let match;
-    while ((match = pattern.exec(sourceCode)) !== null) {
-      const modalName = match[1];
-      modals.push({
-        name: modalName,
-        trigger: `打开${modalName}弹窗`,
-        type: 'modal'
-      });
+    while ((match = titlePattern.exec(sourceCode)) !== null) {
+      modals.push({ title: match[1] });
     }
   }
   
@@ -387,122 +616,225 @@ function analyzeModals(sourceCode) {
 }
 
 /**
- * 分析处理函数
+ * 分析事件处理器
  * @param {string} sourceCode 
- * @returns {Object[]}
+ * @returns {Object}
  */
 function analyzeHandlers(sourceCode) {
-  const handlers = [];
+  const handlers = {
+    hasCreate: false,
+    hasEdit: false,
+    hasDelete: false,
+    hasView: false,
+    hasImport: false,
+    hasExport: false,
+    hasSearch: false,
+    hasFilter: false
+  };
   
-  // 匹配 const handleXxx = (...) 或 function handleXxx(...)
-  const handlerRegex = /(?:const|function)\s+(handle\w+)\s*[=(]\s*(?:\([^)]*\))?\s*=>?/g;
-  let match;
+  const code = sourceCode.toLowerCase();
   
-  while ((match = handlerRegex.exec(sourceCode)) !== null) {
-    const handlerName = match[1];
-    const actionType = inferHandlerAction(handlerName);
-    
-    handlers.push({
-      name: handlerName,
-      action: actionType.action,
-      description: actionType.description
-    });
-  }
+  if (code.includes('create') || code.includes('add') || code.includes('new')) handlers.hasCreate = true;
+  if (code.includes('edit') || code.includes('update')) handlers.hasEdit = true;
+  if (code.includes('delete') || code.includes('remove')) handlers.hasDelete = true;
+  if (code.includes('view') || code.includes('detail')) handlers.hasView = true;
+  if (code.includes('import')) handlers.hasImport = true;
+  if (code.includes('export')) handlers.hasExport = true;
+  if (code.includes('search') || code.includes('query')) handlers.hasSearch = true;
+  if (code.includes('filter')) handlers.hasFilter = true;
   
   return handlers;
 }
 
 /**
- * 推断处理函数行为
- * @param {string} handlerName 
- * @returns {Object}
+ * 提取业务规则
+ * @param {string} sourceCode 
+ * @returns {string[]}
  */
-function inferHandlerAction(handlerName) {
-  const actions = {
-    'handleSave': { action: '保存', description: '保存数据' },
-    'handleSubmit': { action: '提交', description: '提交表单' },
-    'handleDelete': { action: '删除', description: '删除数据' },
-    'handleEdit': { action: '编辑', description: '编辑数据' },
-    'handleCreate': { action: '创建', description: '创建新数据' },
-    'handleSearch': { action: '搜索', description: '执行搜索' },
-    'handleFilter': { action: '筛选', description: '筛选数据' },
-    'handleSort': { action: '排序', description: '排序数据' },
-    'handlePageChange': { action: '分页', description: '切换分页' },
-    'handleSelect': { action: '选择', description: '选择项目' },
-    'handleCancel': { action: '取消', description: '取消操作' },
-    'handleConfirm': { action: '确认', description: '确认操作' },
-    'handleClose': { action: '关闭', description: '关闭弹窗' },
-    'handleOpen': { action: '打开', description: '打开弹窗' },
-    'handleToggle': { action: '切换', description: '切换状态' },
-    'handleImport': { action: '导入', description: '导入数据' },
-    'handleExport': { action: '导出', description: '导出数据' },
-    'handleTest': { action: '测试', description: '测试功能' },
-    'handleApply': { action: '应用', description: '应用配置' },
-    'handleRollback': { action: '回滚', description: '回滚版本' },
-    'handleChat': { action: '对话', description: '发送消息' }
-  };
+function extractBusinessRules(sourceCode) {
+  const rules = [];
   
-  // 尝试匹配前缀
-  for (const [key, value] of Object.entries(actions)) {
-    if (handlerName.startsWith(key)) {
-      return value;
+  // 从注释中提取规则
+  const commentPattern = /\/\*\s*([^*]+)\*\//g;
+  let match;
+  while ((match = commentPattern.exec(sourceCode)) !== null) {
+    const comment = match[1].trim();
+    if (comment.includes('规则') || comment.includes('必须') || comment.includes('校验')) {
+      rules.push(comment);
     }
   }
   
-  return { action: '操作', description: `${handlerName}操作` };
+  // 从验证逻辑中提取规则
+  if (sourceCode.includes('required: true') || sourceCode.includes('required={true}')) {
+    rules.push('必填字段校验');
+  }
+  
+  if (sourceCode.includes('email') && sourceCode.includes('validator')) {
+    rules.push('邮箱格式校验');
+  }
+  
+  return rules;
 }
 
 /**
- * 分析预设数据/常量
+ * 提取异常场景
  * @param {string} sourceCode 
- * @returns {Object}
+ * @returns {Array}
  */
-function analyzeConstants(sourceCode) {
-  const constants = {
-    departments: [],
-    roles: [],
-    statuses: [],
-    templates: [],
-    categories: []
-  };
+function extractExceptionScenarios(sourceCode) {
+  const scenarios = [];
   
-  // 提取 DEPARTMENTS 数组
-  const deptRegex = /const\s+DEPARTMENTS\s*=\s*\[([^\]]+)\]/;
-  const deptMatch = sourceCode.match(deptRegex);
-  if (deptMatch) {
-    constants.departments = deptMatch[1].match(/['"`]([^'"`]+)['"`]/g)?.map(s => s.slice(1, -1)) || [];
+  // 检查错误处理
+  if (sourceCode.includes('try') && sourceCode.includes('catch')) {
+    scenarios.push({ scenario: '接口异常', behavior: '捕获异常并提示错误信息' });
   }
   
-  // 提取 TEMPLATES 数组
-  const templateRegex = /const\s+TEMPLATES\s*=\s*\[/;
-  if (templateRegex.test(sourceCode)) {
-    // 简单统计模板数量
-    const templateMatches = sourceCode.match(/\{\s*id:/g);
-    constants.templateCount = templateMatches ? templateMatches.length : 0;
+  if (sourceCode.includes('loading') || sourceCode.includes('setLoading')) {
+    scenarios.push({ scenario: '加载状态', behavior: '显示加载中状态' });
   }
   
-  // 提取角色选项
-  const roleRegex = /<option>\s*(SuperAdmin|Developer|Auditor|DevOps)\s*<\/option>/g;
-  const roles = new Set();
-  let match;
-  while ((match = roleRegex.exec(sourceCode)) !== null) {
-    roles.add(match[1]);
+  if (sourceCode.includes('empty') || sourceCode.includes('no data')) {
+    scenarios.push({ scenario: '空数据', behavior: '显示空数据提示' });
   }
-  constants.roles = Array.from(roles);
   
-  return constants;
+  return scenarios;
 }
 
-// ==================== 主要分析函数 ====================
+/**
+ * 生成功能配置
+ * @param {string} moduleName 
+ * @param {Object} tableInfo 
+ * @param {Object} formInfo 
+ * @param {Array} modals 
+ * @param {Object} handlers 
+ * @param {Object} constants 
+ * @param {string} sourceCode 
+ * @returns {FunctionConfig[]}
+ */
+function generateFunctionConfigs(moduleName, tableInfo, formInfo, modals, handlers, constants, sourceCode) {
+  const functions = [];
+  let funcIndex = 1;
+  
+  // 列表展示功能
+  if (tableInfo.hasTable) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '列表展示',
+      type: '列表展示',
+      description: '以表格形式展示数据列表，支持搜索、筛选、排序、分页',
+      pagination: tableInfo.hasPagination ? { pageSize: 10 } : null
+    });
+    funcIndex++;
+  }
+  
+  // 搜索功能
+  if (handlers.hasSearch || tableInfo.hasSearch) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '搜索查询',
+      type: '搜索筛选',
+      description: '支持关键词搜索和多条件筛选'
+    });
+    funcIndex++;
+  }
+  
+  // 新增功能
+  if (handlers.hasCreate && formInfo.hasForm) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '新增数据',
+      type: '新增功能',
+      description: '创建新数据记录，包含表单填写和数据校验'
+    });
+    funcIndex++;
+  }
+  
+  // 编辑功能
+  if (handlers.hasEdit && formInfo.hasForm) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '编辑数据',
+      type: '编辑功能',
+      description: '编辑现有数据记录，支持数据回显和更新'
+    });
+    funcIndex++;
+  }
+  
+  // 删除功能
+  if (handlers.hasDelete) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '删除数据',
+      type: '删除功能',
+      description: '删除数据记录，包含删除确认和级联处理'
+    });
+    funcIndex++;
+  }
+  
+  // 查看详情功能
+  if (handlers.hasView) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '查看详情',
+      type: '查看功能',
+      description: '查看数据详情信息'
+    });
+    funcIndex++;
+  }
+  
+  // 导入导出功能
+  if (handlers.hasImport || handlers.hasExport) {
+    functions.push({
+      id: `FUNC-${String(funcIndex).padStart(3, '0')}`,
+      name: '导入导出',
+      type: '导入导出',
+      description: '支持数据的批量导入和导出'
+    });
+    funcIndex++;
+  }
+  
+  // 如果没有识别到任何功能，添加一个默认功能
+  if (functions.length === 0) {
+    functions.push({
+      id: 'FUNC-001',
+      name: '页面展示',
+      type: '展示功能',
+      description: '页面内容展示功能'
+    });
+  }
+  
+  return functions;
+}
 
 /**
- * 深度分析单个 TSX 文件
- * @param {string} componentName - 组件名称
- * @param {string} sourceCode - 源代码
- * @returns {ModuleAnalysis}
+ * 生成模块描述
+ * @param {string} chineseName 
+ * @param {FunctionConfig[]} functions 
+ * @returns {string}
  */
-function analyzeComponent(componentName, sourceCode) {
-  console.log(`  🔍 深度分析 ${componentName}...`);
+function generateModuleDescription(chineseName, functions) {
+  const funcNames = functions.map(f => f.name).join('、');
+  return `${chineseName}模块，提供${funcNames}等功能`;
+}
+
+// ==================== 核心分析函数 ====================
+
+/**
+ * 分析单个组件文件
+ * @param {string} filePath - 文件路径
+ * @param {string} projectRoot - 项目根目录
+ * @returns {Object|null} - 分析结果
+ */
+function analyzeComponent(filePath, projectRoot) {
+  const sourceCode = fs.readFileSync(filePath, 'utf-8');
+  
+  // 检查是否是页面组件
+  if (!isPageComponent(filePath, sourceCode)) {
+    return null;
+  }
+  
+  const relativePath = path.relative(projectRoot, filePath);
+  const baseName = path.basename(filePath, '.tsx');
   
   // 1. 提取数据模型
   const interfaceModels = extractInterfaces(sourceCode);
@@ -514,16 +846,15 @@ function analyzeComponent(componentName, sourceCode) {
   const formInfo = analyzeFormStructure(sourceCode);
   const modals = analyzeModals(sourceCode);
   const handlers = analyzeHandlers(sourceCode);
-  const constants = analyzeConstants(sourceCode);
   
   // 3. 生成功能配置
   const functions = generateFunctionConfigs(
-    componentName,
+    baseName,
     tableInfo,
     formInfo,
     modals,
     handlers,
-    constants,
+    {},
     sourceCode
   );
   
@@ -533,328 +864,131 @@ function analyzeComponent(componentName, sourceCode) {
   // 5. 提取异常场景
   const exceptionScenarios = extractExceptionScenarios(sourceCode);
   
-  console.log(`     ✓ 发现 ${dataModels.length} 个数据模型, ${functions.length} 个功能`);
-  
   return {
-    name: componentName,
-    chineseName: getChineseName(componentName),
-    description: generateModuleDescription(componentName, functions),
+    name: baseName,
+    filePath: relativePath,
+    sourceCode,
     dataModels,
     functions,
     businessRules,
-    exceptionScenarios
+    exceptionScenarios,
+    tableInfo,
+    formInfo,
+    handlers
   };
 }
 
 /**
- * 生成功能配置列表
- * @param {string} componentName 
- * @param {Object|null} tableInfo 
- * @param {Object|null} formInfo 
- * @param {Object[]} modals 
- * @param {Object[]} handlers 
- * @param {Object} constants 
- * @param {string} sourceCode 
- * @returns {FunctionConfig[]}
+ * 按模块组织分析结果
+ * @param {Array} componentAnalyses - 组件分析结果列表
+ * @param {Array} menuStructure - 菜单结构
+ * @param {Map} routeToMenuKey - 路由到菜单键的映射
+ * @returns {Array} - 按模块组织的结果
  */
-function generateFunctionConfigs(componentName, tableInfo, formInfo, modals, handlers, constants, sourceCode) {
-  const functions = [];
-  let funcId = 1;
+function organizeByModule(componentAnalyses, menuStructure, routeToMenuKey) {
+  const moduleMap = new Map();
   
-  // 1. 列表展示功能
-  if (tableInfo) {
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '列表展示',
-      type: '列表展示',
-      description: `以表格形式展示${getChineseName(componentName)}数据`,
-      listFields: tableInfo.headers,
-      pagination: tableInfo.hasPagination ? { pageSize: 10, pageSizeOptions: [10, 20, 50] } : undefined
-    });
-  }
-  
-  // 2. 搜索功能
-  if (tableInfo?.hasSearch || sourceCode.includes('searchQuery')) {
-    const searchFields = extractSearchFields(sourceCode);
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '搜索查询',
-      type: '搜索筛选',
-      description: '支持多字段搜索查询',
-      searchFields: searchFields
-    });
-  }
-  
-  // 3. 表单提交功能
-  if (formInfo) {
-    const isEdit = sourceCode.includes('editing') || sourceCode.includes('edit');
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: isEdit ? '新增/编辑' : '表单提交',
-      type: '表单提交',
-      description: isEdit ? '创建新记录或编辑现有记录' : '提交表单数据',
-      formFields: formInfo.fields.map(f => ({
-        name: f.name,
-        label: f.label,
-        type: f.type,
-        required: f.required,
-        options: f.options,
-        validation: f.type === 'email' ? '邮箱格式' : f.required ? '必填' : undefined
-      }))
-    });
-  }
-  
-  // 4. 删除功能
-  if (handlers.some(h => h.name.includes('Delete')) || sourceCode.includes('handleDelete')) {
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '删除操作',
-      type: '删除操作',
-      description: '删除记录，通常需要二次确认',
-      confirmation: '二次确认对话框',
-      cascadeEffect: '删除后数据不可恢复'
-    });
-  }
-  
-  // 5. 状态切换功能
-  if (handlers.some(h => h.name.includes('Toggle')) || sourceCode.includes('toggle')) {
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '状态切换',
-      type: '状态切换',
-      description: '切换记录状态（启用/停用等）',
-      operation: '状态切换'
-    });
-  }
-  
-  // 6. 弹窗功能
-  modals.forEach((modal, index) => {
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: `${modal.name}弹窗`,
-      type: '弹窗交互',
-      description: modal.trigger
-    });
-  });
-  
-  // 7. 特殊功能（根据组件类型）
-  if (componentName === 'AgentBuilder') {
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '模板选择',
-      type: '模板选择',
-      description: `从 ${constants.templateCount || 40}+ 行业模板中选择`,
-      categories: ['客户服务', '内容创作', '技术效率', '教育培训', '医疗健康', '政法金融', '人力资源', '生活服务', '咨询分析']
+  // 初始化模块映射
+  for (const module of menuStructure) {
+    moduleMap.set(module.label, {
+      name: module.label,
+      key: module.key,
+      isModule: true,
+      functions: new Map()
     });
     
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '实时对话测试',
-      type: '交互测试',
-      description: '与智能体实时对话测试响应效果'
-    });
-  }
-  
-  if (componentName === 'AgentList') {
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '详情查看',
-      type: '详情展示',
-      description: '查看智能体详细信息和配置'
-    });
-    
-    functions.push({
-      id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-      name: '版本回滚',
-      type: '版本管理',
-      description: '回滚到历史版本'
-    });
-  }
-  
-  // 8. 其他处理函数对应的功能
-  handlers.forEach(handler => {
-    // 避免重复添加已识别的功能
-    const exists = functions.some(f => 
-      f.name.includes(handler.action) || 
-      (handler.name.includes('Save') && f.name.includes('表单'))
-    );
-    
-    if (!exists && !['handleSave', 'handleDelete', 'handleToggle'].some(h => handler.name.startsWith(h))) {
-      functions.push({
-        id: `FUNC-${String(funcId++).padStart(3, '0')}`,
-        name: handler.action,
-        type: '业务操作',
-        description: handler.description
+    // 初始化功能映射
+    for (const func of module.children) {
+      moduleMap.get(module.label).functions.set(func.label, {
+        name: func.label,
+        key: func.key,
+        components: []
       });
     }
-  });
-  
-  return functions;
-}
-
-/**
- * 提取搜索字段
- * @param {string} sourceCode 
- * @returns {string[]}
- */
-function extractSearchFields(sourceCode) {
-  // 从 filteredXxx = useMemo 中提取
-  const filterRegex = /filter\(\s*\w+\s*=>[\s\S]*?\.(\w+)\./g;
-  const fields = new Set();
-  let match;
-  
-  while ((match = filterRegex.exec(sourceCode)) !== null) {
-    fields.add(match[1]);
-  }
-  
-  // 从 includes 中提取
-  const includesRegex = /\.(\w+)\.toLowerCase\(\)\.includes/g;
-  while ((match = includesRegex.exec(sourceCode)) !== null) {
-    fields.add(match[1]);
-  }
-  
-  return Array.from(fields).length > 0 ? Array.from(fields) : ['name'];
-}
-
-/**
- * 提取业务规则
- * @param {string} sourceCode 
- * @returns {string[]}
- */
-function extractBusinessRules(sourceCode) {
-  const rules = [];
-  
-  // 从注释中提取
-  const commentRegex = /\/\/\s*(.+?(?:规则|必须|需要|只能|不能|限制|校验|验证))/g;
-  let match;
-  
-  while ((match = commentRegex.exec(sourceCode)) !== null) {
-    const rule = match[1].trim();
-    if (rule.length > 5 && rule.length < 100) {
-      rules.push(rule);
+    
+    // 如果模块没有子功能，模块本身就是一个功能
+    if (module.children.length === 0) {
+      moduleMap.get(module.label).functions.set(module.label, {
+        name: module.label,
+        key: module.key,
+        components: []
+      });
     }
   }
   
-  // 从代码逻辑推断
-  if (sourceCode.includes('email') && sourceCode.includes('unique')) {
-    rules.push('邮箱作为唯一标识，不可重复');
+  // 将组件分析结果分配到对应的功能下
+  for (const analysis of componentAnalyses) {
+    const match = matchFileToFunction(analysis.filePath, menuStructure, routeToMenuKey);
+    
+    if (match) {
+      const moduleData = moduleMap.get(match.module);
+      if (moduleData) {
+        const functionData = moduleData.functions.get(match.function);
+        if (functionData) {
+          functionData.components.push(analysis);
+        } else {
+          // 如果功能不存在，创建一个
+          moduleData.functions.set(match.function, {
+            name: match.function,
+            key: '',
+            components: [analysis]
+          });
+        }
+      }
+    } else {
+      // 未匹配的组件，尝试根据路径推断
+      const normalizedPath = analysis.filePath.toLowerCase();
+      
+      for (const module of menuStructure) {
+        const moduleKeyNormalized = module.key.toLowerCase().replace(/\//g, '');
+        if (normalizedPath.includes(moduleKeyNormalized)) {
+          // 找到模块，尝试匹配功能
+          let matched = false;
+          for (const func of module.children) {
+            const funcKeyNormalized = func.key.toLowerCase().replace(/\//g, '');
+            if (normalizedPath.includes(funcKeyNormalized)) {
+              moduleMap.get(module.label).functions.get(func.label).components.push(analysis);
+              matched = true;
+              break;
+            }
+          }
+          
+          // 如果没有匹配到具体功能，添加到第一个功能
+          if (!matched && module.children.length > 0) {
+            const firstFunc = module.children[0];
+            moduleMap.get(module.label).functions.get(firstFunc.label).components.push(analysis);
+          }
+          break;
+        }
+      }
+    }
   }
   
-  if (sourceCode.includes('password') && sourceCode.includes('required')) {
-    rules.push('密码必须符合安全强度要求');
-  }
-  
-  if (sourceCode.includes('status') && sourceCode.includes('disabled')) {
-    rules.push('停用状态的账号无法访问系统');
-  }
-  
-  return rules;
+  // 转换为数组格式
+  return Array.from(moduleMap.values()).map(module => ({
+    ...module,
+    functions: Array.from(module.functions.values())
+  }));
 }
 
-/**
- * 提取异常场景
- * @param {string} sourceCode 
- * @returns {Array<{scenario: string, behavior: string}>}
- */
-function extractExceptionScenarios(sourceCode) {
-  const scenarios = [];
-  
-  // 查找错误处理
-  if (sourceCode.includes('try') && sourceCode.includes('catch')) {
-    scenarios.push({
-      scenario: '接口异常',
-      behavior: '捕获异常并显示错误提示'
-    });
-  }
-  
-  // 查找验证逻辑
-  if (sourceCode.includes('required') || sourceCode.includes('validation')) {
-    scenarios.push({
-      scenario: '必填字段为空',
-      behavior: '阻止提交并提示填写必填项'
-    });
-  }
-  
-  // 查找重复校验
-  if (sourceCode.includes('exists') || sourceCode.includes('duplicate')) {
-    scenarios.push({
-      scenario: '数据重复',
-      behavior: '提示数据已存在'
-    });
-  }
-  
-  return scenarios;
-}
-
-/**
- * 获取中文名称
- * @param {string} componentName 
- * @returns {string}
- */
-function getChineseName(componentName) {
-  const nameMapping = {
-    'AccountManagement': '账户管理',
-    'AgentBuilder': '智能体构建器',
-    'AgentList': '智能体列表',
-    'CollaborationModule': '协作模块',
-    'Dashboard': '仪表盘',
-    'DigitalHuman': '数字人',
-    'DigitalHumanContent': '数字人内容',
-    'DigitalHumanTemplate': '数字人模板',
-    'FlowOrchestrator': '流程编排器',
-    'KnowledgeModule': '知识模块',
-    'Login': '登录',
-    'MonitoringModule': '监控模块',
-    'SystemIntegration': '系统集成',
-    'SystemSettings': '系统设置'
-  };
-  
-  return nameMapping[componentName] || componentName;
-}
-
-/**
- * 生成模块描述
- * @param {string} componentName 
- * @param {FunctionConfig[]} functions 
- * @returns {string}
- */
-function generateModuleDescription(componentName, functions) {
-  const descriptions = {
-    'AccountManagement': '提供组织账号治理功能，支持成员管理、权限分配、部门归属配置和账号状态控制。实现企业级RBAC权限管理体系，确保系统访问安全可控。',
-    'AgentBuilder': '提供智能体构建功能，支持从40+行业模板快速启动或创建空白项目。实现智能体身份配置、能力设定、参数调优的全流程管理。',
-    'AgentList': '提供智能体资产管理功能，支持智能体的列表展示、搜索筛选、编辑配置、版本回滚和性能监控。实现智能体全生命周期管理。',
-    'CollaborationModule': '提供多智能体协同编排功能，支持策略市场、工作流实例管理、多机性能监控。实现复杂业务场景下的智能体协作调度。',
-    'Dashboard': '提供系统仪表盘功能，展示关键业务指标、资产分布、任务动态和资源监控。实现系统运行状态的全景可视化管理。',
-    'DigitalHuman': '提供数字人资产管理功能，支持形象库、背景库、动作库的统一管理。实现数字人资源的选择、预览和绑定。',
-    'DigitalHumanContent': '提供数字人内容制作功能，支持脚本编辑、TTS语音配置、交互渲染设置和视频合成。实现数字人播报内容的端到端生产。',
-    'DigitalHumanTemplate': '提供数字人模板精修功能，支持可视化编辑、资源插槽管理、源码编辑和部署发布。实现数字人模板的精细化定制。',
-    'FlowOrchestrator': '提供流程编排功能，支持可视化流程设计、节点编排、调试仿真和执行记录查看。实现复杂业务流程的可视化编排和管理。',
-    'KnowledgeModule': '提供知识库管理功能，支持文档上传、索引构建、语义搜索测试和版本管理。实现企业知识资产的统一管理和智能检索。',
-    'Login': '提供用户认证功能，支持账号密码登录和角色选择。实现基于RBAC的安全访问控制。',
-    'MonitoringModule': '提供全链路监控功能，支持指标驾驶舱、日志检索、告警规则和链路追踪。实现系统运行状态的全面可观测性。',
-    'SystemIntegration': '提供系统集成功能，支持数据库连接池管理、第三方应用集成和安全策略配置。实现与外部系统的无缝对接。',
-    'SystemSettings': '提供系统设置功能，支持模型推理引擎配置、GPU弹性算力管理、安全合规策略和系统备份。实现系统级的全局配置管理。'
-  };
-  
-  if (descriptions[componentName]) {
-    return descriptions[componentName];
-  }
-  
-  // 基于功能自动生成描述
-  const funcNames = functions.map(f => f.name).join('、');
-  return `提供${getChineseName(componentName)}功能，支持${funcNames}等操作。`;
-}
-
-// ==================== 导出 ====================
+// ==================== 模块导出 ====================
 
 module.exports = {
+  scanTsxFiles,
   analyzeComponent,
+  extractMenuStructure,
+  extractRouteMenuMap,
+  matchFileToFunction,
+  organizeByModule,
+  isPageComponent,
+  shouldExcludeFile,
   extractInterfaces,
   extractUseStateModels,
   analyzeTableStructure,
   analyzeFormStructure,
   analyzeModals,
   analyzeHandlers,
-  analyzeConstants,
-  getChineseName
+  extractBusinessRules,
+  extractExceptionScenarios,
+  generateFunctionConfigs
 };

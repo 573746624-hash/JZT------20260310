@@ -354,7 +354,7 @@ const AILawyer: React.FC = () => {
       setMessages(prev => {
         const updatedMessages = prev.map(msg => 
           msg.id === userMessage.id && msg.status === "sending"
-            ? { ...msg, status: "sent" }
+            ? { ...msg, status: "sent" as const }
             : msg
         );
         return [...updatedMessages, aiMessage];
@@ -827,9 +827,7 @@ const AILawyer: React.FC = () => {
                    userType === "enterprise" ? "100" : "无限"}
                 </span>
                 {dailyQuestionCount >= (userType === "guest" ? 5 : userType === "regular" ? 20 : userType === "enterprise" ? 100 : Infinity) && (
-                  <Tag color="orange" size="small">
-                    已达上限
-                  </Tag>
+                  <Tag color="orange">已达上限</Tag>
                 )}
               </div>
             </div>
@@ -1054,20 +1052,20 @@ const AILawyer: React.FC = () => {
                       background: "#fff",
                     }}
                   >
-                    {messages.map((message) => (
-                      <div key={message.id} style={{ marginBottom: "24px" }}>
+                    {messages.map((msg) => (
+                      <div key={msg.id} style={{ marginBottom: "24px" }}>
                         <div
                           style={{
                             display: "flex",
                             justifyContent:
-                              message.type === "user"
+                              msg.type === "user"
                                 ? "flex-end"
                                 : "flex-start",
                             alignItems: "flex-start",
                             gap: "12px",
                           }}
                         >
-                          {message.type === "ai" && (
+                          {msg.type === "ai" && (
                             <Avatar
                               icon={<RobotOutlined />}
                               style={{
@@ -1089,22 +1087,22 @@ const AILawyer: React.FC = () => {
                               style={{
                                 padding: "12px 16px",
                                 borderRadius:
-                                  message.type === "user"
+                                  msg.type === "user"
                                     ? "12px 0 12px 12px"
                                     : "0 12px 12px 12px",
                                 background:
-                                  message.type === "user" ? "#1890ff" : "#f5f7fa",
-                                color: message.type === "user" ? "#fff" : "#333",
+                                  msg.type === "user" ? "#1890ff" : "#f5f7fa",
+                                color: msg.type === "user" ? "#fff" : "#333",
                                 lineHeight: "1.6",
                                 position: "relative",
                               }}
                             >
                               <div style={{ whiteSpace: "pre-line" }}>
-                                {message.content}
+                                {msg.content}
                               </div>
                               
                               {/* 消息状态指示 */}
-                              {message.type === "user" && message.status && (
+                              {msg.type === "user" && msg.status && (
                                 <div
                                   style={{
                                     position: "absolute",
@@ -1117,18 +1115,18 @@ const AILawyer: React.FC = () => {
                                     gap: "4px",
                                   }}
                                 >
-                                  {message.status === "sending" && (
+                                  {msg.status === "sending" && (
                                     <>
                                       <div className="loading-dot" />
                                       发送中...
                                     </>
                                   )}
-                                  {message.status === "sent" && (
+                                  {msg.status === "sent" && (
                                     <>
                                       ✓ 已发送
                                     </>
                                   )}
-                                  {message.status === "failed" && (
+                                  {msg.status === "failed" && (
                                     <>
                                       ✗ 发送失败
                                     </>
@@ -1138,9 +1136,9 @@ const AILawyer: React.FC = () => {
                             </div>
 
                             {/* 引用卡片 */}
-                            {message.references && message.references.length > 0 && (
+                            {msg.references && msg.references.length > 0 && (
                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                {message.references.map((ref) => (
+                                {msg.references.map((ref) => (
                                   <Card
                                     key={ref.id}
                                     size="small"
@@ -1198,7 +1196,6 @@ const AILawyer: React.FC = () => {
                                           {ref.content}
                                         </div>
                                         <Tag
-                                          size="small"
                                           color={ref.type === "regulation" ? "blue" : ref.type === "case" ? "green" : "orange"}
                                           style={{ marginTop: "4px" }}
                                         >
@@ -1212,7 +1209,7 @@ const AILawyer: React.FC = () => {
                             )}
 
                             {/* AI消息操作按钮 */}
-                            {message.type === "ai" && (
+                            {msg.type === "ai" && (
                               <div
                                 style={{
                                   display: "flex",
@@ -1237,7 +1234,7 @@ const AILawyer: React.FC = () => {
                                   size="small"
                                   style={{ fontSize: "12px", height: "24px" }}
                                   onClick={() => {
-                                    navigator.clipboard.writeText(message.content);
+                                    navigator.clipboard.writeText(msg.content);
                                     message.success("已复制到剪贴板");
                                   }}
                                 >
@@ -1255,12 +1252,12 @@ const AILawyer: React.FC = () => {
                                   分享
                                 </Button>
                                 <div style={{ fontSize: "11px", color: "#999", marginLeft: "auto" }}>
-                                  {message.timestamp.toLocaleTimeString()}
+                                  {msg.timestamp.toLocaleTimeString()}
                                 </div>
                               </div>
                             )}
                           </div>
-                          {message.type === "user" && (
+                          {msg.type === "user" && (
                             <Avatar
                               icon={<UserOutlined />}
                               style={{
@@ -1582,9 +1579,7 @@ const AILawyer: React.FC = () => {
                           {item.tags && item.tags.length > 0 && (
                             <div style={{ marginTop: "8px" }}>
                               {item.tags.map((tag) => (
-                                <Tag key={tag} size="small" style={{ marginBottom: "4px" }}>
-                                  {tag}
-                                </Tag>
+                                <Tag key={tag} style={{ marginBottom: "4px" }}>{tag}</Tag>
                               ))}
                             </div>
                           )}
@@ -1767,9 +1762,7 @@ const AILawyer: React.FC = () => {
                             {item.tags && item.tags.length > 0 && (
                               <div style={{ marginTop: "8px" }}>
                                 {item.tags.map((tag) => (
-                                  <Tag key={tag} size="small" style={{ marginBottom: "4px" }}>
-                                    {tag}
-                                  </Tag>
+                                  <Tag key={tag} style={{ marginBottom: "4px" }}>{tag}</Tag>
                                 ))}
                               </div>
                             )}
@@ -1888,9 +1881,7 @@ const AILawyer: React.FC = () => {
                           {item.description}
                         </div>
                         <div style={{ marginTop: "4px" }}>
-                          <Tag size="small" color="blue">
-                            相关度 {item.relevance}%
-                          </Tag>
+                          <Tag color="blue">相关度 {item.relevance}%</Tag>
                         </div>
                       </div>
                     </List.Item>

@@ -56,6 +56,7 @@ const ENTERPRISE_THEME = {
   success: "#27AE60",
   warning: "#E67E22",
   error: "#C0392B",
+  white: "#FFFFFF",
 };
 
 const ProcurementHall: React.FC = () => {

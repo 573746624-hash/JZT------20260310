@@ -59,5 +59,3 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     </Tag>
   );
 };
-
-export default StatusBadge;

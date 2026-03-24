@@ -31,6 +31,8 @@ interface QualificationType {
   benefits: string[];
   isHighFrequency?: boolean;
   pinyin?: string;
+  groupKey?: string;
+  groupColor?: string;
 }
 
 // 资质分组定义

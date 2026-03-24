@@ -103,6 +103,7 @@ interface FilterCriteria {
   status: string;
   publishOrg: string[];
   dateRange: [dayjs.Dayjs, dayjs.Dayjs] | null;
+  scenario?: string;
 }
 
 // 筛选模板
@@ -566,9 +567,7 @@ const RegulationQueryEnhanced: React.FC = () => {
             <div style={{ marginBottom: 12 }}>
               <Space wrap size={4}>
                 {item.tags.map((tag) => (
-                  <Tag key={tag} size="small">
-                    {tag}
-                  </Tag>
+                  <Tag key={tag}>{tag}</Tag>
                 ))}
               </Space>
             </div>

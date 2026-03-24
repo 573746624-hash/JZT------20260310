@@ -3,10 +3,12 @@
  * 验证筛选功能的准确性和性能
  */
 
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import FilterService from "../services/filterService";
 import {
   FilterType,
   FilterOperator,
+  FilterEventType,
   PolicyItem,
   FilterCondition,
 } from "../types/filterTypes";
@@ -410,38 +412,42 @@ describe("FilterService", () => {
   });
 
   describe("事件系统测试", () => {
-    test("应该触发条件添加事件", (done) => {
-      filterService.addEventListener("condition_added" as any, (event) => {
-        expect(event.type).toBe("condition_added");
-        expect(event.payload.condition).toBeDefined();
-        done();
-      });
+    test("应该触发条件添加事件", () => {
+      return new Promise<void>((resolve) => {
+        filterService.addEventListener(FilterEventType.CONDITION_ADDED, (event: { type: string; payload: { condition: FilterCondition } }) => {
+          expect(event.type).toBe("condition_added");
+          expect(event.payload.condition).toBeDefined();
+          resolve();
+        });
 
-      filterService.addCondition({
-        type: FilterType.DISTRICT,
-        value: ["朝阳区"],
-        label: "朝阳区",
-        operator: FilterOperator.IN,
-        isActive: true,
+        filterService.addCondition({
+          type: FilterType.DISTRICT,
+          value: ["朝阳区"],
+          label: "朝阳区",
+          operator: FilterOperator.IN,
+          isActive: true,
+        });
       });
     });
 
-    test("应该触发条件移除事件", (done) => {
-      const conditionId = filterService.addCondition({
-        type: FilterType.DISTRICT,
-        value: ["朝阳区"],
-        label: "朝阳区",
-        operator: FilterOperator.IN,
-        isActive: true,
-      });
+    test("应该触发条件移除事件", () => {
+      return new Promise<void>((resolve) => {
+        const conditionId = filterService.addCondition({
+          type: FilterType.DISTRICT,
+          value: ["朝阳区"],
+          label: "朝阳区",
+          operator: FilterOperator.IN,
+          isActive: true,
+        });
 
-      filterService.addEventListener("condition_removed" as any, (event) => {
-        expect(event.type).toBe("condition_removed");
-        expect(event.payload.condition).toBeDefined();
-        done();
-      });
+        filterService.addEventListener(FilterEventType.CONDITION_REMOVED, (event: { type: string; payload: { condition: FilterCondition } }) => {
+          expect(event.type).toBe("condition_removed");
+          expect(event.payload.condition).toBeDefined();
+          resolve();
+        });
 
-      filterService.removeCondition(conditionId);
+        filterService.removeCondition(conditionId);
+      });
     });
   });
 

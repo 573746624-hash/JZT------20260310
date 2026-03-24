@@ -4,22 +4,23 @@
  * @desc 角色管理模块的常量配置
  */
 
+import { DataScope } from '../types';
 import type { DataScopeOption } from '../types';
 
 /** 数据范围选项配置 */
 export const dataScopeOptions: DataScopeOption[] = [
   {
-    value: 'all',
+    value: DataScope.ALL,
     label: '全部数据',
     description: '可查看和管理系统中所有数据',
   },
   {
-    value: 'dept',
+    value: DataScope.DEPT,
     label: '本部门数据',
     description: '仅可查看和管理本部门的数据',
   },
   {
-    value: 'self',
+    value: DataScope.SELF,
     label: '仅本人数据',
     description: '仅可查看和管理自己创建的数据',
   },
@@ -31,19 +32,19 @@ export const defaultRoles = [
     name: '系统管理员',
     code: 'sys_admin',
     description: '拥有系统管理模块的所有权限',
-    dataScope: 'all' as const,
+    dataScope: DataScope.ALL,
   },
   {
     name: '部门管理员',
     code: 'dept_admin',
     description: '可管理部门内用户和数据',
-    dataScope: 'dept' as const,
+    dataScope: DataScope.DEPT,
   },
   {
     name: '普通用户',
     code: 'user',
     description: '仅可访问个人中心和相关功能',
-    dataScope: 'self' as const,
+    dataScope: DataScope.SELF,
   },
 ];
 

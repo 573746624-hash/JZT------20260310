@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   getUserInfo as fetchUserInfo,
-  logout,
   UserInfo as UserInfoType,
   updateUserProfile,
   updateUserPhone,
@@ -17,6 +16,7 @@ import {
   uploadAvatar,
   sendPhoneCode,
 } from "../../../../services/userService";
+import { authService } from "../../../../services/authService";
 import { StorageUtils } from "../../../../utils/storage";
 import type {
   OperationLog,
@@ -223,8 +223,8 @@ export function usePersonalCenter() {
   }, [loadOperationLogs]);
 
   // 用户退出处理
-  const handleLogout = useCallback(() => {
-    logout();
+  const handleLogout = useCallback(async () => {
+    await authService.logout();
     window.location.href = "/login";
   }, []);
 
@@ -354,8 +354,8 @@ export function usePersonalCenter() {
         message.success("密码修改成功！请重新登录");
         passwordForm.resetFields();
 
-        setTimeout(() => {
-          logout();
+        setTimeout(async () => {
+          await authService.logout();
           navigate("/login");
         }, 1500);
       } catch (error: unknown) {

@@ -375,5 +375,3 @@ export const useApplications = () => {
     getRecentApplications,
   };
 };
-
-export default useApplications;

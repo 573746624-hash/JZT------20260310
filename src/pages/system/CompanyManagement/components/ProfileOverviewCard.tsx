@@ -17,13 +17,66 @@ import {
   Button,
 } from "antd";
 import { BankOutlined, ReloadOutlined } from "@ant-design/icons";
-import type { CompanyProfile, DataSourceType } from "../types/index.ts";
+import type { DataSourceType } from "../types/index.ts";
 import { getSyncStatusIcon, getSyncStatusText } from "../utils/syncStatus.ts";
 
 const { Text } = Typography;
 
+// 定义组件内部使用的简化类型
+interface ProfileData {
+  companyName?: string;
+  creditCode?: string;
+  legalPerson?: string;
+  registeredCapital?: string;
+  establishDate?: string;
+  industry?: string;
+  scale?: string;
+  companyType?: string;
+  address?: string;
+  revenue?: string;
+  profit?: string;
+  taxAmount?: string;
+  assets?: string;
+  rdInvestment?: string;
+  rdRatio?: string;
+  rdPersonnel?: number;
+  rdProjects?: number;
+  patents?: number;
+  inventionPatents?: number;
+  softwareCopyrights?: number;
+  trademarks?: number;
+  achievements?: number;
+  totalEmployees?: number;
+  technicalPersonnel?: number;
+  bachelorAbove?: number;
+  qualifications?: string[];
+  certifications?: string[];
+  mainBusiness?: string;
+  mainProducts?: string;
+  marketShare?: string;
+  exportVolume?: string;
+  completedProjects?: number;
+  ongoingProjects?: number;
+  governmentProjects?: number;
+  awards?: string[];
+  behaviorTags?: string[];
+  businessStatus?: string[];
+  tags?: {
+    l1: string[];
+    l2: string[];
+    l3: string[];
+  };
+  lastSyncTime?: string;
+  syncStatus?: string;
+  dataSource?: {
+    business: 'success' | 'syncing' | 'failed';
+    tax: 'success' | 'syncing' | 'failed';
+    rd: 'success' | 'syncing' | 'failed';
+  };
+}
+
 interface ProfileOverviewCardProps {
-  companyProfile: CompanyProfile | null;
+  companyProfile: ProfileData | null;
   onRetrySync: (dataType: DataSourceType) => void;
 }
 

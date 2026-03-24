@@ -5,6 +5,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { DataScope } from '../types';
 import type { Role, RoleQueryParams, RoleListResponse } from '../types';
 
 // 模拟角色数据
@@ -15,7 +16,7 @@ const mockRoles: Role[] = [
     code: 'super_admin',
     description: '拥有系统所有权限',
     permissions: ['*'],
-    dataScope: 'all',
+    dataScope: DataScope.ALL,
     status: true,
     userCount: 1,
     createdAt: '2026-01-01 00:00:00',
@@ -27,7 +28,7 @@ const mockRoles: Role[] = [
     code: 'sys_admin',
     description: '负责系统日常管理和维护',
     permissions: ['user:*', 'role:*', 'log:view', 'config:*'],
-    dataScope: 'all',
+    dataScope: DataScope.ALL,
     status: true,
     userCount: 3,
     createdAt: '2026-01-10 10:30:00',
@@ -39,7 +40,7 @@ const mockRoles: Role[] = [
     code: 'dept_admin',
     description: '管理部门内用户和数据',
     permissions: ['user:view', 'user:edit', 'log:view'],
-    dataScope: 'dept',
+    dataScope: DataScope.DEPT,
     status: true,
     userCount: 5,
     createdAt: '2026-01-12 09:00:00',
@@ -51,7 +52,7 @@ const mockRoles: Role[] = [
     code: 'user',
     description: '仅可访问个人中心',
     permissions: ['user:view:self', 'profile:*'],
-    dataScope: 'self',
+    dataScope: DataScope.SELF,
     status: true,
     userCount: 128,
     createdAt: '2026-01-15 08:00:00',

@@ -409,9 +409,7 @@ const PolicyResultsList: React.FC<PolicyResultsListProps> = ({
                       适用行业：
                     </Text>
                     {item.industry.map((ind, index) => (
-                      <Tag key={index} size="small" style={{ fontSize: 11 }}>
-                        {ind}
-                      </Tag>
+                      <Tag key={index} style={{ fontSize: 11 }}>{ind}</Tag>
                     ))}
                   </Space>
                 </div>

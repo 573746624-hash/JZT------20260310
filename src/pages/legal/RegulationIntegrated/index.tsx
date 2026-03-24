@@ -190,6 +190,7 @@ interface FilterCriteria {
   targetAudience: string; // 适用对象
   publishDateRange: [dayjs.Dayjs, dayjs.Dayjs] | null; // 发布日期范围
   effectiveStatus: string; // 实施状态
+  scenario?: string;      // 适用场景
 }
 
 // 筛选模板
@@ -1553,7 +1554,7 @@ const RegulationIntegrated: React.FC = () => {
                             {item.title}
                           </a>
                         }
-                        description={<Tag size="small">{item.relation}</Tag>}
+                        description={<Tag>{item.relation}</Tag>}
                       />
                     </List.Item>
                   )}

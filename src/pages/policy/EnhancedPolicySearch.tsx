@@ -399,10 +399,10 @@ const EnhancedPolicySearch: React.FC = () => {
       industry: item.applicableIndustries,
       level: item.level,
       region: item.district,
-      subsidyAmount: item.subsidyAmount,
+      subsidyAmount: item.fundingAmount,
       status: "active" as const,
       tags: item.keywords,
-      summary: item.summary,
+      summary: item.title,
       matchScore: item.matchScore,
     }));
   }, [searchResults]);
@@ -614,7 +614,12 @@ const EnhancedPolicySearch: React.FC = () => {
           loading={searchLoading}
           resultCount={totalResults}
           searchKeyword={searchKeyword}
-          filters={filters}
+          filters={{
+            regions: filters.regions,
+            industries: filters.industries,
+            levels: filters.levels,
+            categories: filters.categories,
+          }}
           onClearFilter={handleClearFilter}
           onClearAllFilters={handleClearAllFilters}
         />

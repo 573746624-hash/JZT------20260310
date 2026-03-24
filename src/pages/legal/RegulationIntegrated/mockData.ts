@@ -249,5 +249,3 @@ export function generateMockRegulations(count: number = 100): RegulationItem[] {
 
 // 导出100条法规数据
 export const mockRegulations100 = generateMockRegulations(100);
-
-export default mockRegulations100;

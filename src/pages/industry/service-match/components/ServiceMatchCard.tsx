@@ -190,7 +190,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
               display: "block",
               marginBottom: 10,
             }}
-            ellipsis={{ rows: 2 }}
+            ellipsis
           >
             {item.scope}
           </Text>

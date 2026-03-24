@@ -1,10 +1,16 @@
+/**
+ * 隐私控制面板组件
+ * 创建时间: 2026-03-24
+ */
+
 import React from "react";
 import {
   Card,
   Switch,
   Typography,
   Tooltip,
-  Divider,
+  Space,
+  Badge,
 } from "antd";
 import {
   EyeOutlined,
@@ -83,72 +89,12 @@ const PrivacyControlPanel: React.FC<PrivacyControlPanelProps> = ({
         />
       </div>
 
-      <div style={{ marginBottom: "16px" }}>
-        <Text type="secondary" style={{ fontSize: "13px", display: "block", marginBottom: "8px" }}>
-          用户等级（影响可见信息范围）
-        </Text>
-        <Select
-          value={userLevel}
-          onChange={onUserLevelChange}
-          style={{ width: "100%" }}
-          placeholder="选择用户等级"
-        >
-          {Object.entries(userLevelConfig).map(([key, config]) => (
-            <Option key={key} value={key}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Space>
-                  <span style={{ color: config.color }}>{config.icon}</span>
-                  <span>{config.label}</span>
-                  <Text type="secondary" style={{ fontSize: "12px" }}>
-                    {config.description}
-                  </Text>
-                </Space>
-                <Badge
-                  count={config.maskedFields.length}
-                  style={{ backgroundColor: config.color }}
-                />
-              </div>
-            </Option>
-          ))}
-        </Select>
-      </div>
-
-      <Divider style={{ margin: "16px 0" }} />
-
       <div>
-        <Text strong style={{ fontSize: "13px", display: "block", marginBottom: "8px" }}>
-          当前等级：
-          <span style={{ color: currentConfig.color, marginLeft: "8px" }}>
-            {currentConfig.icon} {currentConfig.label}
-          </span>
+        <Text type="secondary" style={{ fontSize: "12px" }}>
+          {showMaskedData 
+            ? "隐私保护已开启，敏感信息将被遮挡显示" 
+            : "隐私保护已关闭，所有信息可见"}
         </Text>
-        
-        {showMaskedData && currentConfig.maskedFields.length > 0 ? (
-          <div>
-            <Text type="secondary" style={{ fontSize: "12px", display: "block", marginBottom: "8px" }}>
-              以下信息将被遮挡显示：
-            </Text>
-            <Space size={[6, 6]} wrap>
-              {currentConfig.maskedFields.map((field) => (
-                <Badge
-                  key={field}
-                  count={field}
-                  style={{
-                    backgroundColor: "#ff4d4f",
-                    fontSize: "10px",
-                    height: "18px",
-                    lineHeight: "18px",
-                    borderRadius: "9px",
-                  }}
-                />
-              ))}
-            </Space>
-          </div>
-        ) : (
-          <Text type="secondary" style={{ fontSize: "12px" }}>
-            {showMaskedData ? "所有信息完全可见" : "隐私保护已关闭，所有信息可见"}
-          </Text>
-        )}
       </div>
 
       {showMaskedData && (

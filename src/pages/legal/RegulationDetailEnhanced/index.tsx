@@ -33,6 +33,7 @@ import {
   Popover,
   FloatButton,
   Drawer,
+  Radio,
 } from "antd";
 import {
   ShareAltOutlined,
@@ -688,7 +689,7 @@ const RegulationDetailEnhanced: React.FC = () => {
                             {item.title}
                           </a>
                         }
-                        description={<Tag size="small">{item.relation}</Tag>}
+                        description={<Tag>{item.relation}</Tag>}
                       />
                     </List.Item>
                   )}

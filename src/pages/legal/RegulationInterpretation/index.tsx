@@ -486,9 +486,7 @@ const RegulationInterpretationPage: React.FC = () => {
                     <div style={{ marginBottom: 12 }}>
                       <Space wrap>
                         {item.keyPoints.slice(0, 3).map((point, idx) => (
-                          <Tag key={idx} size="small">
-                            {point}
-                          </Tag>
+                          <Tag key={idx}>{point}</Tag>
                         ))}
                       </Space>
                     </div>
@@ -530,9 +528,7 @@ const RegulationInterpretationPage: React.FC = () => {
                         <Text strong>{scenario.title}</Text>
                         <Space wrap>
                           {scenario.applicableIndustries.map((ind) => (
-                            <Tag key={ind} size="small">
-                              {ind}
-                            </Tag>
+                            <Tag key={ind}>{ind}</Tag>
                           ))}
                         </Space>
                       </Space>

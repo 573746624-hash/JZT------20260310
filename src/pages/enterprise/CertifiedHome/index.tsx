@@ -126,7 +126,7 @@ const NotificationItem: React.FC<{
         }
         description={
           <Space direction="vertical" size={0}>
-            <Text type="secondary" ellipsis={{ rows: 1 }}>
+            <Text type="secondary" ellipsis>
               {notification.content}
             </Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
@@ -181,7 +181,7 @@ const RecommendationCard: React.FC<{
     
     <div className="recommendation-tags">
       {item.tags.map(tag => (
-        <Tag key={tag} size="small">{tag}</Tag>
+        <Tag key={tag}>{tag}</Tag>
       ))}
     </div>
     

@@ -171,7 +171,7 @@ export const RegulationCard: React.FC<RegulationCardProps> = ({
             display: "block",
             lineHeight: 1.5,
           }}
-          ellipsis={{ rows: 2, tooltip: data.title }}
+          ellipsis={{ tooltip: data.title }}
         >
           {data.title}
         </Text>
@@ -180,7 +180,7 @@ export const RegulationCard: React.FC<RegulationCardProps> = ({
         <Paragraph
           type="secondary"
           style={{ fontSize: 13, color: "#666", flex: 1, marginBottom: 12 }}
-          ellipsis={{ rows: 2, tooltip: data.summary }}
+          ellipsis={{ tooltip: data.summary }}
         >
           {data.summary}
         </Paragraph>
@@ -236,7 +236,7 @@ export const RegulationCard: React.FC<RegulationCardProps> = ({
           <Paragraph
             type="secondary"
             style={{ fontSize: 13, color: "#666", margin: 0 }}
-            ellipsis={{ rows: 1, tooltip: data.summary }}
+            ellipsis={{ tooltip: data.summary }}
           >
             {data.summary}
           </Paragraph>
@@ -264,5 +264,3 @@ export const RegulationCard: React.FC<RegulationCardProps> = ({
     </Card>
   );
 };
-
-export default RegulationCard;

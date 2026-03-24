@@ -121,7 +121,7 @@ const MyServices: React.FC = () => {
       onOk: async () => {
         try {
           await updatePublication(id, {
-            status: "published",
+            status: "active",
             publishTime: new Date().toLocaleString(),
           });
           message.success("发布成功");

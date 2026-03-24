@@ -29,8 +29,8 @@ import {
 } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
 import { useApplications } from '../application-new/hooks/useApplications';
-import StatusBadge from '../application-new/components/StatusBadge';
-import ProgressBar from '../application-new/components/ProgressBar';
+import { StatusBadge } from '../application-new/components/StatusBadge';
+import { ProgressBar } from '../application-new/components/ProgressBar';
 import type { ApplicationStatistics, TodoStatistics, RecentApplication } from '../application-new/types';
 
 const { Title, Text } = Typography;
@@ -176,7 +176,7 @@ const ApplicationManagementDashboard: React.FC = () => {
           return (
             <div>
               <div>{formattedDate}</div>
-              <Tag color="error" size="small">已截止</Tag>
+              <Tag color="error">已截止</Tag>
             </div>
           );
         }
@@ -184,7 +184,7 @@ const ApplicationManagementDashboard: React.FC = () => {
           return (
             <div>
               <div>{formattedDate}</div>
-              <Tag color="warning" size="small">剩 {days} 天</Tag>
+              <Tag color="warning">剩 {days} 天</Tag>
             </div>
           );
         }

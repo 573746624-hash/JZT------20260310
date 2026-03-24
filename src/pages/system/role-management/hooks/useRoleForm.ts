@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { Form } from 'antd';
+import { DataScope } from '../types';
 import type { Role, RoleFormData } from '../types';
 
 export function useRoleForm(onSuccess: () => void) {
@@ -20,7 +21,7 @@ export function useRoleForm(onSuccess: () => void) {
     form.resetFields();
     form.setFieldsValue({
       status: true,
-      dataScope: 'self',
+      dataScope: DataScope.SELF,
       permissions: [],
     });
     setIsModalVisible(true);

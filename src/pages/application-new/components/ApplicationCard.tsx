@@ -13,8 +13,8 @@ import {
   CustomerServiceOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import StatusBadge from './StatusBadge';
-import ProgressBar from './ProgressBar';
+import { StatusBadge } from './StatusBadge';
+import { ProgressBar } from './ProgressBar';
 import type { Application, ApplicationStatus } from '../types';
 
 const { Title, Text } = Typography;

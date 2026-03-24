@@ -344,7 +344,6 @@ const AIPolicySearch: React.FC = () => {
                 setPage(p);
                 setPageSize(s);
               }}
-              onSortChange={(val) => {}}
               searchKeyword={keyword}
               activeFilters={filters}
             />

@@ -35,7 +35,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       case 'rejected':
         return 'exception';
       case 'needs_revision':
-        return 'warning';
+        return 'active';
       default:
         return 'active';
     }
@@ -82,7 +82,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         format={(percent) => size !== 'small' ? `${percent}%` : undefined}
       />
     </Tooltip>
-  );
-};
+    );
+  };
 
 export default ProgressBar;
