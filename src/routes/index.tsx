@@ -57,17 +57,6 @@ export const newApplicationRoutes = (
 );
 
 /**
- * 重构版申报管理模块路由配置 - 2026-03-23
- * 企业级申报管理 + 个人级我的申报 + 5步骤申报向导
- */
-export const applicationNewRoutes = (
-  <Route element={<CertificationGuard><Outlet /></CertificationGuard>}>
-    {/* 企业级 - 申报管理 */}
-    <Route path="/application-new/management" element={<Pages.ApplicationManagementDashboard />} />
-  </Route>
-);
-
-/**
  * 法律护航路由配置
  */
 export const legalRoutes = (

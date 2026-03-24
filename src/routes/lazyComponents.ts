@@ -84,11 +84,6 @@ export const ApplicationApplySuccess = lazy(
   () => import("../pages/application/ApplySuccess"),
 );
 
-// 重构版申报管理模块 - 2026-03-23
-export const ApplicationManagementDashboard = lazy(
-  () => import("../pages/application-new/management/index"),
-);
-
 // 金融服务页面
 // 路由配置更新时间: 2026-01-15 (目录合并: supply-chain -> supply-chain-finance/modules)
 export const SupplyChainFinance = lazy(

@@ -14,6 +14,7 @@ import {
   AuditOutlined,
   CalculatorOutlined,
   SafetyOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import { HomeData } from "../types/index.ts";
 
@@ -64,11 +65,11 @@ export const defaultHomeData: HomeData = {
   ],
   quickActions: [
     {
-      title: "政策中心",
-      description: "浏览最新政策，智能匹配推荐",
-      icon: <BankOutlined style={{ fontSize: 32, color: "#1890ff" }} />,
+      title: "产业管理",
+      description: "业务大厅、需求对接、服务管理",
+      icon: <ShopOutlined style={{ fontSize: 32, color: "#1890ff" }} />,
       color: "#1890ff",
-      path: "/policy-center",
+      path: "/industry/service-match/workbench",
       bgColor: "#e6f7ff",
     },
     {

@@ -25,6 +25,9 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
   onNavigate,
   loading = false,
 }) => {
+  // 调试日志
+  console.log('[QuickActionsSection] quickActions:', quickActions);
+  
   return (
     <Card
       loading={loading}
@@ -39,7 +42,7 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
       style={{ borderRadius: "8px", border: "none", boxShadow: "0 1px 2px -2px rgba(0, 0, 0, 0.08), 0 3px 6px 0 rgba(0, 0, 0, 0.06)" }}
     >
       <Row gutter={[24, 24]}>
-        {quickActions.map((action, index) => (
+        {quickActions && quickActions.length > 0 ? quickActions.map((action, index) => (
           <Col xs={12} sm={12} md={6} key={index}>
             <Card
               size="small"
@@ -97,7 +100,13 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
               </div>
             </Card>
           </Col>
-        ))}
+        )) : (
+          <Col span={24}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+              暂无核心功能数据
+            </div>
+          </Col>
+        )}
       </Row>
     </Card>
   );

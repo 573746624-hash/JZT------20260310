@@ -89,12 +89,12 @@ describe("Home Page", () => {
       </MemoryRouter>,
     );
 
-    const policyCenterElements = screen.getAllByText(/政策中心/i);
+    const applicationManagementElements = screen.getAllByText(/申报管理/i);
     // Find the one that is likely the card title in QuickActions
-    const policyCenterCard = policyCenterElements.find((el) =>
+    const applicationManagementCard = applicationManagementElements.find((el) =>
       el.closest(".ant-card"),
     );
-    expect(policyCenterCard).not.toBeNull();
+    expect(applicationManagementCard).not.toBeNull();
 
     // Note: Actual navigation testing requires more setup with Router,
     // but here we verify the element is interactive and present.

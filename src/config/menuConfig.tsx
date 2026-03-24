@@ -129,18 +129,6 @@ export function getMenuItems(roleType?: string): MenuProps["items"] {
       ],
     },
     {
-      key: "/application-new",
-      icon: <FormOutlined />,
-      label: "申报管理(新)",
-      children: [
-        {
-          key: "/application-new/management",
-          icon: <PieChartOutlined />,
-          label: "管理仪表盘",
-        },
-      ],
-    },
-    {
       key: "/legal-support",
       icon: <BankOutlined />,
       label: "法律护航",

@@ -345,48 +345,6 @@ const ProcurementHall: React.FC = () => {
           </Row>
         </Card>
 
-        {/* 平台数据统计 */}
-        <Card
-          style={{
-            borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
-            marginBottom: 24,
-            boxShadow: "none",
-          }}
-          bodyStyle={{ padding: "16px 24px" }}
-        >
-          <Row gutter={[48, 16]}>
-            <Col>
-              <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>总需求数</Text>}
-                value={statistics.totalDemands}
-                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
-              />
-            </Col>
-            <Col>
-              <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>今日新增</Text>}
-                value={statistics.todayNew}
-                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
-              />
-            </Col>
-            <Col>
-              <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>成功对接</Text>}
-                value={statistics.successfulMatches}
-                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
-              />
-            </Col>
-            <Col>
-              <Statistic
-                title={<Text style={{ color: ENTERPRISE_THEME.textTertiary, fontSize: 12 }}>待响应</Text>}
-                value={statistics.pendingResponse}
-                valueStyle={{ color: ENTERPRISE_THEME.textPrimary, fontSize: 20, fontWeight: 600 }}
-              />
-            </Col>
-          </Row>
-        </Card>
-
         {/* 排序和筛选栏 */}
         <Card
           style={{

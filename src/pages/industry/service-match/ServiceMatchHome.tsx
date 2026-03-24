@@ -294,7 +294,7 @@ const ServiceMatchHome: React.FC = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `企服大厅_批量导出_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.download = `业务大厅_批量导出_${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -326,7 +326,7 @@ const ServiceMatchHome: React.FC = () => {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary, fontWeight: 600 }}>
-            企服大厅
+            业务大厅
           </Title>
           <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
             企业需求信息发布与对接平台
