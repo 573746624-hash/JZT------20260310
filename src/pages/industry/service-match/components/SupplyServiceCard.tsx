@@ -22,22 +22,9 @@ import {
   PhoneOutlined,
   MailOutlined,
 } from "@ant-design/icons";
+import { THEME } from "../styles";
 
 const { Title, Text } = Typography;
-
-// 企业级配色 - 稳重专业
-const ENTERPRISE_THEME = {
-  primary: "#1A5FB4",
-  textPrimary: "#1A1A1A",
-  textSecondary: "#333333",
-  textTertiary: "#666666",
-  textMuted: "#999999",
-  border: "#D9D9D9",
-  borderLight: "#E8E8E8",
-  background: "#F5F5F5",
-  success: "#27AE60",
-  warning: "#E67E22",
-};
 
 interface SupplyService {
   id: string;
@@ -94,7 +81,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
       style={{
         marginBottom: 12,
         borderRadius: 4,
-        border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+        border: `1px solid ${THEME.borderLight}`,
         cursor: "pointer",
         transition: "all 0.2s ease",
         boxShadow: "none",
@@ -117,8 +104,8 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
             icon={<TeamOutlined />}
             size={56}
             style={{
-              backgroundColor: ENTERPRISE_THEME.background,
-              color: ENTERPRISE_THEME.textTertiary,
+              backgroundColor: THEME.bgLight,
+              color: THEME.textSecondary,
               borderRadius: 4,
             }}
           />
@@ -139,7 +126,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
               strong
               style={{
                 fontSize: 15,
-                color: ENTERPRISE_THEME.textPrimary,
+                color: THEME.textTitle,
                 fontWeight: 600,
               }}
             >
@@ -152,8 +139,8 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
                   fontSize: 11,
                   borderRadius: 2,
                   background: "#F6FFED",
-                  border: `1px solid ${ENTERPRISE_THEME.success}`,
-                  color: ENTERPRISE_THEME.success,
+                  border: `1px solid ${THEME.success}`,
+                  color: THEME.success,
                   padding: "0 6px",
                 }}
               >
@@ -167,8 +154,8 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
                   fontSize: 11,
                   borderRadius: 2,
                   background: "#FFF7E6",
-                  border: `1px solid ${ENTERPRISE_THEME.warning}`,
-                  color: ENTERPRISE_THEME.warning,
+                  border: `1px solid ${THEME.warning}`,
+                  color: THEME.warning,
                   padding: "0 6px",
                 }}
               >
@@ -183,7 +170,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
             style={{
               margin: "0 0 8px 0",
               fontSize: 16,
-              color: ENTERPRISE_THEME.primary,
+              color: THEME.primary,
               fontWeight: 600,
             }}
           >
@@ -193,7 +180,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           {/* 第三行：服务描述 */}
           <Text
             style={{
-              color: ENTERPRISE_THEME.textTertiary,
+              color: THEME.textSecondary,
               fontSize: 13,
               lineHeight: "1.5",
               display: "block",
@@ -212,8 +199,8 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
                   key={index}
                   style={{
                     backgroundColor: "#F5F5F5",
-                    border: `1px solid ${ENTERPRISE_THEME.border}`,
-                    color: ENTERPRISE_THEME.textTertiary,
+                    border: `1px solid ${THEME.border}`,
+                    color: THEME.textSecondary,
                     borderRadius: 2,
                     fontSize: 11,
                     padding: "1px 6px",
@@ -234,8 +221,8 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
                     key={index}
                     style={{
                       backgroundColor: "#F6FFED",
-                      border: `1px solid ${ENTERPRISE_THEME.success}`,
-                      color: ENTERPRISE_THEME.success,
+                      border: `1px solid ${THEME.success}`,
+                      color: THEME.success,
                       borderRadius: 2,
                       fontSize: 11,
                       padding: "1px 6px",
@@ -249,7 +236,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
           )}
 
           {/* 第六行：基础信息 */}
-          <Space size={16} style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted }}>
+          <Space size={16} style={{ fontSize: 12, color: THEME.textHint }}>
             <span>
               <EnvironmentOutlined style={{ marginRight: 4 }} />
               {service.region}
@@ -282,14 +269,14 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
         >
           {/* 价格 */}
           <div style={{ textAlign: "right", marginBottom: 12 }}>
-            <Text style={{ fontSize: 11, color: ENTERPRISE_THEME.textMuted }}>
+            <Text style={{ fontSize: 11, color: THEME.textHint }}>
               价格区间
             </Text>
             <div
               style={{
                 fontSize: 18,
                 fontWeight: 600,
-                color: ENTERPRISE_THEME.textPrimary,
+                color: THEME.textTitle,
               }}
             >
               {service.priceRange || "面议"}
@@ -304,7 +291,7 @@ const SupplyServiceCard: React.FC<SupplyServiceCardProps> = ({
               size="small"
               icon={<ThunderboltOutlined />}
               onClick={() => onConnect(service)}
-              style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+              style={{ borderRadius: 2, background: THEME.primary }}
             >
               立即对接
             </Button>

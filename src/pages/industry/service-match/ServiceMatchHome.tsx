@@ -25,10 +25,9 @@ import {
   SearchOutlined,
   FilterOutlined,
   PlusOutlined,
-  MessageOutlined,
   ShopOutlined,
 } from "@ant-design/icons";
-import { COMMON_STYLES } from "./styles";
+import { THEME, COMMON_STYLES } from "./styles";
 import ServiceMatchCard from "./components/ServiceMatchCard";
 import SupplyServiceCard from "./components/SupplyServiceCard";
 import ConnectModal from "./components/ConnectModal";
@@ -43,19 +42,6 @@ import {
 } from "../../../services/industryService";
 
 const { Option } = Select;
-
-// 企业级配色 - 与 ProcurementHall 保持一致
-const ENTERPRISE_THEME = {
-  primary: "#1A5FB4",
-  white: "#FFFFFF",
-  textPrimary: "#1A1A1A",
-  textSecondary: "#333333",
-  textTertiary: "#666666",
-  textMuted: "#999999",
-  border: "#D9D9D9",
-  borderLight: "#E8E8E8",
-  background: "#F5F5F5",
-};
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -187,10 +173,6 @@ const ServiceMatchHome: React.FC = () => {
     navigate("/industry/service-match/my-services");
   };
 
-  const handleMessagesClick = () => {
-    navigate("/industry/service-match/my-messages");
-  };
-
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setFilters((prev: any) => ({ ...prev, category: categoryId }));
@@ -312,12 +294,12 @@ const ServiceMatchHome: React.FC = () => {
   };
 
   return (
-    <div style={{ background: ENTERPRISE_THEME.background, minHeight: "100%", paddingBottom: 60 }}>
+    <div style={{ background: THEME.bgLight, minHeight: "100%", paddingBottom: 60 }}>
       {/* 顶部操作栏 - 与 ProcurementHall 保持一致 */}
       <div
         style={{
-          background: ENTERPRISE_THEME.white,
-          borderBottom: `1px solid ${ENTERPRISE_THEME.border}`,
+          background: THEME.white,
+          borderBottom: `1px solid ${THEME.border}`,
           padding: "16px 24px",
           display: "flex",
           justifyContent: "space-between",
@@ -325,21 +307,14 @@ const ServiceMatchHome: React.FC = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary, fontWeight: 600 }}>
+          <Title level={4} style={{ margin: 0, color: THEME.textTitle, fontWeight: 600 }}>
             业务大厅
           </Title>
-          <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
+          <Text style={{ color: THEME.textSecondary }}>
             企业需求信息发布与对接平台
           </Text>
         </div>
         <Space>
-          <Button 
-            icon={<MessageOutlined />} 
-            onClick={handleMessagesClick}
-            style={{ borderRadius: 2 }}
-          >
-            消息中心
-          </Button>
           <Button 
             icon={<ShopOutlined />} 
             onClick={handleMyServicesClick}
@@ -351,7 +326,7 @@ const ServiceMatchHome: React.FC = () => {
             type="primary" 
             icon={<PlusOutlined />} 
             onClick={handleCreateClick}
-            style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+            style={{ borderRadius: 2, background: THEME.primary }}
           >
             发布业务
           </Button>
@@ -363,7 +338,7 @@ const ServiceMatchHome: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            border: `1px solid ${THEME.borderLight}`,
             marginBottom: 24,
             boxShadow: "none",
           }}
@@ -374,7 +349,7 @@ const ServiceMatchHome: React.FC = () => {
               <Input.Search
                 placeholder="搜索企业名称 / 业务类型 / 产品名称"
                 allowClear
-                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}>搜索</Button>}
+                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: THEME.primary }}>搜索</Button>}
                 size="large"
                 onSearch={handleSearch}
                 style={{ width: "100%" }}

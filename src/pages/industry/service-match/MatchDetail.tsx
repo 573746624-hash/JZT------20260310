@@ -29,37 +29,42 @@ const MatchDetail: React.FC = () => {
   const { id } = useParams();
   const [isContactModalVisible, setIsContactModalVisible] = useState(false);
 
-  // 模拟数据 - 与 ServiceMatchHome 列表数据保持一致
+  // 模拟数据 - 与业务大厅首页列表数据保持一致（天地科技股份有限公司）
   // 实际项目中应该通过API根据ID获取数据
   const detail = {
     id,
-    companyName: "中科检测技术有限公司",
-    serviceName: "食品安全检测服务",
+    companyName: "天地科技股份有限公司",
+    serviceName: "智能制造数字化转型咨询服务",
     matchScore: 92,
-    tags: ["食品检测", "CNAS认证", "农药残留", "微生物检测"],
-    professionalTags: ["食品检测", "CNAS认证", "农药残留", "微生物检测", "重金属检测"],
-    businessScope: "食品检测、环境检测、产品认证",
-    region: "北京市海淀区",
-    contact: "张经理 400-123-4567",
+    tags: ["智能制造", "数字化转型", "咨询服务"],
+    professionalTags: ["智能制造", "数字化转型", "生产流程优化", "设备联网", "数据分析"],
+    businessScope: "智能制造、数字化转型、生产流程优化、设备联网、数据分析、智能决策",
+    region: "北京市",
+    contact: "李经理 13800138000",
     description:
-      "中科检测技术有限公司是专业的第三方检测机构，拥有CNAS认可实验室，提供全方位食品安全检测服务，包括微生物检测、农药残留检测、重金属检测、添加剂检测等。检测报告具有法律效力，服务涵盖食品生产、流通、餐饮各个环节。",
+      "天地科技股份有限公司是专业的智能制造数字化转型服务商，致力于帮助企业实现生产流程优化、设备联网、数据分析等全方位数字化升级。公司拥有丰富的行业经验和专业技术团队，服务涵盖制造业各个领域。",
     requirements:
-      "1. 检测服务范围：食品安全检测、环境检测、产品认证\n2. 资质认证：CNAS认可、CMA资质、ISO17025\n3. 服务能力：快速检测、标准检测、定制检测、技术咨询\n4. 服务价格：500-5000元/项",
-    serviceDescription: "提供全方位食品安全检测服务，包括微生物检测、农药残留检测、重金属检测、添加剂检测等。拥有CNAS认可实验室，检测报告具有法律效力。",
-    certifications: ["CNAS认可", "CMA资质", "ISO17025"],
-    capabilities: ["快速检测", "标准检测", "定制检测", "技术咨询"],
-    priceRange: "500-5000元/项",
+      "1. 服务类型：数字化转型咨询\n2. 服务范围：生产流程优化、设备联网、数据分析、智能决策\n3. 服务周期：3-6个月\n4. 计价方式：按项目阶段付费，总价20万元起\n5. 最小订单量：1个项目",
+    serviceDescription: "提供专业的智能制造数字化转型咨询服务，帮助企业实现生产流程优化、设备联网、数据分析等全方位数字化升级。",
+    certifications: ["ISO9001", "高新技术企业", "智能制造服务商认证"],
+    capabilities: ["数字化转型咨询", "生产流程优化", "设备联网集成", "数据分析平台", "智能决策系统"],
+    priceRange: "20万元起/项目",
     isVerified: true,
-    rating: 4.8,
-    completedProjects: 1250,
+    rating: 5.0,
+    completedProjects: 156,
     responseTime: "2小时内",
-    establishedYear: 2008,
-    teamSize: "100-500人",
+    establishedYear: 2010,
+    teamSize: "200-500人",
     contactInfo: {
-      phone: "400-123-4567",
-      email: "service@zktest.com",
-      address: "北京市海淀区中关村科技园"
-    }
+      phone: "13800138000",
+      email: "contact@tianditech.com",
+      address: "北京市海淀区中关村科技园区"
+    },
+    servicePeriod: "3-6个月",
+    pricingMethod: "按项目阶段付费，总价20万元起",
+    minOrderQuantity: 1,
+    stockQuantity: 10,
+    quantityUnit: "项目"
   };
 
   const handleCopy = (text: string) => {
@@ -261,7 +266,7 @@ const MatchDetail: React.FC = () => {
               type="secondary"
               style={{ marginTop: "4px", fontSize: "12px" }}
             >
-              {detail.name}
+              {detail.companyName}
             </Text>
           </div>
         </Modal>

@@ -12,7 +12,6 @@ import {
 import {
   PlusOutlined,
   ScheduleOutlined,
-  MessageOutlined,
   TeamOutlined,
   AppstoreOutlined,
   CheckCircleOutlined,
@@ -24,7 +23,6 @@ const { Title, Text } = Typography;
 interface BusinessHallBannerProps {
   onPublishClick: () => void;
   onMyServicesClick: () => void;
-  onMessagesClick: () => void;
   statistics?: {
     totalCompanies: number;
     totalServices: number;
@@ -35,7 +33,6 @@ interface BusinessHallBannerProps {
 const BusinessHallBanner: React.FC<BusinessHallBannerProps> = ({
   onPublishClick,
   onMyServicesClick,
-  onMessagesClick,
   statistics = {
     totalCompanies: 12580,
     totalServices: 8960,
@@ -162,19 +159,6 @@ const BusinessHallBanner: React.FC<BusinessHallBannerProps> = ({
                   }}
                 >
                   我的业务
-                </Button>
-                <Button
-                  type="text"
-                  icon={<MessageOutlined />}
-                  onClick={onMessagesClick}
-                  style={{
-                    color: "#fff",
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
-                    borderRadius: "6px",
-                    padding: "8px 16px",
-                  }}
-                >
-                  消息中心
                 </Button>
               </Space>
             </Space>

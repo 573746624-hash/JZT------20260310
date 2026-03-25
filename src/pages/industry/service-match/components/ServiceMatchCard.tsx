@@ -18,23 +18,9 @@ import {
   TeamOutlined,
   SafetyCertificateFilled,
 } from "@ant-design/icons";
+import { THEME } from "../styles";
 
 const { Title, Text } = Typography;
-
-// 企业级配色 - 统一使用designTokens规范
-const ENTERPRISE_THEME = {
-  primary: "#1A5FB4",
-  textPrimary: "#1A1A1A",
-  textSecondary: "#333333",
-  textTertiary: "#666666",
-  textMuted: "#999999",
-  border: "#D9D9D9",
-  borderLight: "#E8E8E8",
-  background: "#F5F5F5",
-  success: "#27AE60",
-  warning: "#E67E22",
-  error: "#C0392B",
-};
 
 interface ServiceMatchCardProps {
   item: any;
@@ -64,7 +50,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
       style={{
         marginBottom: 12,
         borderRadius: 4,
-        border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+        border: `1px solid ${THEME.borderLight}`,
         cursor: "pointer",
         transition: "all 0.2s ease",
         boxShadow: "none",
@@ -85,8 +71,8 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
           <Avatar
             size={56}
             style={{
-              backgroundColor: ENTERPRISE_THEME.background,
-              color: ENTERPRISE_THEME.textTertiary,
+              backgroundColor: THEME.bgLight,
+              color: THEME.textSecondary,
               borderRadius: 4,
             }}
           >
@@ -110,7 +96,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
               strong
               style={{
                 fontSize: 15,
-                color: ENTERPRISE_THEME.textPrimary,
+                color: THEME.textTitle,
                 fontWeight: 600,
               }}
             >
@@ -123,8 +109,8 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
                   fontSize: 11,
                   borderRadius: 2,
                   background: "#F6FFED",
-                  border: `1px solid ${ENTERPRISE_THEME.success}`,
-                  color: ENTERPRISE_THEME.success,
+                  border: `1px solid ${THEME.success}`,
+                  color: THEME.success,
                   padding: "0 6px",
                 }}
               >
@@ -138,8 +124,8 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
                   fontSize: 11,
                   borderRadius: 2,
                   background: "#FFF7E6",
-                  border: `1px solid ${ENTERPRISE_THEME.warning}`,
-                  color: ENTERPRISE_THEME.warning,
+                  border: `1px solid ${THEME.warning}`,
+                  color: THEME.warning,
                   padding: "0 6px",
                 }}
               >
@@ -155,15 +141,15 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
                     fontSize: 11,
                     borderRadius: 2,
                     background: "#F5F5F5",
-                    border: `1px solid ${ENTERPRISE_THEME.border}`,
-                    color: ENTERPRISE_THEME.textTertiary,
+                    border: `1px solid ${THEME.border}`,
+                    color: THEME.textSecondary,
                     padding: "0 6px",
                   }}
                 >
                   {tag}
                 </Tag>
               ))}
-            <Text style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted, marginLeft: "auto" }}>
+            <Text style={{ fontSize: 12, color: THEME.textHint, marginLeft: "auto" }}>
               {item.updateTime}
             </Text>
           </div>
@@ -174,7 +160,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
             style={{
               margin: "0 0 8px 0",
               fontSize: 16,
-              color: ENTERPRISE_THEME.primary,
+              color: THEME.primary,
               fontWeight: 600,
             }}
           >
@@ -184,7 +170,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
           {/* 第三行：描述内容 */}
           <Text
             style={{
-              color: ENTERPRISE_THEME.textTertiary,
+              color: THEME.textSecondary,
               fontSize: 13,
               lineHeight: "1.5",
               display: "block",
@@ -204,8 +190,8 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
                     key={index}
                     style={{
                       backgroundColor: "#F5F5F5",
-                      border: `1px solid ${ENTERPRISE_THEME.border}`,
-                      color: ENTERPRISE_THEME.textTertiary,
+                      border: `1px solid ${THEME.border}`,
+                      color: THEME.textSecondary,
                       borderRadius: 2,
                       fontSize: 11,
                       padding: "1px 6px",
@@ -219,24 +205,24 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
           )}
 
           {/* 第五行：元信息 */}
-          <Space size={16} style={{ fontSize: 12, color: ENTERPRISE_THEME.textMuted }}>
+          <Space size={16} style={{ fontSize: 12, color: THEME.textHint }}>
             <span>
               <EnvironmentOutlined style={{ marginRight: 4 }} />
               {item.region}
             </span>
             {isProcurement && item.budget && (
               <span>
-                预算：<Text strong style={{ color: ENTERPRISE_THEME.textSecondary }}>{item.budget}</Text>
+                预算：<Text strong style={{ color: THEME.textBody }}>{item.budget}</Text>
               </span>
             )}
             {isProcurement && item.quantity && (
               <span>
-                数量：<Text strong style={{ color: ENTERPRISE_THEME.textSecondary }}>{item.quantity}</Text>
+                数量：<Text strong style={{ color: THEME.textBody }}>{item.quantity}</Text>
               </span>
             )}
             {isProcurement && item.deadline && (
               <span>
-                截止：<Text strong style={{ color: ENTERPRISE_THEME.error }}>{item.deadline}</Text>
+                截止：<Text strong style={{ color: THEME.danger }}>{item.deadline}</Text>
               </span>
             )}
             <span>
@@ -278,7 +264,7 @@ const ServiceMatchCard: React.FC<ServiceMatchCardProps> = ({
               size="small"
               icon={<ThunderboltOutlined />}
               onClick={() => onConnect(item)}
-              style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+              style={{ borderRadius: 2, background: THEME.primary }}
             >
               立即对接
             </Button>

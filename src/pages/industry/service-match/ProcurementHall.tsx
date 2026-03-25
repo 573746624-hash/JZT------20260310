@@ -27,9 +27,8 @@ import {
   EnvironmentOutlined,
   ClockCircleOutlined,
   EyeOutlined,
-  MessageOutlined,
-  FileTextOutlined as DemandIcon,
 } from "@ant-design/icons";
+
 import ServiceMatchCard from "./components/ServiceMatchCard";
 import ConnectModal from "./components/ConnectModal";
 import ComparisonModal from "./components/ComparisonModal";
@@ -39,25 +38,13 @@ import {
   maskBudget,
 } from "../../../utils/maskUtils";
 import { getPublications } from "../../../services/industryService";
+import { THEME } from "./styles";
 
 const { Text, Title } = Typography;
 const { Option } = Select;
 
-// 企业级配色 - 稳重专业
-const ENTERPRISE_THEME = {
-  primary: "#1A5FB4",
-  textPrimary: "#1A1A1A",
-  textSecondary: "#333333",
-  textTertiary: "#666666",
-  textMuted: "#999999",
-  border: "#D9D9D9",
-  borderLight: "#E8E8E8",
-  background: "#F5F5F5",
-  success: "#27AE60",
-  warning: "#E67E22",
-  error: "#C0392B",
-  white: "#FFFFFF",
-};
+// 需求图标
+const DemandIcon = FileTextOutlined;
 
 const ProcurementHall: React.FC = () => {
   const navigate = useNavigate();
@@ -178,10 +165,6 @@ const ProcurementHall: React.FC = () => {
     navigate("/industry/service-match/publish?type=demand");
   };
 
-  const handleMessagesClick = () => {
-    navigate("/industry/service-match/messages");
-  };
-
   const handleMyDemandsClick = () => {
     navigate("/industry/service-match/my-services");
   };
@@ -233,7 +216,7 @@ const ProcurementHall: React.FC = () => {
   return (
     <div
       style={{
-        background: ENTERPRISE_THEME.background,
+        background: THEME.bgLight,
         minHeight: "100%",
         paddingBottom: 60,
       }}
@@ -241,8 +224,8 @@ const ProcurementHall: React.FC = () => {
       {/* 顶部操作栏 */}
       <div
         style={{
-          background: ENTERPRISE_THEME.white,
-          borderBottom: `1px solid ${ENTERPRISE_THEME.border}`,
+          background: THEME.white,
+          borderBottom: `1px solid ${THEME.border}`,
           padding: "16px 24px",
           display: "flex",
           justifyContent: "space-between",
@@ -250,21 +233,14 @@ const ProcurementHall: React.FC = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Title level={4} style={{ margin: 0, color: ENTERPRISE_THEME.textPrimary, fontWeight: 600 }}>
+          <Title level={4} style={{ margin: 0, color: THEME.textTitle, fontWeight: 600 }}>
             需求大厅
           </Title>
-          <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
+          <Text style={{ color: THEME.textSecondary }}>
             企业需求信息发布与对接平台
           </Text>
         </div>
         <Space>
-          <Button 
-            icon={<MessageOutlined />} 
-            onClick={handleMessagesClick}
-            style={{ borderRadius: 2 }}
-          >
-            消息中心
-          </Button>
           <Button 
             icon={<DemandIcon />} 
             onClick={handleMyDemandsClick}
@@ -276,7 +252,7 @@ const ProcurementHall: React.FC = () => {
             type="primary" 
             icon={<PlusOutlined />} 
             onClick={handleCreateClick}
-            style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}
+            style={{ borderRadius: 2, background: THEME.primary }}
           >
             发布需求
           </Button>
@@ -288,7 +264,7 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            border: `1px solid ${THEME.borderLight}`,
             marginBottom: 24,
             boxShadow: "none",
           }}
@@ -299,7 +275,7 @@ const ProcurementHall: React.FC = () => {
               <Input.Search
                 placeholder="搜索需求关键词、服务类型"
                 allowClear
-                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: ENTERPRISE_THEME.primary }}>搜索</Button>}
+                enterButton={<Button type="primary" icon={<SearchOutlined />} style={{ borderRadius: 2, background: THEME.primary }}>搜索</Button>}
                 size="large"
                 onSearch={handleSearch}
                 style={{ width: "100%" }}
@@ -349,7 +325,7 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            border: `1px solid ${THEME.borderLight}`,
             marginBottom: 24,
             boxShadow: "none",
           }}
@@ -372,15 +348,15 @@ const ProcurementHall: React.FC = () => {
               >
                 全选
               </Checkbox>
-              <Text style={{ color: ENTERPRISE_THEME.textTertiary }}>
+              <Text style={{ color: THEME.textSecondary }}>
                 共找到 {data.length} 条需求
               </Text>
               <Tag 
                 style={{
                   borderRadius: 2,
                   background: "#FFF7E6",
-                  border: `1px solid ${ENTERPRISE_THEME.warning}`,
-                  color: ENTERPRISE_THEME.warning,
+                  border: `1px solid ${THEME.warning}`,
+                  color: THEME.warning,
                   fontSize: 11,
                 }}
               >
@@ -400,7 +376,7 @@ const ProcurementHall: React.FC = () => {
         <Card
           style={{
             borderRadius: 4,
-            border: `1px solid ${ENTERPRISE_THEME.borderLight}`,
+            border: `1px solid ${THEME.borderLight}`,
             boxShadow: "none",
           }}
           bodyStyle={{ padding: "20px 24px" }}
@@ -412,7 +388,7 @@ const ProcurementHall: React.FC = () => {
                   key={i}
                   style={{
                     marginBottom: 16,
-                    border: `1px solid ${ENTERPRISE_THEME.border}`,
+                    border: `1px solid ${THEME.border}`,
                   }}
                 >
                   <Skeleton active avatar paragraph={{ rows: 2 }} />
@@ -440,7 +416,7 @@ const ProcurementHall: React.FC = () => {
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
                   <div style={{ textAlign: "center" }}>
-                    <Text style={{ color: ENTERPRISE_THEME.textSecondary }}>
+                    <Text style={{ color: THEME.textBody }}>
                       暂无相关需求信息
                     </Text>
                     <Text
@@ -448,7 +424,7 @@ const ProcurementHall: React.FC = () => {
                         display: "block",
                         fontSize: 12,
                         marginTop: 8,
-                        color: ENTERPRISE_THEME.textMuted,
+                        color: THEME.textHint,
                       }}
                     >
                       建议放宽筛选条件或尝试其他关键词
@@ -469,7 +445,7 @@ const ProcurementHall: React.FC = () => {
             bottom: 20,
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: ENTERPRISE_THEME.textPrimary,
+            backgroundColor: THEME.textTitle,
             padding: "12px 24px",
             borderRadius: 4,
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
