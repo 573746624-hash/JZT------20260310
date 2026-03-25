@@ -117,6 +117,31 @@ export const authService = {
    * @returns 登录响应（包含token和用户信息）
    */
   login: async (params: LoginParams): Promise<LoginResponse> => {
+    // Mock 登录模式 - 用于演示，无需后端服务
+    const isMockMode = true; // 设置为 false 可切换到真实后端
+    
+    if (isMockMode) {
+      // 模拟登录验证（任何手机号/密码都可以登录）
+      await new Promise(resolve => setTimeout(resolve, 500)); // 模拟网络延迟
+      
+      const mockResponse: LoginResponse = {
+        token: "mock_token_" + Date.now(),
+        userId: 1,
+        phone: params.phone,
+        nickName: "演示用户",
+        avatar: "",
+        email: "demo@example.com",
+        enterpriseId: 1,
+        enterpriseName: "璟智通科技有限公司",
+        tenantId: 1,
+        roleType: "0",
+        loginTime: Date.now(),
+        expireTime: Date.now() + 24 * 60 * 60 * 1000, // 24小时后过期
+      };
+      
+      return mockResponse;
+    }
+    
     return apiClient.post<LoginResponse>("/qgb/portal/auth/login", params);
   },
 
