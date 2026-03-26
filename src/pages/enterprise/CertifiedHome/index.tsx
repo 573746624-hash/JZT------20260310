@@ -4,7 +4,7 @@
  * 功能: 展示认证后企业的完整信息、智能推荐、快捷操作等
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Row,
@@ -22,6 +22,7 @@ import {
   Skeleton,
   Empty,
   message,
+  Alert,
 } from 'antd';
 import {
   FileTextOutlined,
@@ -37,9 +38,11 @@ import {
   FireOutlined,
   ArrowRightOutlined,
   ReloadOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 import { useEnterprisePortal } from '../../../context/EnterprisePortalContext';
 import type { Notification, QuickAction, RecommendationItem } from '../../../types/enterprise-portal';
+import ProfileGuideModal from './components/ProfileGuideModal';
 import './styles.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -231,6 +234,27 @@ const CertifiedHome: React.FC = () => {
     getAuditStatusColor,
   } = useEnterprisePortal();
 
+  // 引导弹窗显示状态
+  const [guideModalVisible, setGuideModalVisible] = useState(false);
+
+  // 检测是否首次登录（信息未完善）
+  useEffect(() => {
+    if (!loading && enterpriseProfile) {
+      const isProfileCompleted = localStorage.getItem('profileCompleted');
+      const completeness = enterpriseProfile?.completeness || 0;
+      
+      // 如果信息完整度低于 80% 且未标记为已完成，则显示引导
+      if (completeness < 80 && isProfileCompleted !== 'true') {
+        setGuideModalVisible(true);
+      }
+    }
+  }, [loading, enterpriseProfile]);
+
+  // 关闭引导弹窗
+  const handleCloseGuide = () => {
+    setGuideModalVisible(false);
+  };
+
   // 处理快捷操作点击
   const handleQuickAction = (action: QuickAction) => {
     navigate(action.url);
@@ -261,6 +285,9 @@ const CertifiedHome: React.FC = () => {
   // 未读通知数量
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  // 判断是否需要隐藏已认证信息（信息完善度低于 80%）
+  const shouldHideCertifiedInfo = !loading && enterpriseProfile && (enterpriseProfile?.completeness || 0) < 80;
+
   if (loading && !enterpriseProfile) {
     return (
       <div className="certified-home-container">
@@ -271,15 +298,26 @@ const CertifiedHome: React.FC = () => {
 
   return (
     <div className="certified-home-container">
+      {/* 首次登录引导弹窗 */}
+      <ProfileGuideModal
+        visible={guideModalVisible}
+        onClose={handleCloseGuide}
+      />
+
       {/* 页面头部 */}
       <div className="page-header">
         <div className="header-content">
           <div>
             <Title level={4} style={{ margin: 0 }}>
-              欢迎回来，{enterpriseProfile?.basicInfo.legalPerson || '企业用户'}
+              {shouldHideCertifiedInfo ? '欢迎加入璟智通' : `欢迎回来，${enterpriseProfile?.basicInfo.legalPerson || '企业用户'}`}
             </Title>
             <Text type="secondary">
-              {certificationStatus?.status === 'verified' ? (
+              {shouldHideCertifiedInfo ? (
+                <Space>
+                  <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                  <span>请完善企业信息以解锁全部功能</span>
+                </Space>
+              ) : certificationStatus?.status === 'verified' ? (
                 <Space>
                   <CheckCircleOutlined style={{ color: '#52c41a' }} />
                   <span>企业认证已通过</span>
@@ -293,27 +331,60 @@ const CertifiedHome: React.FC = () => {
               )}
             </Text>
           </div>
-          <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
-            刷新数据
-          </Button>
+          {!shouldHideCertifiedInfo && (
+            <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+              刷新数据
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* 快捷操作区域 */}
+      {/* 信息未完善提示 */}
+      {shouldHideCertifiedInfo && (
+        <Alert
+          message="企业信息待完善"
+          description={
+            <div>
+              <p>您的企业信息完整度较低，完善信息后可解锁以下功能：</p>
+              <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
+                <li>智能政策推荐</li>
+                <li>企业信用评级</li>
+                <li>精准服务匹配</li>
+                <li>历史记录查看</li>
+              </ul>
+              <Button 
+                type="primary" 
+                onClick={() => navigate('/enterprise/profile/edit')}
+                style={{ marginTop: 8 }}
+              >
+                立即完善信息
+              </Button>
+            </div>
+          }
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
+      {/* 快捷操作区域 - 信息未完善时只显示部分功能 */}
       <Card className="section-card" title="快捷入口">
         <Row gutter={[16, 16]}>
-          {quickActions.map(action => (
-            <Col xs={12} sm={8} md={6} lg={4} key={action.id}>
-              <QuickActionButton
-                action={action}
-                onClick={() => handleQuickAction(action)}
-              />
-            </Col>
-          ))}
+          {quickActions
+            .filter(action => shouldHideCertifiedInfo ? action.id === 'profile' || action.id === 'help' : true)
+            .map(action => (
+              <Col xs={12} sm={8} md={6} lg={4} key={action.id}>
+                <QuickActionButton
+                  action={action}
+                  onClick={() => handleQuickAction(action)}
+                />
+              </Col>
+            ))}
         </Row>
       </Card>
 
-      {/* 数据概览区域 */}
+      {/* 数据概览区域 - 信息未完善时隐藏 */}
+      {!shouldHideCertifiedInfo && (
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
@@ -370,134 +441,137 @@ const CertifiedHome: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      )}
 
-      {/* 主要内容区域 */}
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-        {/* 左侧：智能推荐 */}
-        <Col xs={24} lg={16}>
-          <Card
-            className="section-card"
-            title={
-              <Space>
-                <FireOutlined style={{ color: '#ff4d4f' }} />
-                <span>智能推荐</span>
-                <Tag color="success">已审核</Tag>
-              </Space>
-            }
-            extra={
-              <Button type="link" onClick={() => navigate('/enterprise/recommendations')}>
-                查看全部
-              </Button>
-            }
-          >
-            {recommendations?.categories.map(category => (
-              <div key={category.type} className="recommendation-category">
-                <div className="category-header">
-                  <Space>
-                    {getIconComponent(category.icon)}
-                    <Text strong>{category.name}</Text>
-                    <Badge count={category.items.length} style={{ backgroundColor: '#1890ff' }} />
-                  </Space>
+      {/* 主要内容区域 - 信息未完善时隐藏 */}
+      {!shouldHideCertifiedInfo && (
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          {/* 左侧：智能推荐 */}
+          <Col xs={24} lg={16}>
+            <Card
+              className="section-card"
+              title={
+                <Space>
+                  <FireOutlined style={{ color: '#ff4d4f' }} />
+                  <span>智能推荐</span>
+                  <Tag color="success">已审核</Tag>
+                </Space>
+              }
+              extra={
+                <Button type="link" onClick={() => navigate('/enterprise/recommendations')}>
+                  查看全部
+                </Button>
+              }
+            >
+              {recommendations?.categories.map(category => (
+                <div key={category.type} className="recommendation-category">
+                  <div className="category-header">
+                    <Space>
+                      {getIconComponent(category.icon)}
+                      <Text strong>{category.name}</Text>
+                      <Badge count={category.items.length} style={{ backgroundColor: '#1890ff' }} />
+                    </Space>
+                  </div>
+                  <Row gutter={[16, 16]}>
+                    {category.items.slice(0, 2).map(item => (
+                      <Col xs={24} sm={12} key={item.id}>
+                        <RecommendationCard
+                          item={item}
+                          onClick={() => navigate(item.actionUrl)}
+                        />
+                      </Col>
+                    ))}
+                  </Row>
                 </div>
-                <Row gutter={[16, 16]}>
-                  {category.items.slice(0, 2).map(item => (
-                    <Col xs={24} sm={12} key={item.id}>
-                      <RecommendationCard
-                        item={item}
-                        onClick={() => navigate(item.actionUrl)}
-                      />
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            ))}
-          </Card>
-        </Col>
+              ))}
+            </Card>
+          </Col>
 
-        {/* 右侧：通知消息 */}
-        <Col xs={24} lg={8}>
-          <Card
-            className="section-card"
-            title={
-              <Space>
-                <BellOutlined />
-                <span>消息通知</span>
-                {unreadCount > 0 && (
-                  <Badge count={unreadCount} style={{ backgroundColor: '#ff4d4f' }} />
+          {/* 右侧：通知消息 */}
+          <Col xs={24} lg={8}>
+            <Card
+              className="section-card"
+              title={
+                <Space>
+                  <BellOutlined />
+                  <span>消息通知</span>
+                  {unreadCount > 0 && (
+                    <Badge count={unreadCount} style={{ backgroundColor: '#ff4d4f' }} />
+                  )}
+                </Space>
+              }
+              extra={
+                unreadCount > 0 && (
+                  <Button type="link" size="small">
+                    全部已读
+                  </Button>
+                )
+              }
+            >
+              <List
+                dataSource={notifications.slice(0, 5)}
+                renderItem={notification => (
+                  <NotificationItem
+                    notification={notification}
+                    onClick={() => handleNotificationClick(notification)}
+                  />
                 )}
-              </Space>
-            }
-            extra={
-              unreadCount > 0 && (
-                <Button type="link" size="small">
-                  全部已读
-                </Button>
-              )
-            }
-          >
-            <List
-              dataSource={notifications.slice(0, 5)}
-              renderItem={notification => (
-                <NotificationItem
-                  notification={notification}
-                  onClick={() => handleNotificationClick(notification)}
-                />
+                locale={{
+                  emptyText: <Empty description="暂无通知消息" />,
+                }}
+              />
+              {notifications.length > 5 && (
+                <div style={{ textAlign: 'center', marginTop: 12 }}>
+                  <Button type="link" onClick={() => navigate('/enterprise/notifications')}>
+                    查看更多
+                  </Button>
+                </div>
               )}
-              locale={{
-                emptyText: <Empty description="暂无通知消息" />,
-              }}
-            />
-            {notifications.length > 5 && (
-              <div style={{ textAlign: 'center', marginTop: 12 }}>
-                <Button type="link" onClick={() => navigate('/enterprise/notifications')}>
-                  查看更多
-                </Button>
-              </div>
-            )}
-          </Card>
+            </Card>
 
-          {/* 企业画像概览 */}
-          <Card
-            className="section-card"
-            style={{ marginTop: 16 }}
-            title={
-              <Space>
-                <IdcardOutlined />
-                <span>企业画像</span>
-                <Tag color={getAuditStatusColor(enterpriseProfile?.basicInfo.auditStatus || 'pending')}>
-                  {getAuditStatusText(enterpriseProfile?.basicInfo.auditStatus || 'pending')}
-                </Tag>
+            {/* 企业画像概览 */}
+            <Card
+              className="section-card"
+              style={{ marginTop: 16 }}
+              title={
+                <Space>
+                  <IdcardOutlined />
+                  <span>企业画像</span>
+                  <Tag color={getAuditStatusColor(enterpriseProfile?.basicInfo.auditStatus || 'pending')}>
+                    {getAuditStatusText(enterpriseProfile?.basicInfo.auditStatus || 'pending')}
+                  </Tag>
+                </Space>
+              }
+              extra={
+                <Button type="link" onClick={() => navigate('/enterprise/profile')}>
+                  查看详情
+                </Button>
+              }
+            >
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <div className="profile-item">
+                  <Text type="secondary">企业名称</Text>
+                  <Text strong>{enterpriseProfile?.basicInfo.name}</Text>
+                </div>
+                <div className="profile-item">
+                  <Text type="secondary">所属行业</Text>
+                  <Text>{enterpriseProfile?.basicInfo.industry}</Text>
+                </div>
+                <div className="profile-item">
+                  <Text type="secondary">企业规模</Text>
+                  <Text>{enterpriseProfile?.basicInfo.scale}</Text>
+                </div>
+                <div className="profile-item">
+                  <Text type="secondary">信息完整度</Text>
+                  <Text style={{ color: '#52c41a' }}>
+                    {enterpriseProfile?.completeness}%
+                  </Text>
+                </div>
               </Space>
-            }
-            extra={
-              <Button type="link" onClick={() => navigate('/enterprise/profile')}>
-                查看详情
-              </Button>
-            }
-          >
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <div className="profile-item">
-                <Text type="secondary">企业名称</Text>
-                <Text strong>{enterpriseProfile?.basicInfo.name}</Text>
-              </div>
-              <div className="profile-item">
-                <Text type="secondary">所属行业</Text>
-                <Text>{enterpriseProfile?.basicInfo.industry}</Text>
-              </div>
-              <div className="profile-item">
-                <Text type="secondary">企业规模</Text>
-                <Text>{enterpriseProfile?.basicInfo.scale}</Text>
-              </div>
-              <div className="profile-item">
-                <Text type="secondary">信息完整度</Text>
-                <Text style={{ color: '#52c41a' }}>
-                  {enterpriseProfile?.completeness}%
-                </Text>
-              </div>
-            </Space>
-          </Card>
-        </Col>
-      </Row>
+            </Card>
+          </Col>
+        </Row>
+      )}
     </div>
   );
 };
