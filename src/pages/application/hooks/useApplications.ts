@@ -335,7 +335,10 @@ export const useApplications = () => {
       needsRevision: applications.filter(app => app.status === 'needs_revision').length,
       deadlineApproaching: applications.filter(app => {
         const deadline = new Date(app.deadline);
-        return deadline <= threeDaysLater && deadline >= now;
+        // 修复边界条件：将 now 的时间重置为当天的 00:00:00，避免遗漏今天到期的项目
+        const todayStart = new Date(now);
+        todayStart.setHours(0, 0, 0, 0);
+        return deadline <= threeDaysLater && deadline >= todayStart;
       }).length,
     };
   }, [applications]);

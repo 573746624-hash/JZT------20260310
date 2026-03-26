@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Card, Space, Typography, Button, Tag, Tooltip } from 'antd';
+import { Card, Tag, Typography, Space, Button, Divider, Tooltip, Checkbox } from 'antd';
 import { 
   ClockCircleOutlined, 
   EditOutlined, 
@@ -127,8 +127,7 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Space size={12}>
             {showCheckbox && (
-              <input 
-                type="checkbox" 
+              <Checkbox 
                 checked={selected}
                 onChange={(e) => onSelect?.(application.id, e.target.checked)}
               />
