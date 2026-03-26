@@ -224,10 +224,6 @@ export const routeMenuMap: Record<string, string> = {
   "/application/apply": "/application?view=management", // 申报申请页面
   "/application/success": "/application?view=management", // 申报成功页面
 
-  // 重构版申报管理模块路由映射 - 2026-03-23
-  "/application-new": "/application-new/management",
-  "/application-new/management": "/application-new/management", // 管理仪表盘
-
   // 法律护航模块路由映射
   "/legal-support": "/legal-support/ai-lawyer",
   "/legal-support/ai-lawyer": "/legal-support/ai-lawyer", // AI律师页面
@@ -383,7 +379,6 @@ export function getSelectedKeys(pathname: string): string[] {
 
   // 模块级别的回退匹配
   const moduleMatches = [
-    { prefix: "/application-new", defaultKey: "/application-new/management" }, // 重构版申报管理模块
     { prefix: "/application", defaultKey: "/application?view=status" }, // 申报管理已迁移至政策中心，默认选中"我的申报"
     { prefix: "/policy-center", defaultKey: "/policy-center/main" },
     { prefix: "/legal-support", defaultKey: "/legal-support/ai-lawyer" },

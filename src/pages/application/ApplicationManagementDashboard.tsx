@@ -28,10 +28,10 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
-import { useApplications } from '../application-new/hooks/useApplications';
-import { StatusBadge } from '../application-new/components/StatusBadge';
-import { ProgressBar } from '../application-new/components/ProgressBar';
-import type { ApplicationStatistics, TodoStatistics, RecentApplication } from '../application-new/types';
+import { useApplications } from './hooks/useApplications';
+import { StatusBadge } from './components/StatusBadge';
+import ProgressBar from './components/ProgressBar';
+import type { ApplicationStatistics, TodoStatistics, RecentApplication } from './types';
 
 const { Title, Text } = Typography;
 
